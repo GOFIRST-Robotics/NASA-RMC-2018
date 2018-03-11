@@ -21,8 +21,8 @@
 
 int sockfd;
 struct addrinfo hints, *dstinfo = NULL, *srcinfo = NULL, *p = NULL;
-int rv = -1, ret = -1, len = -1,  numbytes = 0;
-//struct timeval tv;
+int rv = -1, ret = -1, len = -1,  numbytes = 0, yes = 1;
+//struct timeval tv; // idk why the struct should/n't be in c++
 timeval tv;
 char buffer[256] = {0};
 fd_set readfds;
@@ -54,9 +54,40 @@ Telecomm::Telecomm(std::string dst_addr, int dst_port, int src_port){
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
 
-  if((rv = getaddrinfo(dst_addr.c_str(), std::to_string(dst_port).c_str(), &hints, &dstinfo)) != 0){
+  if((rv = getaddrinfo(dst_addr.c_str(), std::to_string(dst_port).c_str(), 
+          &hints, &dstinfo)) != 0){
     fprintf(stderr, "getaddrinfo for dst address %s\n", gai_strerror(rv));
     ret = 1;
+    goto LBL_RET;
+  }
+
+  // Get socket for dst info
+  for(p = dstinfo; p != NULL; p = p->ai_next){
+    if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1){
+      perror("socket");
+      continue;
+    }
+    break;
+  }
+
+  // Either failed to get socket to all entries
+  if(p == NULL){
+    fprintf(stderr, "Failed to get socket\n");
+    ret = 2;
+    goto LBL_RET;
+  }
+
+  // Set sock addr to be reusable
+  if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1){
+    perror("setsockopt");
+    ret = 11;
+    goto LBL_RET;
+  }
+
+  // Or connect socket to dst
+  if((rv= connect(sockfd, p->ai_addr, p->ai_addrlen)) != 0) {
+    fprintf(stderr, "connect: %s\n", gai_strerror(rv));
+    ret = 3;
     goto LBL_RET;
   }
 
@@ -66,45 +97,22 @@ Telecomm::Telecomm(std::string dst_addr, int dst_port, int src_port){
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags = AI_PASSIVE;
 
-    // Getting src_addr, could do by hand, should be 192.168.1.50; try replace
-  if((rv = getaddrinfo(NULL, std::to_string(src_port).c_str(), &hints, &srcinfo)) != 0){
+  // Getting src_addr, could do by hand, should be 192.168.1.50; try replace
+  if((rv = getaddrinfo(NULL, std::to_string(src_port).c_str(), 
+          &hints, &srcinfo)) != 0){
     fprintf(stderr, "getaddrinfo for src address %s\n", gai_strerror(rv));
     ret = 4;
     goto LBL_RET;
   }
-  
+
   if(srcinfo == NULL){ // DEBUG
     fprintf(stderr, "srcinfo is null??");
   }
 
-  for(p = dstinfo; p != NULL; p = p->ai_next){
-    // Get socket from dst info
-    if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1){
-      perror("socket");
-      continue;
-    }
-    // Bind socket src_addr info */
-    if((rv = bind(sockfd, srcinfo->ai_addr, srcinfo->ai_addrlen)) != 0) {
-      perror("bind");
-      continue;
-    }
-    break;
-  }
-
-  if(p == NULL){ // Either failed to get socket to all entries
-    fprintf(stderr, "Failed to get socket\n");
-    ret = 2;
-    goto LBL_RET;
-  } else if(rv != 0){ // Bind could've faild
+  // Bind socket src_addr info */
+  if((rv = bind(sockfd, srcinfo->ai_addr, srcinfo->ai_addrlen)) != 0) {
     fprintf(stderr, "bind: %s\n", gai_strerror(rv));
     ret = 5;
-    goto LBL_RET;
-  }
-
-  // Or connect socket to dst
-  if((rv= connect(sockfd, p->ai_addr, p->ai_addrlen)) != 0) {
-    fprintf(stderr, "connect: %s\n", gai_strerror(rv));
-    ret = 3;
     goto LBL_RET;
   }
 
@@ -230,6 +238,7 @@ std::string Telecomm::simpleStatus(int i){
     case 8: return "SEND_ERR";
     case 9: return "DST_CLOSED";
     case 10: return "RECV_ERR";
+    case 11: return "SETSOCKOPT";
     default: return "SIMPLESTATUS_ERR";
   }
 }
@@ -252,6 +261,7 @@ std::string Telecomm::verboseStatus(int i){
     case 8: return "SEND_ERR";
     case 9: return "DST_CLOSED";
     case 10: return "RECV_ERR: check firewall?";
+    case 11: return "SETSOCKOPT, IDK";
     default: return ("SIMPLESTATUS_ERR: UNKNOWN CODE " + std::to_string(i));
   }
 }

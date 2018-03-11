@@ -1,6 +1,8 @@
 #ifndef TELECOMM_H
 #define TELECOMM_H
 
+#include <string>
+
 /* 
   Telecomm defines macros and functions to send and recieve data between two 
   computers performing intensive operations in parallel. If in a live stream
@@ -15,7 +17,7 @@
 class Telecomm {
   public: 
     // Initialize communications: Telecomm comm = new Telecomm("127.0.0.1", 5005, 5006);
-    Telecomm(string dst_addr, int dst_port, int src_port);
+    Telecomm(std::string dst_addr, int dst_port, int src_port);
     ~Telecomm();
 
     // In loop, call update; if != 0, error
@@ -23,25 +25,28 @@ class Telecomm {
 
     // Can & only read from STDIO if available
     bool stdioReadAvail();
-    string stdioRead();
+    std::string stdioRead();
 
     // Can send data at any time, no wait; if !=0, error
-    int send(string msg);
+    int send(std::string msg);
 
     // Can recv data if available, check status
     bool recvAvail();
-    string recv();
+    std::string recv();
 
     // getErrno() returns the errno set by any socket functions
     int getErrno();
     // status() returns the internal state of the status, status() !=0 is error
     int status();
     // simpleStatus: a string code detailing the problem indicated by/of status
-    string simpleStatus(int status);
-    string simpleStatus();
+    std::string simpleStatus(int status);
+    std::string simpleStatus();
     // verboseStatus: a more verbose version of simpleStatus if available
-    string verboseStatus(int status);
-    string verboseStatus();
+    std::string verboseStatus(int status);
+    std::string verboseStatus();
+
+    // Set failure to throw error, true/default, or not/false
+    void setFailureAction(bool throwError);
 };
 
 #endif
