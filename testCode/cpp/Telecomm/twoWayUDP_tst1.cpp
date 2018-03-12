@@ -35,11 +35,16 @@ Here's a description of the flow:
       UDP isn't automatically bound, the unique dst are set in the sendto recvfrom commands, but if connect()'d, can use the send recv commands. 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+#include <cstdio>
+//#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+//#include <errno.h>
+#include <cerrno>
+//#include <string.h>
+#include <cstring>
+#include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -80,7 +85,7 @@ int main(int argc, char *argv[])
    //     select(STDIN+1, &readfds, NULL, NULL, &tv);
 
    if (argc != 4) {
-      fprintf(stderr,"usage: %s dst-hostname dst-udpport src-udpport\n");
+      fprintf(stderr,"usage: ./programname dst-hostname dst-udpport src-udpport\n");
       ret = -1;
       goto LBL_RET;
    }
@@ -112,7 +117,7 @@ int main(int argc, char *argv[])
 
    /*Failed to get socket to all entries*/
    if (p == NULL) {
-      fprintf(stderr, "%s: Failed to get socket\n");
+      fprintf(stderr, "error: Failed to get socket\n");
       ret = 2;
       goto LBL_RET;
    }
