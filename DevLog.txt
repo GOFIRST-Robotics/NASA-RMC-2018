@@ -1,0 +1,102 @@
+2018 Feb 20: Jude: On communicating between computers, aka any and the pi, tested with python. 
+the router, or computer, is the server, and the pi is the client
+the pi sends UDP packets to the server
+in python, server:
+import socket
+hostname = socket.getbyhostname( '0.0.0.0')
+portNo = 5005
+sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+sock.bind((hostname,portNo))
+while True:
+	data, addr = sock.recvfrom(1024)
+	print "recvfrom addr: ", addr
+	print "data: ",  data
+
+in python, client:
+import socket
+serverIP = important!
+portNo = 5005
+sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+#sending:
+sock.sendto("MESSAGE", (serverIP, portNo))
+
+This is the basics of UDP communication. 
+Current Goals: 
+make a computer the "client", connect joystick, publish js values to server
+-> pi is the server, do blinky led stuff & print off the published  messages
+-> develop server & client code. 
+-> see github that will exist
+replace gofirst router with "Our" router, set that up
+connect pi to stuff to run motors; 
+
+For now, no ros. 
+BTW: this is a dev file. If _YOU_, who is anyone being productive, learn or experiment with stuff & are confused & are doing stuff, dump your stream of thought on here. 
+Just dump all your thinking & confusion & stuff in here. Make it a sewer of development. It's raw, filthy, disorganized, and invaluable. 
+
+2018 Feb 21: Jude: 
+Everyone, read Beej's guide to network programming. Can test with python udp communication.
+Started to get router working. in webpage, access it by ip address, in a PRIVATE tab. Permanately added pi as 192.168.1.117
+Can send msgs to pi, can't send yet to router/computer. Almost plugnplay?
+
+2018 Feb 23 Molly:
+Beej's send and receive files are in cpp_socket on desktop.
+./send (ip to send to) "(message)"
+./rec
+Next Goals:
+
+	Have server code on laptop,  pi connected to router,  laptop wired to router
+	client code on pi
+
+	Continuously send information
+
+	Set up receive to be in a loop - Done, send "s" to quit
+	Set up joystick to send from laptop
+//PI receives, Computer sends, eventually put the sending and receiving into function
+//script on pi to connect via serial to arduino, sending messages from pi to arduino
+//script on arduino to connect to motor controllers write pin number
+//alt tab to change windows
+
+Current Goal:
+
+Connect joystick to pi, send via usb to arduino instead of blinking LED
+(y axis of left and right)
+
+2018 Feb 28 Matt:
+Pygame will give number of axes, buttons, etc. but won't recognize when the buttons are being pressed
+Fixed by >>>pygame.display.init() #py at beginning and >>>pygame.event.pump()#py in the loop
+
+Can't send data to the Arduino serial port because the resource is busy
+Run >>>fuser /dev/ttyACM0 #bash to list processes using the file
+
+2018 Mar 2:
+Trying to send data over serial to Arduino but port is busy
+>>>sudo adduser ubuntu dialout #bash and >>>such chomod a+rw /dev/ttyACM0 #bash to add premissions
+>>>sudo udevadm trigger #bash to make it realize changes have been made
+No difference, exact same error
+>>>sudo apt-get purge modemmanager #bash to remove modemmanager, also no effect
+>>>fuser /dev/ttyACM0 #bash gives 1426
+>>>pkill 1426 #bash does nothing, fuser still returns 1426
+
+Note: Use a small delay (like 10) so that it isn't too jerky
+Python script must not be running when you upload over arduino.  Arduino serial monitor cannot be open or the python script 
+will have an error.
+Do not send spaces in the data being sent.
+We were able to send data from the arduino to the python script, but even after using decode, the values were only 1 digit.
+We send the data for the left and right joysticks in one line so that if data is lost it doesn't desyncronize the arduino knowing which
+is left and which is right.
+Next step is to have serial to arduino.py  to be in c++
+removed GPIO from pyserial
+installed library from https://github.com/wjwwood/serial
+Jude thinks that the problem not being able to ping from the pi the laptop is a Windows problem, not a router problem
+
+2018 Mar 9 Molly:
+The passphrase for ssh is ubuntu
+Here is how to compile an example script from the serial library:
+g++ -o example1 serial_example.cc /home/ubuntu/Documents/Libraries/serial/build/devel/lib/libserial.so
+
+
+2018 Mar 14 Jude:
+Minyoung joined our group
+People need to put more stuff on dev log
+Minyoung is working on the collector bin thing. Goals: the robot can observe from it (target(s) and/or beacon(s)) the distance, and the angle from it; 
+Jude is cleaning up docs & files, adding to github. Had finished communication prototype, testing. Need to integrate with serial/joystick code
