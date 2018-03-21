@@ -100,3 +100,12 @@ Minyoung joined our group
 People need to put more stuff on dev log
 Minyoung is working on the collector bin thing. Goals: the robot can observe from it (target(s) and/or beacon(s)) the distance, and the angle from it; 
 Jude is cleaning up docs & files, adding to github. Had finished communication prototype, testing. Need to integrate with serial/joystick code
+
+2018 Mar 20 Molly
+2 programs:
+1) on laptop - reads joystick, sends thru telecom					= joystick_to_telecom.cpp		these are in Desktop - NASA - testCode - ArduinoSerial...
+2) on pi - receives from telecom, sends via serial to arduino		= serial_to_arduino.cpp
+3) (arduino code for testing - done but it's called like Mar21 or something undescriptive like that)
+
+for telecom, put in send and receive is good enough
+~/Documents/Libraries/serial/examples$ g++ -o example2 serial_example.cc -lserial

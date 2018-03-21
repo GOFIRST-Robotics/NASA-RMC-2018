@@ -2,9 +2,8 @@
 #include <cstring>
 #include <string>
 #include <queue>
-
+//http://wjwwood.io/serial/doc/1.1.0/classserial_1_1_serial.html
 #include "Telecomm.h"
-
 #define ERR_CHECK \
   do { if (comm.status() != 0){ \
     fprintf(stdout, "Error: %s\n", comm.verboseStatus().c_str()); \

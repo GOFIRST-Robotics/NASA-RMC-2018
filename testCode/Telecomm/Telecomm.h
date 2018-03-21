@@ -17,6 +17,7 @@
 class Telecomm {
   public: 
     // Initialize communications: Telecomm comm = new Telecomm("127.0.0.1", 5005, 5006);
+   // new Telecomm("192.168.1.117",5005,5005) is pi side, Telecomm("192.168.1.50",5005,5005) is laptop side
     Telecomm(std::string dst_addr, int dst_port, int src_port);
     ~Telecomm();
 
