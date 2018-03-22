@@ -109,3 +109,13 @@ Jude is cleaning up docs & files, adding to github. Had finished communication p
 
 for telecom, put in send and receive is good enough
 ~/Documents/Libraries/serial/examples$ g++ -o example2 serial_example.cc -lserial
+
+2018 Mar 21 Matt:
+New program serial_to_arduino_print.cpp, compiled as serialtest 4
+Should input a string from the user, send it to the Arduino via serial, get it back from the Arduino, and print the result
+Current problem: result string from Arduino is always the empty string
+Verfied the serial port is open, not the issue
+
+Jude: I need to add a way to add arbitrary fd's to telecomm, make easy for joystick, write remote file for that. 
+
+

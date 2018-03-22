@@ -21,8 +21,8 @@ int main(){
 	
 	telecomm::Telecomm comm("192.168.1.50",5005,5005);
 	comm.setFailureAction(false);
-    comm.setBlockingTime(0,0);
-    if (comm.status() != 0){
+    	comm.setBlockingTime(0,0);
+    	if (comm.status() != 0){
 		fprintf(stdout, "Error: %s\n", comm.verboseStatus().c_str());
 		return comm.status();
 	}
