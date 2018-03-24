@@ -16,19 +16,27 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <fcntl.h>
+
+#include <queue>
 
 #define STDIN 0
 
-int sockfd;
+int sockfd, maxfd;
+fd_set readfds, resultfds;
 struct addrinfo hints, *dstinfo = NULL, *srcinfo = NULL, *p = NULL;
 std::string dst_addr;
 int dst_port, src_port;
-int rv = -1, ret = -1, len = -1,  numbytes = 0, sec = -1, usec = -1, yes = 1;
+int rv = -1, ret = -1, iof = -1; 
+int len = -1,  numbytes = 0, sec = -1, usec = -1, yes = 1;
 //struct timeval tv;
 timeval *tv_ptr = NULL, tv = {0};
 char buffer[256] = {0};
-fd_set readfds;
 bool throwError = true;
+
+bool msgRecovery = true;
+bool rebooting = false;
+std::queue<std::string> dropBuffer;
 
 void Telecomm::setFailureAction(bool thrwErr){
   throwError = thrwErr;
@@ -38,6 +46,8 @@ void Telecomm::setBlockingTime(int sec_, int usec_){
   sec = sec_;
   usec = usec_;
 }
+
+void Telecomm::enableMessageRecovery(bool b){ msgRecovery = b; }
 
 void deleteWithException(bool throwit){
   if(dstinfo)
@@ -53,14 +63,23 @@ Telecomm::Telecomm(std::string dst_addr_, int dst_port_, int src_port_){
   dst_addr = dst_addr_;
   dst_port = dst_port_;
   src_port = src_port_;
+  
+  FD_ZERO(&readfds);
+  FD_SET(STDIN, &readfds);
+  maxfd = STDIN;
+
   reboot();
 }
 
+void resetMaxfd(){
+  for(; !FD_ISSET(maxfd, &readfds); --maxfd);
+  maxfd = (maxfd >= 0) ? maxfd : 0;
+}
+
 void Telecomm::reboot(){
-  // Raw initializations
-  //tv.tv_sec = 10;
-  //tv.tv_usec = 0;
-  FD_ZERO(&readfds);
+  // Clean up old sockfd
+  FD_CLR(sockfd, &readfds);
+  resetMaxfd();
 
   // Set dst info
   memset(&hints, 0, sizeof hints);
@@ -130,6 +149,9 @@ void Telecomm::reboot(){
 
   // End init(?)
   ret = 0;
+
+  // Since sockfd is good, no errors, add to &readfds
+  FD_SET(sockfd, &readfds);
   
   LBL_RET:
     if(ret == 0){
@@ -138,6 +160,28 @@ void Telecomm::reboot(){
       deleteWithException(true);
   }
 
+}
+
+void Telecomm::restore(){
+// Reboot if communication channel closed
+  LBL_RESTORE:
+  while(isCommClosed()){
+    // printf("Rebooting connection\n");
+    reboot();
+    rebooting = true;
+  }
+  if(msgRecovery && rebooting){ // After rebooting, send dropped msg buffer
+    rebooting = false;
+    std::queue<std::string> tmpBuff (dropBuffer);
+    while(!dropBuffer.empty() && ((ret = send(dropBuffer.front())) == 0)){
+      dropBuffer.pop();
+    }
+    if(ret != 0 || dropBuffer.empty()){
+      dropBuffer.swap(tmpBuff);
+    }
+    //ERR_CHECK; why do these keep causing the destructor, double deletes->crash
+    goto LBL_RESTORE;
+  }
 }
 
 Telecomm::~Telecomm(){
@@ -151,12 +195,18 @@ int Telecomm::status(){ return ret; }
 
 bool Telecomm::isCommClosed(){ return ret != 0; }
 
+void fdAdd(int fd){ 
+  FD_SET(fd, &readfds); 
+  maxfd = (maxfd < fd) ? fd : maxfd;
+}
+
+void fdRemove(int fd){ FD_CLR(fd, &readfds); }
+
+bool fdReadAvail(int fd){ return FD_ISSET(fd, &resultfds); }
+
 int Telecomm::update(){
   // To be called at the beginning of every loop
-  FD_ZERO(&readfds);
-  FD_SET(sockfd, &readfds);
-  FD_SET(STDIN, &readfds); // Replace or add with other sparse io options
-  // If multiple ios, need master list, and select arg0 is max + 1 of list
+  memcpy(&resultfds, &readfds, sizeof(resultfds));
 
   if(sec < 0 || usec < 0){
     tv_ptr = NULL;
@@ -166,7 +216,7 @@ int Telecomm::update(){
     tv_ptr = &tv;
   }
 
-  if(select(sockfd + 1, &readfds, NULL, NULL, tv_ptr) == -1){
+  if(select(maxfd + 1, &resultfds, NULL, NULL, tv_ptr) < 0 && errno != EINTR){
     perror("select");
     ret = 6;
     deleteWithException(true);
@@ -196,7 +246,7 @@ int sendall(int s, char *buf, int *len) {
 }
 
 bool Telecomm::stdioReadAvail(){
-  return FD_ISSET(STDIN, &readfds);
+  return FD_ISSET(STDIN, &resultfds);
 }
 
 std::string Telecomm::stdioRead(){
@@ -220,17 +270,31 @@ int Telecomm::send(std::string msg){
     ret = 8;
     deleteWithException(true);
   }
+  // message recovery
+  if(msgRecovery){
+    while(!dropBuffer.empty())
+      dropBuffer.pop();
+    dropBuffer.push(msg);
+  }
   return ret;
 }
 
 bool Telecomm::recvAvail(){
-  return FD_ISSET(sockfd, &readfds);
+  return FD_ISSET(sockfd, &resultfds);
 }
 
 std::string Telecomm::recv(){
   memset(buffer, 0, sizeof(buffer));
   // overwrite/define recv, want #include, use ::recv to get one def'd in global namespace
+  // Set non-blocking mode
+  if ((iof = fcntl(sockfd, F_GETFL, 0)) != -1)
+    fcntl(sockfd, F_SETFL, iof | O_NONBLOCK);
+  // Receive
   numbytes = ::recv(sockfd, buffer, sizeof(buffer), 0);  
+  // Set flags as before
+  if (iof != -1)
+    fcntl(sockfd, F_SETFL, iof);
+  // Error checking
   if(0 == numbytes || (errno == ECONNREFUSED && -1 == numbytes)){
     printf("Destination closed\n");
     ret = 9;
@@ -242,6 +306,11 @@ std::string Telecomm::recv(){
     ret = 10;
     deleteWithException(true);
     return "";
+  }
+  // message recovery
+  if(msgRecovery){
+    while(!isCommClosed() && !dropBuffer.empty())
+      dropBuffer.pop();
   }
   return std::string(buffer, numbytes);
 }
