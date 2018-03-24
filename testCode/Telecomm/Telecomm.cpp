@@ -195,14 +195,14 @@ int Telecomm::status(){ return ret; }
 
 bool Telecomm::isCommClosed(){ return ret != 0; }
 
-void fdAdd(int fd){ 
+void Telecomm::fdAdd(int fd){ 
   FD_SET(fd, &readfds); 
   maxfd = (maxfd < fd) ? fd : maxfd;
 }
 
-void fdRemove(int fd){ FD_CLR(fd, &readfds); }
+void Telecomm::fdRemove(int fd){ FD_CLR(fd, &readfds); }
 
-bool fdReadAvail(int fd){ return FD_ISSET(fd, &resultfds); }
+bool Telecomm::fdReadAvail(int fd){ return FD_ISSET(fd, &resultfds); }
 
 int Telecomm::update(){
   // To be called at the beginning of every loop

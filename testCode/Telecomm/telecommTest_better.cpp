@@ -26,10 +26,16 @@ int main(int argc, char *argv[]){
   time_t timer;
   time(&timer);
 
+  // Joystick js(); // #include "joystick.hh"
+  // Exit if !js.isFound()
+  // comm.fdAdd(js.fd());
+
   // Until user types, or receives from remote, "EOM\n", loop
   while(1){
     comm.update();
     ERR_CHECK;
+
+    // JoystickEvent event;
 
     // Receive from remote
     if(comm.recvAvail()){
@@ -60,6 +66,10 @@ int main(int argc, char *argv[]){
       comm.send(msg);
       ERR_CHECK;
     }
+
+    // Example if including joystick
+    // if(comm.fdReadAvail(js.fd) && js.sample(&event)){
+    //   ... process buttons and axis of event ... }
 
     // heartbeat
     if(difftime(time(NULL), timer) > 10){
