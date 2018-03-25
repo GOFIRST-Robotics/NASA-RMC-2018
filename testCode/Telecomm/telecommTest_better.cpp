@@ -20,7 +20,7 @@ int main(int argc, char *argv[]){
   Telecomm comm(argv[1], atoi(argv[2]), atoi(argv[3]));
   comm.setFailureAction(false);
   comm.setBlockingTime(0,0);
-  comm.enableMessageRecovery();
+  comm.enableMessageRecovery(false);
   ERR_CHECK;
 
   time_t timer;

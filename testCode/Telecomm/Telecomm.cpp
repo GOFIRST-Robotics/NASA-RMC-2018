@@ -260,28 +260,34 @@ std::string Telecomm::stdioRead(){
 }
 
 int Telecomm::send(std::string msg){
-  if (!isCommClosed()){
+  if(msgRecovery)
+    dropBuffer.push(msg);
+  std::string m;
+  if(!isCommClosed() && !msgRecovery){
+    m = msg;
+    LBL_SEND:
     memset(buffer, 0, sizeof(buffer));
-    std::strcpy(buffer, msg.c_str());
-    len = msg.length();
+    std::strcpy(buffer, m.c_str());
+    len = m.length();
     if(sendall(sockfd, buffer, &len) == -1) {
       perror("sendall");
       fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
       ret = 8;
       deleteWithException(true);
+      return ret;
     }
-    // message recovery
-    if(msgRecovery){ // Assume 
-      while(!dropBuffer.empty())
-        dropBuffer.pop();
-      dropBuffer.push(msg);
-    }
-    return ret;
-  }else{
-    printf("Recieved msg, but ret != 0 comm closed: %s", msg.c_str());
-    dropBuffer.push(msg);
-    return ret;
   }
+  if(!isCommClosed() && msgRecovery){
+    while(!dropBuffer.empty()){
+      m = dropBuffer.front();
+      dropBuffer.pop();
+      goto LBL_SEND;
+    }
+  }
+  if(isCommClosed()) {
+    printf("Recieved msg, but ret != 0 comm closed: %s", msg.c_str());
+  }
+  return ret;
 }
 
 bool Telecomm::recvAvail(){

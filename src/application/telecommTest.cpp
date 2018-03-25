@@ -2,9 +2,8 @@
 #include <cstring>
 #include <string>
 #include <queue>
-
+//http://wjwwood.io/serial/doc/1.1.0/classserial_1_1_serial.html
 #include "Telecomm.h"
-
 #define ERR_CHECK \
   do { if (comm.status() != 0){ \
     fprintf(stdout, "Error: %s\n", comm.verboseStatus().c_str()); \
@@ -21,18 +20,22 @@ int main(int argc, char *argv[]){
   Telecomm comm(argv[1], atoi(argv[2]), atoi(argv[3]));
   comm.setFailureAction(false);
   comm.setBlockingTime(0,0);
+  comm.enableMessageRecovery(false);
   ERR_CHECK;
 
   time_t timer;
   time(&timer);
 
-  // This is to catch dropped messages
-  std::queue<std::string> dropBuffer;
-  bool rebooting = false;
+  // Joystick js(); // #include "joystick.hh"
+  // Exit if !js.isFound()
+  // comm.fdAdd(js.fd());
 
+  // Until user types, or receives from remote, "EOM\n", loop
   while(1){
     comm.update();
     ERR_CHECK;
+
+    // JoystickEvent event;
 
     // Receive from remote
     if(comm.recvAvail()){
@@ -43,32 +46,11 @@ int main(int argc, char *argv[]){
         fprintf(stdout, "Received message: %s\n", msg.c_str());
       
       if(!msg.compare("EOM\n")){ break; } // delete if not want remote close
-
-      // if connection good, then no dropped messages, empty
-      while(!comm.isCommClosed() && !dropBuffer.empty())
-        dropBuffer.pop();
     }
 
-    // Reboot if communication channel closed
-    LBL_REBOOT:
-    while(comm.isCommClosed()){
-      printf("Rebooting connection\n");
-      comm.reboot();
-      rebooting = true;
-    }
-    if(rebooting){ // After rebooting, send dropped msg buffer
-      rebooting = false;
-      std::queue<std::string> tmpBuff (dropBuffer);
-      int rv = 0;
-      while(!dropBuffer.empty() && ((rv = comm.send(dropBuffer.front())) == 0)){
-        dropBuffer.pop();
-      }
-      if(rv != 0 || dropBuffer.empty()){
-        dropBuffer.swap(tmpBuff);
-      }
-      //ERR_CHECK; why do these keep causing the destructor, double deletes->crash
-      goto LBL_REBOOT;
-    }
+    // Call restore to repair any broken connection if so
+    // Sends dropped messages as well if enableMessageRecovery
+    comm.restore();
 
     // Get user stdio input to send
     if(comm.stdioReadAvail()){
@@ -82,11 +64,12 @@ int main(int argc, char *argv[]){
       }
       
       comm.send(msg);
-      while(!dropBuffer.empty()) // successful send should clear
-        dropBuffer.pop();
-      dropBuffer.push(msg); // Add msg
       ERR_CHECK;
     }
+
+    // Example if including joystick
+    // if(comm.fdReadAvail(js.fd) && js.sample(&event)){
+    //   ... process buttons and axis of event ... }
 
     // heartbeat
     if(difftime(time(NULL), timer) > 10){
