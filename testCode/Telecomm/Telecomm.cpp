@@ -22,12 +22,12 @@
 
 #define STDIN 0
 
-int sockfd, maxfd;
+int sockfd = -1, maxfd;
 fd_set readfds, resultfds;
 struct addrinfo hints, *dstinfo = NULL, *srcinfo = NULL, *p = NULL;
 std::string dst_addr;
 int dst_port, src_port;
-int rv = -1, ret = -1, iof = -1; 
+int rv = -1, ret = -1, iof = -1;
 int len = -1,  numbytes = 0, sec = -1, usec = -1, yes = 1;
 //struct timeval tv;
 timeval *tv_ptr = NULL, tv = {0};
@@ -63,8 +63,9 @@ Telecomm::Telecomm(std::string dst_addr_, int dst_port_, int src_port_){
   dst_addr = dst_addr_;
   dst_port = dst_port_;
   src_port = src_port_;
-  
+
   FD_ZERO(&readfds);
+  FD_ZERO(&resultfds);
   FD_SET(STDIN, &readfds);
   maxfd = STDIN;
 
@@ -73,7 +74,7 @@ Telecomm::Telecomm(std::string dst_addr_, int dst_port_, int src_port_){
 
 void resetMaxfd(){
   for(; !FD_ISSET(maxfd, &readfds); --maxfd);
-  maxfd = (maxfd >= 0) ? maxfd : 0;
+  maxfd = (maxfd >= STDIN) ? maxfd : STDIN;
 }
 
 void Telecomm::reboot(){
@@ -150,16 +151,16 @@ void Telecomm::reboot(){
   // End init(?)
   ret = 0;
 
-  // Since sockfd is good, no errors, add to &readfds
+  // Since sockfd is good, no errors, add to &readfds, update maxfd
   FD_SET(sockfd, &readfds);
-  
+  maxfd = (maxfd < sockfd) ? sockfd : maxfd;
+
   LBL_RET:
     if(ret == 0){
       return;
     }else{
       deleteWithException(true);
   }
-
 }
 
 void Telecomm::restore(){
@@ -172,13 +173,14 @@ void Telecomm::restore(){
   }
   if(msgRecovery && rebooting){ // After rebooting, send dropped msg buffer
     rebooting = false;
-    std::queue<std::string> tmpBuff (dropBuffer);
-    while(!dropBuffer.empty() && ((ret = send(dropBuffer.front())) == 0)){
-      dropBuffer.pop();
-    }
-    if(ret != 0 || dropBuffer.empty()){
-      dropBuffer.swap(tmpBuff);
-    }
+//    std::queue<std::string> tmpBuff (dropBuffer);
+//    while(!dropBuffer.empty() && ((ret /*= send(dropBuffer.front())*/) == 0)){ // crashing: sending when not ok
+//      dropBuffer.pop();
+//    }
+//    if(ret != 0 || dropBuffer.empty()){
+//      dropBuffer.swap(tmpBuff);
+//    }
+// This is crashing at send, trying to move this to within send command, assuming valid?
     //ERR_CHECK; why do these keep causing the destructor, double deletes->crash
     goto LBL_RESTORE;
   }
@@ -224,9 +226,6 @@ int Telecomm::update(){
   return ret;
 }
 
-// Need method to add io to master list, and by accessible name
-
-
 int sendall(int s, char *buf, int *len) {
   int total = 0;        // how many bytes we've sent
   int bytesleft = *len; // how many we have left to send
@@ -261,22 +260,28 @@ std::string Telecomm::stdioRead(){
 }
 
 int Telecomm::send(std::string msg){
-  memset(buffer, 0, sizeof(buffer));
-  std::strcpy(buffer, msg.c_str());
-  len = msg.length();
-  if(sendall(sockfd, buffer, &len) == -1) {
-    perror("sendall");
-    fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
-    ret = 8;
-    deleteWithException(true);
-  }
-  // message recovery
-  if(msgRecovery){
-    while(!dropBuffer.empty())
-      dropBuffer.pop();
+  if (!isCommClosed()){
+    memset(buffer, 0, sizeof(buffer));
+    std::strcpy(buffer, msg.c_str());
+    len = msg.length();
+    if(sendall(sockfd, buffer, &len) == -1) {
+      perror("sendall");
+      fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
+      ret = 8;
+      deleteWithException(true);
+    }
+    // message recovery
+    if(msgRecovery){ // Assume 
+      while(!dropBuffer.empty())
+        dropBuffer.pop();
+      dropBuffer.push(msg);
+    }
+    return ret;
+  }else{
+    printf("Recieved msg, but ret != 0 comm closed: %s", msg.c_str());
     dropBuffer.push(msg);
+    return ret;
   }
-  return ret;
 }
 
 bool Telecomm::recvAvail(){
