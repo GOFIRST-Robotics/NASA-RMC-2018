@@ -143,6 +143,9 @@ public:
    * Returns true if the joystick was found and may be used, otherwise false.
    */
   bool isFound();
+
+  // Returns the file descriptor, chiefly for use with select()
+  int fd(){ return _fd; }
   
   /**
    * Attempts to populate the provided JoystickEvent instance with data

@@ -1,3 +1,7 @@
+# Vim save files
+*.swp
+*.swo
+
 # Prerequisites
 *.d
 
