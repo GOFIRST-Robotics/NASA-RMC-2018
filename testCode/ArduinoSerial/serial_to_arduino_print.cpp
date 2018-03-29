@@ -27,7 +27,7 @@ int main(){
 	
 	while(cont){
 		cont = std::getline(std::cin,line);
-		std::cout << my_serial.isOpen() << std::endl;
+		//std::cout << my_serial.isOpen() << std::endl;
 		if(my_serial.isOpen()){
 				my_serial.write(line);
 		}

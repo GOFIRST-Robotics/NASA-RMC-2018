@@ -118,4 +118,14 @@ Verfied the serial port is open, not the issue
 
 Jude: I need to add a way to add arbitrary fd's to telecomm, make easy for joystick, write remote file for that. 
 
+2018 Mar 23 Matt:
+Changed joystick_to_telecom.cpp to print the joystick values to the Arduino via serial
+Currently doesn't work: on the Arduino, Serial.available() always evaluates to 0
+Molly:
+Fixed math in joystick_to_telecom.cpp to values from -1 to 1
+
+2018 Mar 28 Matt:
+Normal serial port /dev/ttyACM0 was missing, other options didn't work
+Fixed by swapping usb cord between the Pi and the Arduino and the one powering the Pi
+New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
 
