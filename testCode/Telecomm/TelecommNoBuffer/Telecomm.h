@@ -24,20 +24,31 @@ class Telecomm {
     // In loop, call update; if != 0, error
     int update();
 
-    // If connection is closed, do not continue, unless reboot'd
-    bool isCommClosed();
-    void reboot();
-
-    // Can & only read from STDIO if available
-    bool stdioReadAvail();
-    std::string stdioRead();
-
     // Can send data at any time, no wait; if !=0, error
     int send(std::string msg);
 
     // Can recv data if available, check status
     bool recvAvail();
     std::string recv();
+
+    // If connection is closed, do not continue, unless reboot'd
+    bool isCommClosed();
+    // reboot() fixes closed connection, but blocks until connectin is restored
+    void reboot();
+
+    // Can only read from STDIO if available
+    bool stdioReadAvail();
+    std::string stdioRead();
+
+    // Set blocking time. If -1 (either), inf; if 0, immediate/no block
+    void setBlockingTime(int sec, int usec);
+    // Blocking: Telecomm uses file descriptors and select
+    // Can check other file descriptors as well, choose non-blocking I think?
+    bool fdReadAvail(int fd);
+    // Add file descriptor to be checked
+    void fdAdd(int fd);
+    // Stop checking file descriptor; not removing when object is deleted is ok
+    void fdRemove(int fd);
 
     // getErrno() returns the errno set by any socket functions
     int getErrno();
@@ -52,8 +63,6 @@ class Telecomm {
 
     // Set failure to throw error, true/default, or not/false
     void setFailureAction(bool throwError);
-    // Set blocking time. If -1 (either), inf; if 0, immediate/no block
-    void setBlockingTime(int sec, int usec);
 };
 
 #endif
