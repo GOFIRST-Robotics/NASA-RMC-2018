@@ -1,2 +1,11 @@
 Molly 4-3-2018
+todo:add instructions to install needed library to devlog
+
+(to use git hub:
+git status
+git add
+
+push -
+pull -
+commit - saves the changes you have made, but only locally
 easy - build rig for lidar 
