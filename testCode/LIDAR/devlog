@@ -1,11 +1,20 @@
 Molly 4-3-2018
-todo:add instructions to install needed library to devlog
+
 
 (to use git hub:
 git status
 git add
+git commit
+git pull
+git push
 
-push -
-pull -
+push - updates github with what you have
+pull - updates what you have with what github has
 commit - saves the changes you have made, but only locally
 easy - build rig for lidar 
+
+after building pointcloud, (assuming it's good) 
+
+make a MATLAB pointcloud of ground, rocks, holes
+make code to separate out the rocks and holes from the pointcloud
+
