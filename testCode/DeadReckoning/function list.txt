@@ -1,0 +1,32 @@
+----AHRS FUNCTIONS USED----
+    float  GetVelocityX();
+    float  GetVelocityY();
+    float  GetVelocityZ();
+    float  GetDisplacementX();
+    float  GetDisplacementY();
+    float  GetDisplacementZ();
+    float  GetRawAccelX();
+    float  GetRawAccelY();
+    float  GetRawAccelZ();
+    float  GetWorldLinearAccelX();
+    float  GetWorldLinearAccelY();
+    float  GetWorldLinearAccelZ();
+    void   ResetDisplacement();
+    void   UpdateDisplacement( float accel_x_g, float accel_y_g,
+                               int update_rate_hz, bool is_moving );
+    bool   IsMoving();
+    bool   IsRotating();
+    void   ZeroYaw();
+    double GetAngle();
+    double GetRate();
+    void   Reset();
+    float  GetYaw();
+    float  GetPitch();
+    float  GetRoll();
+    bool   IsCalibrating();
+    bool   IsConnected();
+    double GetByteCount();
+    double GetUpdateCount();
+    long   GetLastSensorTimestamp();
+
+----[]----

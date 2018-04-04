@@ -132,3 +132,10 @@ New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
 2018 April 3 Molly:
 Added LIDAR to testCode.  In order to run the LIDAR data collection code, you will need to install the "libsweep" c++ library found here: 
 https://github.com/scanse/sweep-sdk
+
+Andrew:
+-Updated navX library path on my pc
+-Modified IMUProtocol.h, added the following, #include <cstdint>, this stopped errors regarding all variables of type "uint8_t" or "uint16_t" and possibly other "uintX_t" if in the file
+-Note in /usr/local/include placing the library .h files in an "ahrs" folder did not solve the issue of chained .h files not being found, instead the chained .h files from the navX library have to be placed in the /usr/local/include directory specifically not in another folder
+-A program for testing displacement functions is written but will not compile w/o error. written 29 Mar
+-Will investigate another folder structure to test if compilation works then
