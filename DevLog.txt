@@ -129,3 +129,6 @@ Normal serial port /dev/ttyACM0 was missing, other options didn't work
 Fixed by swapping usb cord between the Pi and the Arduino and the one powering the Pi
 New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
 
+2018 April 3 Molly:
+Added LIDAR to testCode.  In order to run the LIDAR data collection code, you will need to install the "libsweep" c++ library found here: 
+https://github.com/scanse/sweep-sdk
