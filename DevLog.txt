@@ -129,3 +129,8 @@ Normal serial port /dev/ttyACM0 was missing, other options didn't work
 Fixed by swapping usb cord between the Pi and the Arduino and the one powering the Pi
 New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
 
+2018 Apr 4 Matt:
+Took calibration pictures for ArUco, using GOFIRST shop webcam
+Trying to create calibration file for webcam, using meters as unit of measure (-size is 0.03614 meters)
+Having trouble making the library work; can't get files to compile
+
