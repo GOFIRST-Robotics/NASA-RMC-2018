@@ -4,7 +4,7 @@
 //#include <TimeStamp.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <AHRS.h>
+#include <AHRS.h>
 #include <chrono>
 #include <thread>
 #include <iomanip>
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Program Executing\n";
     signal(SIGINT, handle_sig);
 
-    AHRS com = AHRS("/dev/ttyACM0");
+    NavX com = NavX("/dev/ttyACM0");
 
     printf("Initializing\n\n");
 
