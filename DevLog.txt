@@ -152,3 +152,6 @@ Andrew:
 -however currently does not compile "error: no matching function for call to ‘AHRS::AHRS()’ NavX::NavX(std::string serial_port_id)"
 -NavX.h updated with methods Close and the two constructors, as well as adding a private instance of AHRS ahrs
 -NavX.cpp was created as the wrapper for AHRS's methods which we will be using
+
+2018 Apr 5 Minyoung:
+
