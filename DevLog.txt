@@ -145,3 +145,11 @@ Andrew:
 Took calibration pictures for ArUco, using GOFIRST shop webcam
 Trying to create calibration file for webcam, using meters as unit of measure (-size is 0.03614 meters)
 Having trouble making the library work; can't get files to compile
+
+2018 Apr 6 Matt:
+Library is installed properly and files are compiled by following instructions here:
+http://miloq.blogspot.com/2012/12/install-aruco-ubuntu-linux.html
+New error when trying to run aruco_calibration_fromimages:
+error while loading shared libraries: libopencv_calib3d3.so.3.3: cannot enable executable stack as shared object requires: Invalid argument
+Found post which said to install execstack and run >>>sudo execstack -c /usr/local/lib/libopencv_* #bash, no change
+
