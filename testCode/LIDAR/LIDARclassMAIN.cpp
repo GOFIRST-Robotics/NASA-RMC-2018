@@ -7,6 +7,15 @@ using namespace std;
 
 int main()
 {
-	Lidar test=Lidar(1.0, 30.0, 20.0);
-	test.printcoords(cout);
+	double angle=1.0;
+	double distance=30.0;
+	double height=20.0;
+	
+	double minangle=-1000000.0;
+	double maxangle=1000000.0;
+	if (angle > minangle && angle < maxangle)
+	{
+		Lidar test=Lidar(1.0, 30.0, 20.0);
+		test.printcoords(cout);
+	}
 }
