@@ -4,3 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+VisionBeacons::VisionBeacons(){
+  cv::VideoCapture capture;
+  capture.open(0);
+}
