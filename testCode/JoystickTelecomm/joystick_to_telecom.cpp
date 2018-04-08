@@ -53,12 +53,12 @@ int main(){
         //printf("%f    %f\n",sleft,sright);
         //send y axis scale from -1 to 1 for left and right(example: "0.2132145 -0.2436823")
 		    
-        line = std::tostring(sleft) + " " + std::to_string(sright) + "\n";
+        line = std::to_string(sleft) + std::to_string(sright);
         if(my_serial.isOpen()){
 				  my_serial.write(line);
 		    }
 		
-		    result = my_serial.read(line.length());
+		    result = my_serial.read(100);
 
 		    std::cout << result << std::endl;
       }

@@ -118,4 +118,44 @@ Verfied the serial port is open, not the issue
 
 Jude: I need to add a way to add arbitrary fd's to telecomm, make easy for joystick, write remote file for that. 
 
+2018 Mar 23 Matt:
+Changed joystick_to_telecom.cpp to print the joystick values to the Arduino via serial
+Currently doesn't work: on the Arduino, Serial.available() always evaluates to 0
+Molly:
+Fixed math in joystick_to_telecom.cpp to values from -1 to 1
 
+2018 Mar 28 Matt:
+Normal serial port /dev/ttyACM0 was missing, other options didn't work
+Fixed by swapping usb cord between the Pi and the Arduino and the one powering the Pi
+New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
+
+
+2018 April 3 Molly:
+Added LIDAR to testCode.  In order to run the LIDAR data collection code, you will need to install the "libsweep" c++ library found here: 
+https://github.com/scanse/sweep-sdk
+
+Andrew:
+-Updated navX library path on my pc
+-Modified IMUProtocol.h, added the following, #include <cstdint>, this stopped errors regarding all variables of type "uint8_t" or "uint16_t" and possibly other "uintX_t" if in the file
+-Note in /usr/local/include placing the library .h files in an "ahrs" folder did not solve the issue of chained .h files not being found, instead the chained .h files from the navX library have to be placed in the /usr/local/include directory specifically not in another folder
+-A program for testing displacement functions is written but will not compile w/o error. written 29 Mar
+-Will investigate another folder structure to test if compilation works then
+
+2018 Apr 4 Matt:
+Took calibration pictures for ArUco, using GOFIRST shop webcam
+Trying to create calibration file for webcam, using meters as unit of measure (-size is 0.03614 meters)
+Having trouble making the library work; can't get files to compile
+
+Andrew:
+-Changed DeadReckoning folder structure to remove src and include directories, all .h and .cpp files now reside in the same folder
+-build commands to compile are mkdir build, cd build, cmake .., make
+-however currently does not compile "error: no matching function for call to ‘AHRS::AHRS()’ NavX::NavX(std::string serial_port_id)"
+-NavX.h updated with methods Close and the two constructors, as well as adding a private instance of AHRS ahrs
+-NavX.cpp was created as the wrapper for AHRS's methods which we will be using
+
+2018 Apr 6 Matt:
+Library is installed properly and files are compiled by following instructions here:
+http://miloq.blogspot.com/2012/12/install-aruco-ubuntu-linux.html
+New error when trying to run aruco_calibration_fromimages:
+error while loading shared libraries: libopencv_calib3d3.so.3.3: cannot enable executable stack as shared object requires: Invalid argument
+Found post which said to install execstack and run >>>sudo execstack -c /usr/local/lib/libopencv_* #bash, no change
