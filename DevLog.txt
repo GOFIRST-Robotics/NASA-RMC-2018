@@ -163,3 +163,8 @@ Found post which said to install execstack and run >>>sudo execstack -c /usr/loc
 2018 Apr 7 Minyoung:
 Added VisionBeacons folder in testCode. VisionBeacons is a class for getting localization data by measuring distance between two psmove beacons and possibly size of each beacons.
 Need to find the tight range for HSV values so that only beacons can be tracked.
+
+2018 April 8 Jude: 
+Building a camera class for interfacing with the cameras. Building frameworks for this. 
+Fixing codebase in deadreckoning, need to fix the cmake file to install into system, it's broken. 
+
