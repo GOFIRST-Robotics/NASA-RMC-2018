@@ -18,7 +18,7 @@ void Lidar::Translate(double shiftx,double shifty,double shiftz)
 	ycoord+=shifty;
 	zcoord+=shiftz;
 }
-void Lidar::Rotate()
+void Lidar::Rotate(double rx, double ry, double rz)
 {
 	//rx
 	double txcoord=xcoord;
@@ -42,7 +42,7 @@ void Lidar::printcoords(ostream& outs)
 	outs.setf(ios::fixed);
 	outs.setf(ios::showpoint);
 	outs.precision(2);
-	outs<<"X: "<<xcoord<<"	Y:	"<<ycoord<<"	Z:	"<<zcoord<<endl;
+	outs<<"X: "<<xcoord<<"    Y: "<<ycoord<<"	Z: "<<zcoord<<endl;
 }
 /*
 void Lidar::setrotation(double rrx, double rry, double rrz)

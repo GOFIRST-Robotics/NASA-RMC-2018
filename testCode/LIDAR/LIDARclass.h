@@ -14,7 +14,7 @@ public:
 	double rz;
 	Lidar(double angle, double distance, double height);
 	void Translate(double shiftx,double shifty,double shiftz);
-	void Rotate();
+	void Rotate(double rx, double ry, double rz);
 	void printcoords(ostream& outs);
 	//void setrotation(double rrx, double rry, double rrz);
 };
