@@ -1,3 +1,0 @@
-mar29
--finished transferring AHRS functions into NavX header
--beginning work on dead reckoning with just the navX
