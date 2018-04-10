@@ -159,3 +159,9 @@ http://miloq.blogspot.com/2012/12/install-aruco-ubuntu-linux.html
 New error when trying to run aruco_calibration_fromimages:
 error while loading shared libraries: libopencv_calib3d3.so.3.3: cannot enable executable stack as shared object requires: Invalid argument
 Found post which said to install execstack and run >>>sudo execstack -c /usr/local/lib/libopencv_* #bash, no change
+
+2018 April 8 Jude: 
+Building a camera class for interfacing with the cameras. Building frameworks for this. 
+Fixing codebase in deadreckoning, need to fix the cmake file to install into system, it's broken. 
+
+
