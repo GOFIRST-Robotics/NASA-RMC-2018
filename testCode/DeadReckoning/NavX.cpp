@@ -1,4 +1,5 @@
 #include "NavX.h"
+#include "AHRS.h"
 
 NavX::NavX(std::string serial_port_id)
 {

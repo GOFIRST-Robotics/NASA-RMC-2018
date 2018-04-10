@@ -168,3 +168,7 @@ Need to find the tight range for HSV values so that only beacons can be tracked.
 Building a camera class for interfacing with the cameras. Building frameworks for this. 
 Fixing codebase in deadreckoning, need to fix the cmake file to install into system, it's broken. 
 
+2018 April 9 Molly:
+Added LIDAR classes - The LIDARclass worked at one point but was not what was needed.  The LIDAR class is needed but does not work.  Will fix.
+
+
