@@ -1,0 +1,8 @@
+Terminal command for compiling Opencv
+
+
+g++ $(pkg-config --cflags --libs opencv) process.cpp -o process
+
+Using CMake
+cmake .
+make

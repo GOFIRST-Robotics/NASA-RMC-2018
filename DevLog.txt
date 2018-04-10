@@ -160,8 +160,11 @@ New error when trying to run aruco_calibration_fromimages:
 error while loading shared libraries: libopencv_calib3d3.so.3.3: cannot enable executable stack as shared object requires: Invalid argument
 Found post which said to install execstack and run >>>sudo execstack -c /usr/local/lib/libopencv_* #bash, no change
 
+2018 Apr 7 Minyoung:
+Added VisionBeacons folder in testCode. VisionBeacons is a class for getting localization data by measuring distance between two psmove beacons and possibly size of each beacons.
+Need to find the tight range for HSV values so that only beacons can be tracked.
+
 2018 April 8 Jude: 
 Building a camera class for interfacing with the cameras. Building frameworks for this. 
 Fixing codebase in deadreckoning, need to fix the cmake file to install into system, it's broken. 
-
 
