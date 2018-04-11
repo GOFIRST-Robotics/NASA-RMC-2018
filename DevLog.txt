@@ -174,3 +174,6 @@ Fixing codebase in deadreckoning, need to fix the cmake file to install into sys
 
 2018 April 9 Molly:
 Added LIDAR classes - The LIDARclass worked at one point but was not what was needed.  The LIDAR class is needed but does not work.  Will fix.
+
+2018 April 10 Andrew:
+installed Lidar Lite library to the raspi but its being finicky with the included test program, will investigate tomorrow, note to run the file "python3 test.py"
