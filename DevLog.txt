@@ -128,4 +128,7 @@ Fixed math in joystick_to_telecom.cpp to values from -1 to 1
 Normal serial port /dev/ttyACM0 was missing, other options didn't work
 Fixed by swapping usb cord between the Pi and the Arduino and the one powering the Pi
 New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
-
+After reinstall and updating boards, programs can be uploaded again
+Serial.available() is still evaluating to 0
+We can manually enter two floats into the Arduino serial monitor to prove that the Arduino side works
+The values must be getting lost/changed somehow between writing on the c++ side and receiving on the Arduino side
