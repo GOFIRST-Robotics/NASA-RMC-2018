@@ -129,6 +129,10 @@ Normal serial port /dev/ttyACM0 was missing, other options didn't work
 Fixed by swapping usb cord between the Pi and the Arduino and the one powering the Pi
 New error, .../bin/avr-g++ file or directory missing, reinstalling Arduino
 
+After reinstall and updating boards, programs can be uploaded again
+Serial.available() is still evaluating to 0
+We can manually enter two floats into the Arduino serial monitor to prove that the Arduino side works
+The values must be getting lost/changed somehow between writing on the c++ side and receiving on the Arduino side
 
 2018 April 3 Molly:
 Added LIDAR to testCode.  In order to run the LIDAR data collection code, you will need to install the "libsweep" c++ library found here: 
@@ -170,5 +174,3 @@ Fixing codebase in deadreckoning, need to fix the cmake file to install into sys
 
 2018 April 9 Molly:
 Added LIDAR classes - The LIDARclass worked at one point but was not what was needed.  The LIDAR class is needed but does not work.  Will fix.
-
-
