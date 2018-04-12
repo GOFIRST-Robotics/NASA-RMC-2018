@@ -21,6 +21,19 @@
 const cv::Scalar minHSV = cv::Scalar(0,0,253);
 const cv::Scalar maxHSV = cv::Scalar(2,1,255);
 
+cv::SimpleBlobDetector::Params params;
+//Filter by Area.
+params.filterByArea = true;
+params.minArea = 2000;
+params.maxArea = 100000;
+params.filterByCircularity = true;
+params.minCircularity = 0.7;
+//Filter by Inertia
+params.filterByInertia = true;
+params.minInertiaRatio = 0.5;
+
+cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
+
 VisionBeacons::VisionBeacons(){
 }
 
@@ -37,13 +50,28 @@ Data VisionBeacons::Process(Cframe cframe){
 
 //getDis flags = 1, getHor flags = 2,
 Data VisionBeacons::Process(Cframe cframe,int flags){
+  if(!cframe.valid){
+    //Do something
+    return;
+  }
+  Data data;
+  std::vector<cv::Point2f> point2f = Processing(cframe.frame);
+  if(point2f.size() > 1) // If there are more than 2 elements in the vector.
+    std::cout<<"Distance is : "<<cv::norm(cv::Mat(point2f[0]), cv::Mat(point2f[1]), cv::NORM_L2);
+  
 }
 
-Cframe VisionBeacons::Processing(Cframe cframe){
-  std::vector<cv::Vec4i> hierarchy;
-  cv::cvtColor(cframe.frame, cframe.frame, cv::COLOR_RGB2HSV);
-  cv::inRange(cframe.frame, minHSV, maxHSV, out);
-  //cv::findContours(cframe.frame, cframe.frame, hierarchy, 0, cv::CHAIN_APPROX_SIMPLE)
+std::vector<cv::Point2f> VisionBeacons::Processing(Mat3b frame){
+  cv::cvtColor(frame, frame, cv::COLOR_RGB2HSV);
+  cv::inRange(frame, minHSV, maxHSV, out);
+  cv::bitwise_not(cameraFeed,cameraFeed);
+  std::vector<cv::KeyPoint> keypoints;
+  std::vector<cv::Point2f> point2f;
+  detector->detect(cameraFeed, keypoints);
+  cv::Mat im_with_keypoints;
+  cv::drawKeypoints(cameraFeed, keypoints, im_with_keypoints, cv::Scalar(255,255,255), cv::DrawMatchesFlags::DEFAULT );
+  
+  cv::KeyPoint::convert(keypoints, point2f);
 
-  return cframe;
+  return point2f;
 }

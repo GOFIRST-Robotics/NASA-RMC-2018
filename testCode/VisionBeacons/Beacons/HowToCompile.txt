@@ -1,0 +1,2 @@
+
+gcc -o Constant_light Constant_light.c -lpsmoveapi -I build -I include
