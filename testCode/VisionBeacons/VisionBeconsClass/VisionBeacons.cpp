@@ -18,6 +18,9 @@
 #include <string>
 #include <math.h>
 
+const cv::Scalar minHSV = cv::Scalar(0,0,253);
+const cv::Scalar maxHSV = cv::Scalar(2,1,255);
+
 VisionBeacons::VisionBeacons(){
 }
 
@@ -40,8 +43,7 @@ Cframe VisionBeacons::Processing(Cframe cframe){
   std::vector<cv::Vec4i> hierarchy;
   cv::cvtColor(cframe.frame, cframe.frame, cv::COLOR_RGB2HSV);
   cv::inRange(cframe.frame, minHSV, maxHSV, out);
-  cv::findContours(cframe.frame, cframe.frame, hierarchy, 0, cv::CHAIN_APPROX_SIMPLE)
- 
-  
+  //cv::findContours(cframe.frame, cframe.frame, hierarchy, 0, cv::CHAIN_APPROX_SIMPLE)
+
   return cframe;
 }

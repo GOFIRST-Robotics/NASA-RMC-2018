@@ -1,0 +1,1 @@
+I was doing this, but as we're doing opencv anyway, once I saw opencv's file io, this was worthless. \n See: https://docs.opencv.org/3.4.1/dd/d74/tutorial_file_input_output_with_xml_yml.html \n Jude
