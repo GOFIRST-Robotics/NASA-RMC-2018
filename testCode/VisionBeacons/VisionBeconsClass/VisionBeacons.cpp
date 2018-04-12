@@ -37,18 +37,7 @@ cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params
 VisionBeacons::VisionBeacons(){
 }
 
-Data VisionBeacons::Process(Cframe cframe){
-  Data data;
-  if(!cframe.valid){
-    //Do something
-    return;
-  }
-  
-  Cframe processed = Processing(cframe);
-  
-}
-
-//getDis flags = 1, getHor flags = 2,
+//flags = 0, distance, horAngle; flags = 1 distance; flags = 2, horAngle
 Data VisionBeacons::Process(Cframe cframe,int flags){
   if(!cframe.valid){
     //Do something
