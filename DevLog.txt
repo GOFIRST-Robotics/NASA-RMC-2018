@@ -196,3 +196,9 @@ Other interesting errors occured with him. Doubting when will finish this.
 2018 April 11 Jude
 Finished Camera. Wrote dummy class to use it. 
 Minyoung: still working on VisionBeacons class. Working on how to use blob detection so that I can find two points from each beacon to measure distance between them.
+
+2018 April 12 
+Jude: compiling sample program with opencv. To see if we can find the library, or the right flags, do 
+pkg-config --cflags --libs opencv # bash
+This also tells you the paths, the -I/path/to/include/headers/ and -L/path/to/libs/, and you can put it in the g++ compile line itself: 
+g++ -o tst.out test.cpp `pkg-config --cflags --libs opencv` # bash

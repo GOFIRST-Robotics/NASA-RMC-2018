@@ -23,7 +23,7 @@ void init(std::string file){
     fs.release();
   }
   if(K.empty())
-    K = cv::Mat::zeros(3,3,CV_32F);
+    K = cv::Mat::eye(3,3,CV_32F);
   if(R.empty())
     R = cv::Mat::eye(3,3,CV_32F);
   if(t.empty())
