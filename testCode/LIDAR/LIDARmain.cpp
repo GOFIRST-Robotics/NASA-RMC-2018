@@ -7,8 +7,7 @@
 
 int main(){
 	LIDAR test=LIDAR("/dev/ttyUSB0"); //math requires radians
-	std::cout<<test.getAngle()<<std::endl;
-	}
+	//std::cout<<test.getAngle()<<std::endl;
 	return 0;
 }
 

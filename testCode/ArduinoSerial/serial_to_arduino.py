@@ -21,7 +21,7 @@ x=0
 #Hat 0: left stick
 while True:
     pygame.event.pump()
-    ser=serial.Serial('/dev/ttyACM1',9600)#sometimes 0 or 1
+    ser=serial.Serial('/dev/ttyACM0',9600)#sometimes 0 or 1
     
     left = js.get_axis(1)
     right = js.get_axis(4)
