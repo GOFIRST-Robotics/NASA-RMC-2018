@@ -180,3 +180,7 @@ installed Lidar Lite library to the raspi but its being finicky with the include
 
 Minyoung: kept writing VisionBeacons class. Found the right range for psmove beacons. Will finish tomorrow. To do list: get distance between two beacons and horizontal angle.
 
+2018 April 11 Andrew:
+-we are not using python for lidar lite, ignore previous devlog post from me regarding python.
+-lidar lite needs 500mA to initialize, achieved by routing through arduino hooked up to the 12v battery on the test rig.
+-attempting to run the test program gives "write error 121-1" each time the lidar is pinged, narrowed error source down to functions in the i2cdev library possibilities: "dev_i2c_open", "dev_i2c_set_slave_addr", "dev_i2c_close"
