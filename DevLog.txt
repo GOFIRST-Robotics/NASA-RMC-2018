@@ -171,4 +171,10 @@ Fixing codebase in deadreckoning, need to fix the cmake file to install into sys
 2018 April 9 Molly:
 Added LIDAR classes - The LIDARclass worked at one point but was not what was needed.  The LIDAR class is needed but does not work.  Will fix.
 
-
+2018 April Jude: 
+I was using libconfig, after looking for a good config library online to store datatypes in, and started making a Config class. It's still there, and probably good (if completely raw and untested/compiled). I saw how Matt's webcam params config file however was in yaml, and it got me thinking. A bit too late, as most of the class is done, but I looked at opencv, and they have a great file io read/write parameters already sort of thing, good enough not to make a separate class for it. 
+See: https://docs.opencv.org/3.4.1/dd/d74/tutorial_file_input_output_with_xml_yml.html
+I have almost finished camera. Matt wsa having quite a few problems. We found out ros, kinetic, ships with opencv 3.3.1 by default, which is also found by default for opencv. This fails however, when using libcalib3d. You need to force 3.4.1, and the way which worked for us is to say >>> 
+include_directory(/usr/local/ /usr/local/lib/ /usr/local/include/)
+in the cmake file, because it will then first search those directories, where the most recent version would be used. 
+Other interesting errors occured with him. Doubting when will finish this. 

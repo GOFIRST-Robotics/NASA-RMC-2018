@@ -4,11 +4,12 @@
 #include <string>
 #include <chrono>
 
+#include "opencv2/core.hpp"
 #include "opencv2/videoio.hpp"
 
 struct Cframe {
   std::chrono::high_resolution_clock::time_point timestamp;
-  cv::Mat3b frame;
+  cv::Mat frame;
   bool valid;
 }; 
 
