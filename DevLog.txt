@@ -192,3 +192,6 @@ I have almost finished camera. Matt wsa having quite a few problems. We found ou
 include_directory(/usr/local/ /usr/local/lib/ /usr/local/include/)
 in the cmake file, because it will then first search those directories, where the most recent version would be used. 
 Other interesting errors occured with him. Doubting when will finish this. 
+
+2018 April 11 Jude
+Finished Camera. Wrote dummy class to use it. 
