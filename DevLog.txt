@@ -211,3 +211,5 @@ add_executable(get_pose get_pose.cpp)
 target_link_libraries(get_pose aruco opencv_calib3d)
 to the CMakeLists.txt and when I build it compiles correctly
 Currently, it assumes that the yml file for camera calibration and the grid are one directory up from the compiled location
+
+Minyoung: Worked on VisionBeacons class. Works fine when the beacons are close to camera. When it is faraway(roughly, when distance>2.5m), blobs are not detected. Also, the threshold range is white, there might be noise problems(depending on location). 
