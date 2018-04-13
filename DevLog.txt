@@ -202,3 +202,15 @@ Jude: compiling sample program with opencv. To see if we can find the library, o
 pkg-config --cflags --libs opencv # bash
 This also tells you the paths, the -I/path/to/include/headers/ and -L/path/to/libs/, and you can put it in the g++ compile line itself: 
 g++ -o tst.out test.cpp `pkg-config --cflags --libs opencv` # bash
+
+2018 April 11-12 Matt:
+get_pose.cpp: input image taken by webcam of calibration grid, outputs rotation and translation vectors for pose
+I was never able to compile anything normally, so I put my new file get_pose.cpp under utils directory of aruco library
+I added 
+add_executable(get_pose get_pose.cpp)
+target_link_libraries(get_pose aruco opencv_calib3d)
+to the CMakeLists.txt and when I build it compiles correctly
+Currently, it assumes that the yml file for camera calibration and the grid are one directory up from the compiled location
+
+Minyoung: Worked on VisionBeacons class. Works fine when the beacons are close to camera. When it is faraway(roughly, when distance>2.5m), blobs are not detected. Also, the threshold range is white, there might be noise problems(depending on location).
+The VisionBeacons class should work but still need to fix to be more robust.

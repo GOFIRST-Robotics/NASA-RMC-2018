@@ -24,24 +24,19 @@
  * horizontal angle.
  */
 
-struct Data {
+struct BeaconData {
   double distance;
   double horizontalAngle;
+  bool valid;
 };
 
 class VisionBeacons {
   public:
-    // VisionBeacons constructor: Connect to camera.
+  // VisionBeacons constructor. Does Nothing.
     VisionBeacons();
-    Data Process(Cframe cframe);
-    Data Process(Cframe cframe, int flags); //getDis flags = 1, getHor flags = 2,
-  private:
-    Cframe Processing(Cframe cframe);
-    const double hueThres[] = {0.1885141325667572, 0.1885141325667572};
-    const double satThres[] = {255.0, 255.0};
-    const double valThres[] = {255.0, 255.0};
-    const cv::Scalar minHSV = Scalar(0.1885141325667572,255.0,255.0);
-    const cv::Scalar maxHSV = Scalar(0.1885141325667572,255.0,255.0);
+  // Process method returns Data.
+  // flags == 0: distance, horizontalAngle / flags == 1: distance / flags == 2: horizontalAngle
+    BeaconData process(cv::Mat image, int flags);
 };
 
 #endif
