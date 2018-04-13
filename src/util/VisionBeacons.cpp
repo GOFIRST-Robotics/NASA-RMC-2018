@@ -35,8 +35,10 @@ params.minInertiaRatio = 0.55;
 
 cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
 
-// Helper functions.
-std::vector<cv::Point2f> Processing(Mat3b frame){
+/*
+** HELPER METHODS.
+*/
+std::vector<cv::Point2f> Processing(Mat frame){
   // KEYPOINTS and POINT2F store x y coordinate for beacons.
   std::vector<cv::KeyPoint> keypoints;
   std::vector<cv::Point2f> point2f;
@@ -72,19 +74,22 @@ double gethorizontalAngle(std::vector<cv::Point2f> point2f){
   return std::acos(d2/getDistance(point2f))*(180/3.1415);
 }
 
+/*
+** PUBLIC METHODS.
+*/
 // Constructor.
 VisionBeacons::VisionBeacons(){
 }
-
-//flags = 0 : distance, horAngle; flags = 1 : distance; flags = 2 : horAngle
-Data VisionBeacons::process(Cframe cframe,int flags){
-  if(!cframe.valid){
-    //Do something
-    return;
-  }
+// flags = 0 : distance, horAngle; flags = 1 : distance; flags = 2 : horAngle
+BeaconData VisionBeacons::process(Mat image,int flags){
+  std::vector<cv::Point2f> point2f = Processing(image);
+  BeaconData data;
   
-  std::vector<cv::Point2f> point2f = Processing(cframe.frame);
-  Data data;
+  // point2f.size() != 2 when beacons are not detected properly.
+  if(point2f.size() != 2){
+    data.valid = false;
+    return data;
+  }
   
   if(flags == 0){
     data.distance = getDistance(point2f);
@@ -98,6 +103,7 @@ Data VisionBeacons::process(Cframe cframe,int flags){
     data.distance = -1;
     data.horAngle = gethorizontalAngle(point2f);
   }
+  data.valid = true;
   
   return data;
 }
