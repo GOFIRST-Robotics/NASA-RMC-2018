@@ -214,3 +214,6 @@ Currently, it assumes that the yml file for camera calibration and the grid are 
 
 Minyoung: Worked on VisionBeacons class. Works fine when the beacons are close to camera. When it is faraway(roughly, when distance>2.5m), blobs are not detected. Also, the threshold range is white, there might be noise problems(depending on location).
 The VisionBeacons class should work but still need to fix to be more robust.
+
+2018 April 13 
+Minyoung: Installed linuxbrew and noah on RPi. noah allows you to run Mac exec on Linux.
