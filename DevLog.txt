@@ -216,4 +216,4 @@ Minyoung: Worked on VisionBeacons class. Works fine when the beacons are close t
 The VisionBeacons class should work but still need to fix to be more robust.
 
 2018 April 13 
-Minyoung: Installed linuxbrew and noah on RPi. noah allows you to run Mac exec on Linux.
+Minyoung: Installed linuxbrew on RPi.
