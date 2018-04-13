@@ -1,0 +1,21 @@
+2018 April 12
+Jude: Began investigating point cloud library pcl for doing pointcloud stuff. 
+Installed library through webpage 
+https://larrylisky.com/2016/11/03/point-cloud-library-on-ubuntu-16-04-lts/
+First the dependancies, then the dep file. Mint has an application to do that automatically. 
+
+Getting an error when trying simple tutorial.
+In /usr/share/pcl-1.8/PCLConfig.cmake, it sets the root dir, PCL_ROOT, to /usr/local/, when it's actually all in /usr/. Edit line ~746ish to change PCL_ROOT to /usr. 
+
+2018 April 13: Jude
+How to install PCL
+See https://larrylisky.com/2016/11/03/point-cloud-library-on-ubuntu-16-04-lts/ 
+and it's predecessor article, about compiling from source. 
+To install it, it's about as simple as installing the deb, but YOU MUST HAVE ALL DEPENDENCIES INSTALLED TO BUILD. 
+For example, seeing his previous example and installing openni/kinect stuff, or libpcl-dev, and check vtk and qt are installed. Also libproj-dev. 
+Also, in /usr/share/pcl-1.8/PCLConfig.cmake, there's a line, ~746, which sets the PCL_ROOT to /usr/local, but when installed by .deb, it's in /usr. Correct that or cmake won't work. 
+A few useful tools. I tried to make the pclSimpleCloudViewer, but error: /usr/lib/x86_64-linux-gnu/libproj.so. Ran "stat /usr/.../libproj.so" and it said it couldn't be found. Installed "apt-file", ran "sudo apt-file update". Ran "apt-file search /usr/.../libproj.so" and it reported that it was found under the library "libproj-dev: /usr/.../libproj.so". Install libproj-dev. 
+Cannot find -lvtk...: install libgl1-mesa-dev, libqt5-dev, libqt5opengl5-dev, libqt5opengl5-gles-dev libvtk6*
+Did do a sudo apt-get update --fix missing and then a apt-get upgrade. 
+Errors with libpcl_io undef ref to xn... has to do with bad openni install, see the blog above. 
+
