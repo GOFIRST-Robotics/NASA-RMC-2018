@@ -1,0 +1,7 @@
+2018 April 13:
+Andrew:
+-Moved Molly's work into folders for reference/referal.
+-Created wrapper class LIDAR over scanse's sweep class
+-inorder to compile with this setup // g++ -std=c++11 [yourfile] -lsweep
+-creates an a.out to be run as follows: ./a.out /dev/ttyUSB# [where # is the USB port in use (0,1 are common)]
+-USB ports appear to be static in regards to physical ports matching virtual ones though I can't confirm this now
