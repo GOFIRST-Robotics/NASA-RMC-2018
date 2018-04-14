@@ -4,11 +4,12 @@
 #include <string>
 #include <chrono>
 
+#include "opencv2/core.hpp"
 #include "opencv2/videoio.hpp"
 
 struct Cframe {
   std::chrono::high_resolution_clock::time_point timestamp;
-  cv::Mat3b frame;
+  cv::Mat img;
   bool valid;
 }; 
 
@@ -16,13 +17,9 @@ class Camera {
   public:
     // Class to interact with camera hardware.
     // Requires predefinition of camera properties
-    Camera(std::string filename, cv::Mat1f IntrinsicMatrix, cv::Mat1f ExtrinsicMatrix, double latency);
-    Camera(std::string filename, int api, cv::Mat1f IntrinsicMatrix, cv::Mat1f ExtrinsicMatrix, double latency);
-    Camera(int id, cv::Mat1f IntrinsicMatrix, cv::Mat1f ExtrinsicMatrix, double latency);
-    
-    Camera(std::string filename);
-    Camera(std::string filename, int opencvAPI);
-    Camera(int id); 
+    Camera(std::string filename, std::string configFile = "");
+    Camera(std::string filename, int opencvAPI, std::string configFile = "");
+    Camera(int id, std::string configFile = ""); 
     ~Camera();
 
     // Functions to use
@@ -31,21 +28,27 @@ class Camera {
     Cframe retrieve(); 
     
     // Utility
-    cv::Mat1f getIntrinsicMatrix();
-    cv::Mat1f getExtrinsicMatrix();
-    double    getLatency();
+    cv::Mat getK(); // Intrinsic matrix of f, px, py
+    cv::Mat getRot(); // Rotation matrix wrt robot
+    cv::Mat getTrans(); // Translation matrix wrt robot
+    double  getLatency(); // Latency between action and timestamp
 
-    void setIntrinsicMatrix(cv::Mat1f);
-    void setExtrinsicMatrix(cv::Mat1f);
+    // Does not change config file settings
+    // This only changes values in memory
+    void setK(cv::Mat);
+    void setRot(cv::Mat);
+    void setTrans(cv::Mat);
     void setLatency(double);
 
-  protected:
+  private:
     cv::VideoCapture cap;
-    cv::Mat3b frame;
-    cv::Mat1f IntrinsicMatrix;
-    cv::Mat1f ExtrinsicMatrix;
+    cv::Mat frame;
+    cv::Mat K;
+    cv::Mat R;
+    cv::Mat t;
     double latency;
-
+    std::string configFile;
+    FileStorage fs;
 };
 
 #endif

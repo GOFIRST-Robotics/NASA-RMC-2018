@@ -2,52 +2,49 @@
 
 #include <string>
 #include <chrono>
+#include <iostream>
 
-#include "opencv2/opencv2.hpp"
+#include "opencv2/core.hpp"
 #include "opencv2/videoio.hpp"
 
 using namespace cv;
 
-Camera::Camera(std::string filename){
+Mat empty;
+
+void init(std::string file){
+  latency = -0.991199;
+  configFile = file;
+  if(file == ""){
+    fs.open(file, FileStorage::READ | FileStorage::FORMAT_YAML);
+    fs["K"] >> K;
+    fs["R"] >> R;
+    fs["t"] >> t;
+    fs["latency"] >> latency;
+    fs.release();
+  }
+  if(K.empty())
+    K = cv::Mat::eye(3,3,CV_32F);
+  if(R.empty())
+    R = cv::Mat::eye(3,3,CV_32F);
+  if(t.empty())
+    t = cv::Mat::zeros(3,1,CV_32F);
+  if(latency == -0.991199)
+    latency = 0.0;
+} 
+
+Camera::Camera(std::string filename, std::string configFile = ""){
   cap = VideoCapture(filename);
-  IntrinsicMatrix = cv::Mat1f::zeros(3,3);
-  ExtrinsicMatrix = cv::Mat1f::eye(4,4);
-  latency = 0.0;
+  init(configFile);
 }
 
-Camera::Camera(std::string filename, int opencvAPI){
+Camera::Camera(std::string filename, int opencvAPI, std::string configFile = ""){
   cap = VideoCapture(filename,opencvAPI);
-  IntrinsicMatrix = cv::Mat1f::zeros(3,3);
-  ExtrinsicMatrix = cv::Mat1f::eye(4,4);
-  latency = 0.0;
+  init(configFile);
 }
 
-Camera::Camera(int id){
+Camera::Camera(int id, std::string configFile = ""){
   cap = cv::VideoCapture(id);
-  IntrinsicMatrix = cv::Mat1f::zeros(3,3);
-  ExtrinsicMatrix = cv::Mat1f::eye(4,4);
-  latency = 0.0;
-}
-
-Camera::Camera(std::string filename, cv::Mat1f IntrinsicMatrix, cv::Mat1f ExtrinsicMatrix, double latency){
-  cap = cv::VideoCapture(filename);
-  this->IntrinsicMatrix = IntrinsicMatrix;
-  this->ExtrinsicMatrix = ExtrinsicMatrix;
-  this->latency = latency;
-}
-
-Camera::Camera(std::string filename, int opencvAPI, cv::Mat1f IntrinsicMatrix, cv::Mat1f ExtrinsicMatrix, double latency){
-  cap = cv::VideoCapture(filename,opencvAPI);
-  this->IntrinsicMatrix = IntrinsicMatrix;
-  this->ExtrinsicMatrix = ExtrinsicMatrix;
-  this->latency = latency;
-}
-
-Camera::Camera(int id, cv::Mat1f IntrinsicMatrix, cv::Mat1f ExtrinsicMatrix, double latency){
-  cap = cv::VideoCapture(id);
-  this->IntrinsicMatrix = IntrinsicMatrix;
-  this->ExtrinsicMatrix = ExtrinsicMatrix;
-  this->latency = latency;
+  init(configFile);
 }
 
 Camera::~Camera(){
@@ -63,14 +60,16 @@ Cframe Camera::retrieve(){
     bool valid = cap.retrieve(frame);
     return {(t2 - t)/2 + t, frame, valid};
   }
-  return {t, frame, false};
+  return {t, empty, false};
 }
 
 bool Camera::isOpened(){ return cap.isOpened(); }
-cv::Mat1f Camera::getIntrinsicMatrix(){ return IntrinsicMatrix; }
-cv::Mat1f Camera::getExtrinsicMatrix(){ return ExtrinsicMatrix; }
+cv::Mat Camera::getK(){ return K; }
+cv::Mat Camera::getRot(){ return R; }
+cv::Mat Camera::getTrans(){return t};
 double Camera::getLatency(){ return latency; }
-void Camera::setIntrinsicMatrix(cv::Mat1f i){ IntrinsicMatrix = i.clone(); }
-void Camera::setExtrinsicMatrix(cv::Mat1f e){ ExtrinsicMatrix = e.clone(); }
+void Camera::setK(cv::Mat i){ K = i.clone(); }
+void Camera::setRrot(cv::Mat e){ R = e.clone(); }
+void Camera::setTrans(cv::Mat tr){ t = tr.clone(); }
 void Camera::setLatency(double l){ latency = l; }
 

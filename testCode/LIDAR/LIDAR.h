@@ -1,41 +1,31 @@
 #ifndef LIDAR_H
 #define LIDAR_H
 
-#include <iostream>
-#include <math.h>
-#include <cstdlib>
 #include <sweep/sweep.hpp>
-#include <fstream>
+#include <vector>
 #include <string>
 
-struct coordinates {
+struct lidarPoint {
   double angle;
   double distance;
   std::int32_t signal_strength;
 };
 
-
-
-//Controls the LIDAR
-class LIDAR{ //: LidarParent
+class LIDAR {
   public:
-  sweep::sweep device;
-  LIDAR(std::string filelocation);
-  LIDARA();
-  ~LIDAR();
-  //void setTranslation(double lx, double ly, double lz);
-  //void setRotation(double rx, double ry, double rz);
-  /*
-  double getAngle();
-  double getDistance();
-  */
-  void scan();
-  std::vector<coordinates> getScan();//contains the conversion
+    LIDAR(std::string port);
+    
+    bool get_motor_ready();
+    std::vector<lidarPoint> get_scan();
+    void reset();
+    
+    //Utility
+    void start_scanning();
+    void stop_scanning();
+    std::int32_t get_motor_speed();
+    std::int32_t get_sample_rate();
+  //private:
+    //sweep::sweep sw;
 };
 
-/*
-struct scan {
-  std::vector<coordinates> coordinate;
-};
-*/
 #endif

@@ -1,14 +1,15 @@
 #include "NavX.h"
 #include "AHRS.h"
+#include "SerialIO.h"
 
-NavX::NavX(std::string serial_port_id)
-{
-  ahrs = AHRS(serial_port_id);
+/*
+NAVX::NAVX(std::string serial_port_id) {
+  ahrs = AHRS( serial_port_id );
 }
+*/
 
-NavX::NavX(std::string serial_port_id, AHRS::SerialDataType data_type, uint8_t update_rate_hz)
-{
-  ahrs = AHRS(serial_port_id, data_type, update_rate_hz);
+NAVX::NAVX(std::string serial_port_id, AHRS::SerialDataType data_type, uint8_t update_rate_hz) {
+  ahrs = AHRS( serial_port_id, data_type, update_rate_hz );
 }
 
 bool IsMoving(){ return ahrs.IsMoving(); }
