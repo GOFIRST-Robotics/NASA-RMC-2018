@@ -50,7 +50,7 @@ with open('datatest1.dat','r') as f:
                 coords=polartocart(distance,theta,height)
                 plot(screen, int(coords[0]+600), int(coords[1]+600),int(coords[2]),heightcolor(height))
             toggle+=1
-        if toggle >300:
+        if toggle >1000:
             break
 f.close()
 fig.show()

@@ -218,6 +218,11 @@ The VisionBeacons class should work but still need to fix to be more robust.
 2018 April 13 
 Minyoung: Installed linuxbrew on RPi.
 
+2018 April 24 Molly:
+Working on this tutorial: https://thingtype.com/blog/using-a-dwm1000-module-with-a-raspberry-pi-and-python/
+Installed DW1000 library on the pi, it appears to work, however I am unsure about setting up the anchors for in the trough
+It doesn't seem to work to just power the anchor
+
 2018 April 14 Matt:
 In get_pose.cpp, changed
 >>>#include "aruco.h"    //c++ to
