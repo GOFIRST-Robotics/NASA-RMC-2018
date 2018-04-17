@@ -44,6 +44,8 @@ Lidar::Lidar(std::string port, std::string configFile) {
 Lidar::~Lidar(){ sw->stop_scanning(); }
 
 std::vector<lidarPoint> Lidar::scan() {
+  std::chrono::high_resolution_clock::time_point t = 
+    std::chrono::high_resolution_clock::now();
   std::vector<lidarPoint> out;
   sweep::scan sc = sw->get_scan();
   int sz = sc.samples.size();
@@ -51,11 +53,11 @@ std::vector<lidarPoint> Lidar::scan() {
   Mat v = Mat::zeros(4,1,CV_32F);
   v.at<float>(3,0) = 1;
   for(int i = 0; i < sz; ++i){
-    double ang = sc.samples[i].angle / 1000.0;
+    float ang = sc.samples[i].angle / 1000.0;
     if(ang > 180)
       ang -= 360; // Assuming stuff
-    double d = sc.samples[i].distance / 100.0;
-    double str = sc.samples[i].signal_strength / 255.0;
+    float d = sc.samples[i].distance / 100.0;
+    float str = sc.samples[i].signal_strength / 255.0;
     v.at<float>(0,0) = d * sin(PI * ang / -180.0); // X, right
     v.at<float>(2,0) = d * cos(PI * ang / 180.0); // Z, forward
     Mat coord = T * v;
@@ -64,7 +66,8 @@ std::vector<lidarPoint> Lidar::scan() {
          coord.at<float>(1,0), // Y
          coord.at<float>(2,0), // Z
          ang,
-         str});
+         str,
+         t});
   }
   return out;
 }
@@ -75,7 +78,7 @@ void Lidar::reset() { sw->reset(); }
 
 //void Lidar::stop_scanning() { sw->stop_scanning(); }
 
-void Lidar::get_motor_speed(std::int32_t i) { return sw->set_motor_speed(i); }
+void Lidar::setMotorSpeed(std::int32_t i) { return sw->set_motor_speed(i); }
 
 void Lidar::setSampleRate(std::int32_t i) { return sw->set_sample_rate(i); }
 

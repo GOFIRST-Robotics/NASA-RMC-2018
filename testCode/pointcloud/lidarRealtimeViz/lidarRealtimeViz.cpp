@@ -4,22 +4,29 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 #include <opencv2/core.hpp>
-#include <Lidar.h>
+#include "Lidar.h"
 
 boost::shared_ptr<pcl::visualization::PCLVisualizer> simpleVis (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud) {
   // -----Open 3D viewer and add point cloud-----
   // --------------------------------------------
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
   viewer->setBackgroundColor (0, 0, 0);
-  viewer->addPointCloud<pcl::PointXYZ> (cloud, "LIDAR cloud");
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color(cloud, 0, 255, 0);
+  viewer->addPointCloud<pcl::PointXYZ> (cloud, single_color, "LIDAR cloud");
   viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "LIDAR cloud");
-  viewer->addCoordinateSystem (1.0);
+  viewer->addCoordinateSystem (0.1);
   viewer->initCameraParameters ();
   return (viewer);
 }
 
-int main(){
+int main(int argc, char* argv[]){
+  if(argc != 5)
+    std::cout << "Usage should be ./program /dev/ttyUSB0 /dev/ttyUSB1 ../leftStandLidar.yml ../rightStandLidar.yml" << std::endl;
+
   // Init pointcloud "cloud"
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPtr (new pcl::PointCloud<pcl::PointXYZ>);
   cloudPtr->points.push_back({0.0,0.0,0.0});
@@ -32,20 +39,49 @@ int main(){
 
   // Lidar
   // Currently set for Jude's computer, changes can easily be made. Left is closes to screen
-  Lidar lidarLeft = Lidar("/dev/ttyUSB0","leftStandLidar.yml");
-  Lidar lidarRight = Lidar("/dev/ttyUSB1","rightStandLidar.yml");
+  //Lidar lidarLeft = Lidar("/dev/ttyUSB0","leftStandLidar.yml");
+  //Lidar lidarRight = Lidar("/dev/ttyUSB1","rightStandLidar.yml");
+  Lidar lidarLeft = Lidar(argv[1],argv[3]);
+  Lidar lidarRight = Lidar(argv[2],argv[4]);
+
+  //lidarLeft.setMotorSpeed(5);
+  //lidarRight.setMotorSpeed(5);
+  //lidarLeft.setSampleRate(1000);
+  //lidarRight.setSampleRate(1000);
   
+  float limL = -45;
+  float limR = 45;
+
   while(!viewer->wasStopped()){
+    // Delete old points
+    if(cloudPtr->points.size() > 1500){
+      cloudPtr->points.erase(cloudPtr->points.begin(),cloudPtr->points.end()-1);
+      cloudPtr->points.shrink_to_fit();
+    }
+
     // Update point cloud
-    std::vector<lidarPoint> scan = lidar.scan(); 
-    for(std::vector<lidarPoint>::iterator it = scan.begin(); it!=scan.end(); ++it)
-        cloudPtr->points.push_back(
+    if(1){ // lidarLeft.scanAvail()){
+      //std::vector<lidarPoint> scan = lidar.scan(); 
+      for(auto & v : lidarLeft.scan()){ // v : lidarPoint
+        if(v.str > 0.2 && v.ang > limL && v.ang < limR)
+          cloudPtr->points.push_back({v.X,v.Y,v.Z});
+      }
+    }
+    if(1){
+      for(auto & v : lidarRight.scan()){
+        if(v.str > 0.2 && v.ang > limL && v.ang < limR)
+          cloudPtr->points.push_back({v.X,v.Y,v.Z});
+      }
+    }
 
     // Update viewer
+    cloudPtr->width = (int) cloudPtr->points.size();
     viewer->updatePointCloud(cloudPtr, "LIDAR cloud");
     viewer->spinOnce(100);
     boost::this_thread::sleep(boost::posix_time::microseconds(100000));
   }
   
+  pcl::io::savePCDFileASCII("tst.pcd", *cloudPtr);
+
   return 0;
 }

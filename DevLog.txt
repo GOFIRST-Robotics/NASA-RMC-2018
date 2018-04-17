@@ -265,4 +265,5 @@ Deadlines:
       >> Driving ... with joystick connected to laptop, over wifi. 
       >> This involves probably writing some sort of code, but we won't know until we try, which needs to be now. 
     Working localization code. This is (rough) decawave, encoder, imu, camera, rpi, arduino hybrid. The shape needs to be made. 
+For opencv, which needs cuda (full blown, though not particularly relevant for us), I had to edit my path in .profile, source that if nvcc --version was wrong, and that was my cuda errors. 
 

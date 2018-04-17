@@ -23,21 +23,21 @@ int main(int argc, char* argv[]){
   for (auto n = 0; n < 1; ++n) {
     std::cout << "Scan #" << n << ":" << std::endl;
     
-    const std::vector<lidarPoint> scan = device.get_scan();
+    const std::vector<lidarPoint> scan = device.scan();
 
 
     std::cout << "Lidar 1" << std::endl;
 
     for (const lidarPoint& point : scan) {
-      std::cout << "angle: " << point.angle << " X: " << point.X << " Y: " << point.Y << " Z: " << point.Z << " strength: " << point.signal_strength << "\n";
+      std::cout << "angle: " << point.ang << " X: " << point.X << " Y: " << point.Y << " Z: " << point.Z << " strength: " << point.str << "\n";
     }
     
     std::cout << "Lidar 2" << std::endl;
 
-    const std::vector<lidarPoint> scan2 = device2.get_scan();
+    const std::vector<lidarPoint> scan2 = device2.scan();
     
     for (const lidarPoint& point2 : scan2) {
-      std::cout << "angle: " << point2.angle << " X: " << point2.X << " Y: " << point2.Y << " Z: " << point2.Z << " strength: " << point2.signal_strength << "\n";
+      std::cout << "angle: " << point2.ang << " X: " << point2.X << " Y: " << point2.Y << " Z: " << point2.Z << " strength: " << point2.str << "\n";
     }
   }
 

@@ -9,13 +9,12 @@
 #include <sweep/sweep.hpp> 
 
 struct lidarPoint {
-  double X;
-  double Y;
-  double Z;
-  double angle;
-  double signal_strength;
+  float X;
+  float Y;
+  float Z;
+  float ang;
+  float str;
   std::chrono::high_resolution_clock::time_point timestamp;
-  bool valid;
 };
 
 class Lidar {
@@ -35,10 +34,9 @@ class Lidar {
     // Resets hardware. Few details on it, last resort
     void reset();
 
-  
   private: 
     cv::Mat T;
-    double latency;
+    float latency;
     std::string configFile;
     cv::FileStorage fs;
     void init(std::string);
