@@ -5,7 +5,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 
 #include <opencv2/core.hpp>
-#include <LIDAR.h>
+#include <Lidar.h>
 
 boost::shared_ptr<pcl::visualization::PCLVisualizer> simpleVis (pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud) {
   // -----Open 3D viewer and add point cloud-----
@@ -31,7 +31,9 @@ int main(){
   viewer = simpleVis(cloudPtr);
 
   // Lidar
-  LIDAR lidar = LIDAR("","");
+  // Currently set for Jude's computer, changes can easily be made. Left is closes to screen
+  Lidar lidarLeft = Lidar("/dev/ttyUSB0","leftStandLidar.yml");
+  Lidar lidarRight = Lidar("/dev/ttyUSB1","rightStandLidar.yml");
   
   while(!viewer->wasStopped()){
     // Update point cloud

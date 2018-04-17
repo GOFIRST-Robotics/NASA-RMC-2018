@@ -248,3 +248,21 @@ Getting "warning: libopencv_calib3d3.so.3.3, needed by //usr/local/lib/libaruco.
 3 more similar warnings for libopencv_video3.so.3.3, libopencv_imgproc3.so.3.3, and libopencv_core3.so.3.3
 libopencv_video, libopencv_calib3, etc. all exist, I can't find libopencv_video3, libopencv_calib3d3, etc. anywhere
 
+
+2018 April 17th
+Jude: Finished the lidar class. It seems completely working. I copied (actually, symbolic links, we'll see how that works?) some classes to include/src. Cleaned it up, there is a program to make a config file for it in applications. Same for camera. Finishing up viz/visualization with point cloud library/pcl for expo. 
+Plan for computers is arduino + all sensors & motors (except navx), realsense dev board + 4 wheel cameras, lidars through gpio, and realsense cam, and rpi with navx, decawaves, and back-camera/psEye. rpi handles telecomm wifi, and apparently ethernet comms to dev board and arduino; it's the master timeswitch/keeper, and runs high-level planning/action/driving/modeling/fusion/localization code. 
+Deadlines: 
+  Molly (now on decawave), has some results or progress by friday. I'm a little lenient on this.
+  Matt (aruco markers), needs to be done asap. 
+  Minyoung (vision beacons), needs to be done asap.
+  The above two: it doesn't have to be perfect, but we need Something to test. Need to write higher level code. 
+  Andrew (navX?), needs to be done asap.
+  TODO:
+    (Jude: planning, modeling, fusion, realsense, cameras, mapping, homework)
+    Communicating between main devices. 
+    Driving motor controlers, through arduino-rpi, with joystick connected to rpi. 
+      >> Driving ... with joystick connected to laptop, over wifi. 
+      >> This involves probably writing some sort of code, but we won't know until we try, which needs to be now. 
+    Working localization code. This is (rough) decawave, encoder, imu, camera, rpi, arduino hybrid. The shape needs to be made. 
+
