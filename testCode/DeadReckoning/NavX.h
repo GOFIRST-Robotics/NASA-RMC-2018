@@ -8,24 +8,12 @@
 */
 
 #include "AHRS.h"
-#include "SerialIO.h"
 
-class NAVX {
-  enum SerialDataType {
-    /**
-     * (default):  6 and 9-axis processed data
-     */
-    kProcessedData = 0,
-    /**
-     * unprocessed data from each individual sensor
-     */
-    kRawData = 1
-    };
-    
+class NavX {
   public:
-    NAVX(std::string serial_port_id);
+    NavX(std::string serial_port_id);
 
-    NAVX(std::string serial_port_id, AHRS::SerialDataType data_type, uint8_t update_rate_hz);
+    NavX(std::string serial_port_id, AHRS::SerialDataType data_type, uint8_t update_rate_hz);
 
     //State
     //detects X,Y accel; returns true
@@ -121,9 +109,6 @@ class NAVX {
     //Sets the offset to be subtracted from GetYaw()
     //Function "Reset()" simply calls this function
     void   ZeroYaw();
-    
-    private:
-      AHRS ahrs;
 };
 
 #endif
