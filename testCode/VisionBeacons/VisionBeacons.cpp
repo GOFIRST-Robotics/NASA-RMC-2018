@@ -17,9 +17,10 @@
 #include <string>
 #include <math.h>
 
+// Threshold value for finding beacons.
 const cv::Scalar minHSV = cv::Scalar(0,0,254);
 const cv::Scalar maxHSV = cv::Scalar(1,1,255);
-const cv::Scalar white = cv::Scalar(255,255,255);
+//const cv::Scalar white = cv::Scalar(255,255,255);
 
 cv::SimpleBlobDetector::Params params;
 // Filter by Area.
@@ -38,7 +39,7 @@ cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params
 /*
 ** HELPER METHODS.
 */
-std::vector<cv::Point2f> Processing(Mat frame){
+std::vector<cv::Point2f> processing(cv::Mat frame){
   // KEYPOINTS and POINT2F store x y coordinate for beacons.
   std::vector<cv::KeyPoint> keypoints;
   std::vector<cv::Point2f> point2f;
@@ -82,7 +83,7 @@ VisionBeacons::VisionBeacons(){
 }
 // flags = 0 : distance, horAngle; flags = 1 : distance; flags = 2 : horAngle
 BeaconData VisionBeacons::process(Mat image,int flags){
-  std::vector<cv::Point2f> point2f = Processing(image);
+  std::vector<cv::Point2f> point2f = processing(image);
   BeaconData data;
   
   // point2f.size() != 2 when beacons are not detected properly.
@@ -107,8 +108,6 @@ BeaconData VisionBeacons::process(Mat image,int flags){
   
   return data;
 }
-
-
 
 
 
