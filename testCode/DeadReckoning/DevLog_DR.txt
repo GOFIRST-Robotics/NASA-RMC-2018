@@ -1,4 +1,4 @@
-----AHRS FUNCTIONS USED----
+----Kauai Labs AHRS FUNCTIONS USED----
     float  GetVelocityX();
     float  GetVelocityY();
     float  GetVelocityZ();
@@ -28,5 +28,11 @@
     double GetByteCount();
     double GetUpdateCount();
     long   GetLastSensorTimestamp();
+----
 
-----[]----
+2018 17 Apr:
+Andrew:
+-Modified GetQuaternionW-Z functions to return the varibles provided by the SensorFusion algorithm
+-Modified GetWorldLinearAccelX-Z so they return m/s^2 instead of g's
+-Changed GetYaw/GetRoll/GetPitch to use quaternion values provided by SensorFusion algorithm and implements a function to convert those quaternions into Euler angles
+-Shifted some functions around so unused functions are not interspersed with used functions
