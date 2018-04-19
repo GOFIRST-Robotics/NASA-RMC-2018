@@ -267,3 +267,16 @@ Deadlines:
     Working localization code. This is (rough) decawave, encoder, imu, camera, rpi, arduino hybrid. The shape needs to be made. 
 For opencv, which needs cuda (full blown, though not particularly relevant for us), I had to edit my path in .profile, source that if nvcc --version was wrong, and that was my cuda errors. 
 
+2018 April 18 Matt:
+Got rid of unnecessary include statements in the ArucoPose files, now compiling with
+	>>> g++ -std=c++11 -o ArucoPoseExample ArucoPoseExample.cpp ArucoPose.cpp -laruco -lopencv_core -lopencv_videoio #bash
+Actually compiles now, when running ./ArucoPoseExample it gives the error
+	"error while loading shared libraries: libopencv_calib3d3.so.3.3: cannot enable executable stack as shared object requires: Invalid argument"
+Effectively the same error as before, I have files including "calib3d", not "calib3d3"
+Used >>> find . -type f -name "*calib3d3*" #bash to prove that no file including "calib3d3" exists on my computer
+Ran >>> grep --include=\*.{c,cpp,h} -rn '/usr' -e 'calib3d3' #bash
+	and >>> grep --include=\*.{c,cpp,h} -rn '/mnt/c/Users/Matt' -e 'calib3d3' #bash
+	and got nothing, which implies that the string "calib3d3" is not included in any .h, .c, or .cpp file on my computer
+Ran >>> apt-get install libopencv-dev #bash, now compiling with
+	>>> g++ -std=c++11 -o ArucoPoseExample ArucoPoseExample.cpp ArucoPose.cpp -laruco `pkg-config --cflags --libs opencv` #bash
+	which gives the same error as before
