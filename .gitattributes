@@ -1,0 +1,21 @@
+# Set default behavior
+* text=auto
+
+# Explicitly declaring files to be normalized
+*.c text
+*.h text
+*.cc text
+*.hh text
+*.cpp text
+*.hpp text
+
+*.py text
+*.sh text
+*.txt text
+
+# Binary files; this means that programs need .out/.o endings to be safe
+*.png binary
+*.jpg binary
+*.gif binary
+*.out binary
+*.o binary
