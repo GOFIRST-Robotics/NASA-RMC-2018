@@ -8,24 +8,15 @@
 */
 
 #include "AHRS.h"
-#include "SerialIO.h"
 
-class NAVX {
-  enum SerialDataType {
-    /**
-     * (default):  6 and 9-axis processed data
-     */
-    kProcessedData = 0,
-    /**
-     * unprocessed data from each individual sensor
-     */
-    kRawData = 1
-    };
-    
+// Define either MADGWICK or MAHONY as IMU filters
+#define MADGWICK
+
+class NavX {
   public:
-    NAVX(std::string serial_port_id);
+    NavX(std::string serial_port_id);
 
-    NAVX(std::string serial_port_id, AHRS::SerialDataType data_type, uint8_t update_rate_hz);
+    NavX(std::string serial_port_id, AHRS::SerialDataType data_type, uint8_t update_rate_hz);
 
     //State
     //detects X,Y accel; returns true
@@ -38,21 +29,13 @@ class NAVX {
     //Closes the connection from navX to computer
     void Close();
     
-    //Troubleshooting
-    //Returns number of bytes sent from sensor 
-    //Combined withGetUpdateCount() if UpdateCount isnt rising with ByteCount
-    //Connectivity Issues are likely
-    double GetByteCount();
-    //Returns number of valid updates recieved by sensor
-    double GetUpdateCount();
-    
     //Returns sensor timestamp according to the last recieved sample
-    //from the sensor (Only works with (SPI, I2C) NOT (TTL, UART, USB))
+    //from the sensor (Only works with SPI, I2C not TTL, UART, USB)
     long   GetLastSensorTimestamp();
     
     /*---Linear Functions---*/
     //Velocities
-    //(m/s^2), data may be unreliable
+    //(m/s), data may be unreliable
     float GetVelocityX();
     float GetVelocityY();
     float GetVelocityZ();
@@ -62,12 +45,6 @@ class NAVX {
     float GetDisplacementX();
     float GetDisplacementY();
     float GetDisplacementZ();
-    //resets displacement variables to zero
-    void  ResetDisplacement();
-    //function to be invoked each time new lin accel values received
-    //(may not be needed)
-    void  UpdateDisplacement( float accel_x_g, float accel_y_g,
-                               int update_rate_hz, bool is_moving );
     
     //Accelerations
     float GetWorldLinearAccelX();
@@ -75,18 +52,9 @@ class NAVX {
     float GetWorldLinearAccelZ();
     
     /*---Rotational Functions---*/
-    //Yaw
+    //Yaw, Pitch & Roll
     //Gives Yaw angle from -180 to 180 (deg)
     float  GetYaw();
-    //Accumulated Yaw (deg)
-    double GetAngle();
-    //Rate of Yaw (deg/s)
-    double GetRate();
-    //Resets the axis to zero (Recalibration)
-    void   Reset();
-    
-    //Pitch & Roll
-    //-180 to 180 (deg)
     float  GetPitch(); 
     float  GetRoll();
     
@@ -97,6 +65,26 @@ class NAVX {
     float  GetQuaternionX();
     float  GetQuaternionY();
     float  GetQuaternionZ();
+    
+    //Accumulated Yaw (deg)
+    double GetAngle();
+    //Rate of Yaw (deg/s)
+    double GetRate();
+    //Resets the axis to zero (Recalibration)
+    void   Reset();
+    //resets displacement variables to zero
+    void  ResetDisplacement();
+    //function to be invoked each time new lin accel values received
+    //(may not be needed)
+    void  UpdateDisplacement( float accel_x_g, float accel_y_g,
+                               int update_rate_hz, bool is_moving );
+    //Troubleshooting
+    //Returns number of bytes sent from sensor 
+    //Combined withGetUpdateCount() if UpdateCount isnt rising with ByteCount
+    //Connectivity Issues are likely
+    double GetByteCount();
+    //Returns number of valid updates recieved by sensor
+    double GetUpdateCount();
     
     /*---Native Functions That Are Not Implemented---*/
     //Why? Because the above functions are processed
@@ -121,9 +109,6 @@ class NAVX {
     //Sets the offset to be subtracted from GetYaw()
     //Function "Reset()" simply calls this function
     void   ZeroYaw();
-    
-    private:
-      AHRS ahrs;
 };
 
 #endif

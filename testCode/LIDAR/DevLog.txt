@@ -5,3 +5,9 @@ Andrew:
 -inorder to compile with this setup // g++ -std=c++11 [yourfile] -lsweep
 -creates an a.out to be run as follows: ./a.out /dev/ttyUSB# [where # is the USB port in use (0,1 are common)]
 -USB ports appear to be static in regards to physical ports matching virtual ones though I can't confirm this now
+
+2018 April 17
+Jude: On my laptop, two ports on side, one closest to screen on right is USB0, closest to me is USB1; 
+libsweep has some nice examples, including a visualizer. Not apt for our purposes. 
+Did some renaming to fit group coding conventions. 
+Forgot opencv/c++ use 0 as indices, matlab uses 1; Once fixed, transformation matrices found seem to work

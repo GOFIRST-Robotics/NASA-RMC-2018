@@ -1,12 +1,9 @@
 #include "ArucoPose.h"
-#include "ArucoPose.cpp"
 
 #include "aruco/aruco.h"
 #include <iostream>
-#include "opencv2/core/core.hpp"
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include "opencv2/videoio.hpp"
+#include <opencv2/core.hpp>
+#include <opencv2/videoio.hpp>
 #include <string>
 #include <stdexcept>
 
@@ -29,7 +26,7 @@ int main(int argc, char** argv){
 		pose.setMarkerMap("aruco_calibration_grid_board_a4.yml");
 		cout << "Marker map defined. Ready to track: " << pose.isReady() << endl;
 		pose.setMarkerSize(0.03614);
-		cout << "Marker map defined. Ready to track: " << pose.isReady() << endl;
+		cout << "Marker size defined. Ready to track: " << pose.isReady() << endl;
 
 		pose.updatePose(InImage);
 		cout << "Transform matrix: " << endl;

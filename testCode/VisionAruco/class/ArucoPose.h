@@ -2,13 +2,8 @@
 #define ARUCOPOSE_H
 
 #include "aruco/aruco.h"
-#include <iostream>
 #include "opencv2/core/core.hpp"
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include "opencv2/videoio.hpp"
 #include <string>
-#include <stdexcept>
 
 class ArucoPose {
 	public:
