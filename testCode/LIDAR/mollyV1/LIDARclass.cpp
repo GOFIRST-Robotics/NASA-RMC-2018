@@ -6,20 +6,17 @@
 #include "LIDARclass.h"
 using namespace std;
 
-Lidar::Lidar(double angle, double distance, double height)
-{
+Lidar::Lidar(double angle, double distance, double height){
 	xcoord=distance*cos(angle);//angle must be in radians
 	ycoord=distance*sin(angle);//angle must be in radians
 	zcoord=height;
 }
-void Lidar::Translate(double shiftx,double shifty,double shiftz)
-{
+void Lidar::Translate(double shiftx,double shifty,double shiftz){
 	xcoord+=shiftx;
 	ycoord+=shifty;
 	zcoord+=shiftz;
 }
-void Lidar::Rotate(double rx, double ry, double rz)
-{
+void Lidar::Rotate(double rx, double ry, double rz){
 	//rx
 	double txcoord=xcoord;
 	double tycoord=(cos(rx)*ycoord)+(-1.0*sin(rx)*zcoord);
@@ -37,11 +34,10 @@ void Lidar::Rotate(double rx, double ry, double rz)
 	ycoord=tycoord;
 	zcoord=tzcoord;
 }
-void Lidar::printcoords(ostream& outs)
-{
+void Lidar::printcoords(ostream& outs){
 	outs.setf(ios::fixed);
 	outs.setf(ios::showpoint);
-	outs.precision(2);
+	outs.precision(4);
 	outs<<"X: "<<xcoord<<"    Y: "<<ycoord<<"	Z: "<<zcoord<<endl;
 }
 /*

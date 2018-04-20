@@ -1,10 +1,8 @@
 #include <iostream>
 #include <math.h>
-using namespace std;
 
 
-class Lidar //: LidarParent
-{
+class Lidar{ //: LidarParent
 public:
 	double xcoord;
 	double ycoord;
@@ -15,7 +13,7 @@ public:
 	Lidar(double angle, double distance, double height);
 	void Translate(double shiftx,double shifty,double shiftz);
 	void Rotate(double rx, double ry, double rz);
-	void printcoords(ostream& outs);
+	void printcoords(std::ostream& outs);
 	//void setrotation(double rrx, double rry, double rrz);
 };
 /* 

@@ -217,3 +217,34 @@ The VisionBeacons class should work but still need to fix to be more robust.
 
 2018 April 13 
 Minyoung: Installed linuxbrew on RPi.
+
+2018 April 24 Molly:
+Working on this tutorial: https://thingtype.com/blog/using-a-dwm1000-module-with-a-raspberry-pi-and-python/
+Installed DW1000 library on the pi, it appears to work, however I am unsure about setting up the anchors for in the trough
+It doesn't seem to work to just power the anchor
+
+2018 April 14 Matt:
+In get_pose.cpp, changed
+>>>#include "aruco.h"    //c++ to
+>>>#include "aruco/aruco.h"    //c++
+and added some lines to the cmake file I was using to compile it.
+Now it compiles but throws a segmentation fault whenever I run MarkerDetector.detect(), MarkerMapPoseTracker.estimatePose(), MarkerMapPoseTracker.getRvec(), and MarkerMapPoseTracker.getTvec(). 
+If I comment out every line from the first seg fault to the end of the main block of code, I get an error "*** stack smashing detected ***". 
+Not sure what's going on, but leaving it for now because it doesn't really matter if this works.
+
+Wrote ArucoPose.h, ArucoPose.cpp class files and the example ArucoPoseExample.cpp
+After adding opencv core and imgproc libraries and using the command
+>>>g++ -std=c++11 -o ArucoPoseExample ArucoPoseExample.cpp -laruco -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio #bash
+I got "error while loading shared libraries: libaruco.so.2.0: cannot open shared object file: No such file or directory"
+I ran
+>>>LD_LIBRARY_PATH=/usr/local/lib #bash
+>>>export LD_LIBRARY_PATH #bash
+and now I get "error while loading shared libraries: libopencv_calib3d3.so.3.3: cannot open shared object file: No such file or directory"
+Created /etc/ld.so.conf.d/opencv.conf, wrote "/usr/local/lib/", and ran >>>sudo ldconfig -v #bash
+No change to the error
+I've changed essentially nothing, but now I have new errors
+>>>g++ -std=c++11 -o ArucoPoseExample ArucoPoseExample.cpp -laruco -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_videoio -lopencv_calib3d
+Getting "warning: libopencv_calib3d3.so.3.3, needed by //usr/local/lib/libaruco.so, not found"
+3 more similar warnings for libopencv_video3.so.3.3, libopencv_imgproc3.so.3.3, and libopencv_core3.so.3.3
+libopencv_video, libopencv_calib3, etc. all exist, I can't find libopencv_video3, libopencv_calib3d3, etc. anywhere
+
