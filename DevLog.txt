@@ -280,3 +280,6 @@ Ran >>> grep --include=\*.{c,cpp,h} -rn '/usr' -e 'calib3d3' #bash
 Ran >>> apt-get install libopencv-dev #bash, now compiling with
 	>>> g++ -std=c++11 -o ArucoPoseExample ArucoPoseExample.cpp ArucoPose.cpp -laruco `pkg-config --cflags --libs opencv` #bash
 	which gives the same error as before
+
+2018 April 21 Minyoung:
+VisionBeacons class measure distance from the center line and horizontal angle of the robot. I have to work on how to deal with noises.
