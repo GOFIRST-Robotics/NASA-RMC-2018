@@ -39,10 +39,9 @@ cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params
 /*
 ** HELPER METHODS.
 */
-std::vector<cv::Point2f> processing(cv::Mat frame){
-  // KEYPOINTS and POINT2F store x y coordinate for beacons.
+std::vector<cv::KeyPoint> processing(cv::Mat frame){
+  // KEYPOINTS store x y coordinate for beacons.
   std::vector<cv::KeyPoint> keypoints;
-  std::vector<cv::Point2f> point2f;
   // Find beacons and return their x y coordinate.
   cv::cvtColor(frame, frame, cv::COLOR_RGB2HSV);
   cv::inRange(frame, minHSV, maxHSV, frame);
@@ -51,25 +50,24 @@ std::vector<cv::Point2f> processing(cv::Mat frame){
   cv::Mat im_with_keypoints;
   cv::drawKeypoints(frame,keypoints,im_with_keypoints,white, cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
   // Convert type.
-  cv::KeyPoint::convert(keypoints, point2f);
   
   // Add something when there point2f.size() != 2.
   
-  return point2f;
+  return keypoints;
 }
 
-double getDistance(std::vector<cv::Point2f> point2f){
-  return cv::norm(cv::Mat(point2f[0]), cv::Mat(point2f[1]), cv::NORM_L2);
+double getDistance(std::vector<cv::KeyPoint> keypoints){
+  return cv::norm(cv::Mat(keypoints[0].pt), cv::Mat(keypoints[1].pt), cv::NORM_L2);
 }
-double gethorizontalAngle(std::vector<cv::Point2f> point2f){
-  cv::Point2f temp(0,0);
-  if(point2f[0].y > point2f[1].y){
-    temp.x = point2f[0].x;
-    temp.y = point2f[1].y;
+double gethorizontalAngle(std::vector<cv::KeyPoint> keypoints){
+  cv::KeyPoint temp(0,0,2,-1,0,0,-1);
+  if(keypoints[0].pt.y > keypoints[1].pt.y){
+    temp.pt.x = keypoints[0].pt.x;
+    temp.pt.y = keypoints[1].pt.y;
   }
   else{
-    temp.x = point2f[1].x;
-    temp.y = point2f[0].y;
+    temp.pt.x = keypoints[1].pt.x;
+    temp.pt.y = keypoints[0].pt.y;
   }
   double d2 = cv::norm(cv::Mat(point2f[1]), cv::Mat(point2f[2]), 2);
   return std::acos(d2/getDistance(point2f))*(180/3.1415);
@@ -85,6 +83,8 @@ VisionBeacons::VisionBeacons(){
 BeaconData VisionBeacons::process(Mat image,int flags){
   std::vector<cv::Point2f> point2f = processing(image);
   BeaconData data;
+  int cols = image.cols;
+  int rows = image.rows;
   
   // point2f.size() != 2 when beacons are not detected properly.
   if(point2f.size() != 2){
