@@ -24,10 +24,8 @@
  */
 // How many times Blurring.
 const int MAX_KERNEL_LENGTH = 3;
-
 // Actual Distance btween two beacons
 const double ACTUAL_Dist = 1.3;
-
 // Threshold value for finding beacons.
 const cv::Scalar minHSV = cv::Scalar(0,0,254);
 const cv::Scalar maxHSV = cv::Scalar(1,1,255);
@@ -45,8 +43,8 @@ std::vector<cv::KeyPoint> processing(cv::Mat image){
   cv::SimpleBlobDetector::Params params;
   // Filter by Area.
   params.filterByArea = true;
-  params.minArea = 1;
-  params.maxArea = 10000;
+  params.minArea = 5;
+  params.maxArea = 4000;
   // Filter by Circularity.
   params.filterByCircularity = true;
   params.minCircularity = 0.70;
@@ -55,7 +53,7 @@ std::vector<cv::KeyPoint> processing(cv::Mat image){
   params.minInertiaRatio = 0.75;
   // Filter by Convexity
   params.filterByConvexity = true;
-  params.minConvexity = 0.57;
+  params.minConvexity = 0.80;
   cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
   
   // KEYPOINTS store x y coordinate for beacons.
@@ -81,8 +79,8 @@ double getDistBtwBeacons(std::vector<cv::KeyPoint> keypoints){
   return cv::norm(cv::Mat(keypoints[0].pt), cv::Mat(keypoints[1].pt), cv::NORM_L2);
 }
 double getDist(std::vector<cv::KeyPoint> keypoints, int cols){
-  midX = (keypoints[0].pt.x+keypoints[1].pt.x)/2;
-  midY = (keypoints[0].pt.y+keypoints[1].pt.y)/2;
+  double midX = (keypoints[0].pt.x+keypoints[1].pt.x)/2;
+  double midY = (keypoints[0].pt.y+keypoints[1].pt.y)/2;
   cv::KeyPoint midPoint(midX,midY,2,-1,0,0,-1);
   cv::KeyPoint somePoint(cols/2,midY,2,-1,0,0,-1);
   double actualDistPerPixel=(ACTUAL_Dist/getDistBtwBeacons(keypoints));
@@ -114,6 +112,34 @@ VisionBeacons::VisionBeacons(){
 // PROCESS. Returns BeaconsData. flags = 0 : distance, horAngle; flags = 1 : distance; flags = 2 : horAngle
 BeaconData VisionBeacons::process(cv::Mat image,int flags){
   std::vector<cv::KeyPoint> keypoints = processing(image);
+  BeaconData data;
+  int cols = image.cols;
+  
+  // keypoints.size() != 2 when beacons are not detected properly.
+  if(keypoints.size() != 2){
+    data.valid = false;
+    return data;
+  }
+  
+  if(flags == 0){
+    data.distance = getDist(keypoints, cols);
+    data.horizontalAngle = gethorizontalAngle(keypoints);
+  }
+  else if(flags == 1){
+    data.distance = getDist(keypoints, cols);
+    data.horizontalAngle = -1;
+  }
+  else{ // flags == 2
+    data.distance = -1;
+    data.horizontalAngle = gethorizontalAngle(keypoints);
+  }
+  data.valid = true;
+  
+  return data;
+}
+// PROCESS. Overloaded
+BeaconData VisionBeacons::process(cv::Mat image,int flags, std::vector<cv::KeyPoint>& keypoints){
+  keypoints = processing(image);
   BeaconData data;
   int cols = image.cols;
   

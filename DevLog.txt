@@ -282,4 +282,6 @@ Ran >>> apt-get install libopencv-dev #bash, now compiling with
 	which gives the same error as before
 
 2018 April 21 Minyoung:
-VisionBeacons class measure distance from the center line and horizontal angle of the robot. I have to work on how to deal with noises.
+VisionBeacons class - I wrote some methods that return distance from the center line and horizontal angle of the robot based on the assumption that two beacons are "well" detected. I still have to work on how to deal with noises(to "well" detect).
+Made an example MAIN.cpp that demonstrate VisionBeacons class. It is in testCode/VisionBeacons/Example/. To compile, type following on Terminal:
+g++ $(pkg-config --cflags --libs opencv) Camera.h Camera.cpp VisionBeacons.h VisionBeacons.cpp MAIN.cpp
