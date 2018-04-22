@@ -285,3 +285,9 @@ Ran >>> apt-get install libopencv-dev #bash, now compiling with
 VisionBeacons class - I wrote some methods that return distance from the center line and horizontal angle of the robot based on the assumption that two beacons are "well" detected. I still have to work on how to deal with noises(to "well" detect).
 Made an example MAIN.cpp that demonstrate VisionBeacons class. It is in testCode/VisionBeacons/Example/. To compile, type following on Terminal:
 g++ $(pkg-config --cflags --libs opencv) Camera.h Camera.cpp VisionBeacons.h VisionBeacons.cpp MAIN.cpp
+
+2018 April 19-21st Jude:
+Finished & fixed up formatter. Fixed up telecomm, there were differences between finished testcode & main dirs. Began to work on adding multiple wifi/ethernets to a Telecomm class; aborted: it works just to make a new instance each time. Code may be slightly messy, doing a new object should be cleaner. 
+Original Formatter.h/cpp class used templates, made (as official) Formatter_Int.h/cpp files, which just supports ints & floats. It's probably best to just use ints. Add means to add conversion & interface between formats: ex take in a joystick value (-1,1) float or w/e, output a motor value in send-able string. 
+Began writing the parts of the teleop code: LaptopJoystickWifi (can you tell what & where it does stuff?), PiWifiMotors (writing, strictly speaking, to arduino, added rough interface for both UDP/telecomm & Serial). Started a cmake file. For true cmake integration, I need to embed a cmake file in each important dir, but for now it's a fancy makefile. These are mostly done, but not quite. I probably need to make separate compile commands for each. Arduino side is iffy. I am now (end of Saturday) moved to that the serial could work not that bad if the udp doesn't work, better than continuing to waste more time. 
+

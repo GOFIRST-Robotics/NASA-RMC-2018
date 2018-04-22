@@ -20,6 +20,16 @@ inline int number(char c){
   return ((int)c < 91) ? (int)c - 65 : (int)c - 97;
 }
 
+inline std::vector<int_T<int>> convert(val_fmt from, val_fmt to, std::vector<int_T<int>> values){
+  for(int i = 0; i < values.size(); ++i){
+    int f = values[i].v;
+    f = f < from.min_val ? from.min_val : (f > from.max_val ? from.max_val : f);
+    int t = (f - from.off) * to.scale / from.scale + to.off;
+    values[i].v = t < to.min_val ? to.min_val : (t > to.max_val ? to.max_val : t);
+  }
+  return values;
+}
+
 val_fmt* Formatter::getFormat(char symbol){
   if(isValidSymbol(symbol))
     for(val_fmt fmt : formats){

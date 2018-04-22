@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include <queue>
 //http://wjwwood.io/serial/doc/1.1.0/classserial_1_1_serial.html
 #include "Telecomm.h"
 #define ERR_CHECK \
@@ -9,7 +8,6 @@
     fprintf(stdout, "Error: %s\n", comm.verboseStatus().c_str()); \
     return comm.status(); \
   } } while(0)
-// Should add goto LBL_REBOOT to this, that's what it's really good for
 
 int main(int argc, char *argv[]){
   if (argc != 4){
@@ -20,7 +18,6 @@ int main(int argc, char *argv[]){
   Telecomm comm(argv[1], atoi(argv[2]), atoi(argv[3]));
   comm.setFailureAction(false);
   comm.setBlockingTime(0,0);
-  comm.enableMessageRecovery(false);
   ERR_CHECK;
 
   time_t timer;
@@ -30,7 +27,6 @@ int main(int argc, char *argv[]){
   // Exit if !js.isFound()
   // comm.fdAdd(js.fd());
 
-  // Until user types, or receives from remote, "EOM\n", loop
   while(1){
     comm.update();
     ERR_CHECK;
@@ -43,14 +39,16 @@ int main(int argc, char *argv[]){
       //ERR_CHECK; // This makes it crash???
 
       if(!msg.empty())
-        fprintf(stdout, "Received message: %s\n", msg.c_str());
+        printf("Received message: %s\n", msg.c_str());
       
       if(!msg.compare("EOM\n")){ break; } // delete if not want remote close
     }
 
-    // Call restore to repair any broken connection if so
-    // Sends dropped messages as well if enableMessageRecovery
-    comm.restore();
+    // Reboot if communication channel closed
+    while(comm.isCommClosed()){
+      printf("Rebooting connection\n");
+      comm.reboot();
+    }
 
     // Get user stdio input to send
     if(comm.stdioReadAvail()){
@@ -68,7 +66,7 @@ int main(int argc, char *argv[]){
     }
 
     // Example if including joystick
-    // if(comm.fdReadAvail(js.fd) && js.sample(&event)){
+    // if(comm.fdReadAvail(js.fd()) && js.sample(&event)){
     //   ... process buttons and axis of event ... }
 
     // heartbeat

@@ -20,7 +20,7 @@
 
 #define STDIN 0
 
-int sockfd, maxfd;
+int sockfd = -1, maxfd;
 fd_set readfds, resultfds;
 struct addrinfo hints, *dstinfo = NULL, *srcinfo = NULL, *p = NULL;
 std::string dst_addr;
@@ -67,7 +67,7 @@ Telecomm::Telecomm(std::string dst_addr_, int dst_port_, int src_port_){
 void resetMaxfd(){
   for(; !FD_ISSET(maxfd, &readfds); --maxfd);
   maxfd = (maxfd >= STDIN) ? maxfd : STDIN;
-} 
+}
 
 void Telecomm::reboot(){
   // Clean up old sockfd
@@ -146,7 +146,7 @@ void Telecomm::reboot(){
   // Since sockfd is good, no errors, add to &readfds, update maxfd
   FD_SET(sockfd, &readfds);
   maxfd = (maxfd < sockfd) ? sockfd : maxfd;
-  
+
   LBL_RET:
     if(ret == 0){
       return;
@@ -188,7 +188,7 @@ int Telecomm::update(){
     tv_ptr = &tv;
   }
 
-  if(select(sockfd + 1, &readfds, NULL, NULL, tv_ptr) == -1){
+  if(select(maxfd + 1, &resultfds, NULL, NULL, tv_ptr) < 0 && errno != EINTR){
     perror("select");
     ret = 6;
     deleteWithException(true);
