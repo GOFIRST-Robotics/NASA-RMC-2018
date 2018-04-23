@@ -19,3 +19,6 @@
 *.gif binary
 *.out binary
 *.o binary
+
+# Turn off warnings about line endings
+core.safecrlf=false

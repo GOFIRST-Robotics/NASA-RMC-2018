@@ -1,4 +1,4 @@
-#include "Formatter_Int.h"
+#include "Formatter.h"
 #include <string>
 #include <iostream>
 
@@ -9,6 +9,8 @@ int main(){
   
   fmt.add("Motors", {{1,2},{2,5},{4,70}},input_fmt);
   fmt.add("Motors", {{0,-49},{8,98}},"Inputs");
+  fmt.add("Motors", {{6,0},{7,1},{9,0}});
+  fmt.addFloat("Motors", {{3,.02f},{5,-0.3f}});
   std::string msg = fmt.emit();
   std::cout << msg << std::endl;
 

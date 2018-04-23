@@ -291,3 +291,6 @@ Finished & fixed up formatter. Fixed up telecomm, there were differences between
 Original Formatter.h/cpp class used templates, made (as official) Formatter_Int.h/cpp files, which just supports ints & floats. It's probably best to just use ints. Add means to add conversion & interface between formats: ex take in a joystick value (-1,1) float or w/e, output a motor value in send-able string. 
 Began writing the parts of the teleop code: LaptopJoystickWifi (can you tell what & where it does stuff?), PiWifiMotors (writing, strictly speaking, to arduino, added rough interface for both UDP/telecomm & Serial). Started a cmake file. For true cmake integration, I need to embed a cmake file in each important dir, but for now it's a fancy makefile. These are mostly done, but not quite. I probably need to make separate compile commands for each. Arduino side is iffy. I am now (end of Saturday) moved to that the serial could work not that bad if the udp doesn't work, better than continuing to waste more time. 
 
+2018 April 22: Jude
+Teleop toolchain should now be operational. Each segment is written, laptop/pi/arduino, and all but arduino compile. Code has been written for the arduino to parse/process sent data. See formatter devlog for details. 
+Need to write test code for new Formatter.hh/cc code, check compilation. 

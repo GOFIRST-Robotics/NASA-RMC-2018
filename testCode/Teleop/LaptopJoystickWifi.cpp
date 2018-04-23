@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Telecomm.h"
-#include "Formatter.h"
+#include "Formatter.hpp"
 #include "joystick.hh"
 
 #define M0_left_isAxis 1
@@ -23,8 +23,8 @@ int main(){
   }
   
   // Formatter
-  val_fmt motor_fmt = {
-    "Motors", // string data_t
+  val_fmt motor_msg_fmt = {
+    "Motors_msg", // string data_t
     '!', // Arbitrary symbol
     3, // Number of bytes/chars to send
     0, // Min_val (sending)
@@ -32,10 +32,19 @@ int main(){
     100, // Offset
     100
   };
-  Formatter fmt = Formatter({motor_fmt});
+  val_fmt js_fmt = {
+    "JS_In", 
+    '@',
+    6,
+    -32768, // Minval
+    32767, // Maxval
+    0, // offset
+    32768 // range
+  };
+  Formatter fmt = Formatter({motor_msg_fmt,js_fmt});
   
   // Joystick
-  Joystick js();
+  Joystick js = Joystick();
   if(!js.isFound()){
     printf("Error: Joystick not found");
     return 22;
@@ -49,12 +58,12 @@ int main(){
     JoystickEvent event;
     
     // Assume Arduino keeps track of states & just updates
-    if(comm.fdReadAvail(js.fd()) && joystick.sample(&event) && event.isAxis() 
+    if(comm.fdReadAvail(js.fd()) && js.sample(&event) && event.isAxis() 
         && (event.number == M0_left_isAxis || event.number == M1_right_isAxis)){
       if(event.number == M0_left_isAxis)
-        fmt.add("Motors",{0,event.value/32767.0});
+        fmt.add("Motors",{{0,event.value}},js_fmt);
       if(event.number == M1_right_isAxis)
-        fmt.add("Motors",{1,event.value/32767.0}); 
+        fmt.add("Motors",{{1,event.value}},js_fmt); 
       comm.send(fmt.emit());
     }
 

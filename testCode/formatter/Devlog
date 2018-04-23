@@ -33,3 +33,9 @@ Have Formatter take in a val_fmt and a pair of vectors, inds and values; that fu
 
 I think I got it. I'm gonna parameterize the function, have formatter be a class parameterized by the kinds of messages that can get passed to it. 
 No messenger class? Might do something with Telecomm/Formatter, idk. 
+
+2018 April 22: Jude
+Several changes. Made a version of the class with just ints & floats - better. Making that Formatter.h/cpp, the other one is renamed Formatter_T.h/cpp. I think this does what we need, just need to define standards. 
+Made the more pure c++ code have .hpp/.cpp extensions, then made a c/c++ class with .hh/.cc extensions. It's almost c code, which should give it good compatibility with arduino. 
+Compiled the teleop codes successfully. Started arduino program as well. 
+The arduino program won't compile, but it's generally in the write shape, debugging moreso. 
