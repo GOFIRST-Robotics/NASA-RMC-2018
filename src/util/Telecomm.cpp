@@ -18,8 +18,6 @@
 #include <netdb.h>
 #include <fcntl.h>
 
-#include <queue>
-
 #define STDIN 0
 
 int sockfd = -1, maxfd;
@@ -34,10 +32,6 @@ timeval *tv_ptr = NULL, tv = {0};
 char buffer[256] = {0};
 bool throwError = true;
 
-bool msgRecovery = true;
-bool rebooting = false;
-std::queue<std::string> dropBuffer;
-
 void Telecomm::setFailureAction(bool thrwErr){
   throwError = thrwErr;
 }
@@ -46,8 +40,6 @@ void Telecomm::setBlockingTime(int sec_, int usec_){
   sec = sec_;
   usec = usec_;
 }
-
-void Telecomm::enableMessageRecovery(bool b){ msgRecovery = b; }
 
 void deleteWithException(bool throwit){
   if(dstinfo)
@@ -161,29 +153,7 @@ void Telecomm::reboot(){
     }else{
       deleteWithException(true);
   }
-}
 
-void Telecomm::restore(){
-// Reboot if communication channel closed
-  LBL_RESTORE:
-  while(isCommClosed()){
-    // printf("Rebooting connection\n");
-    reboot();
-    rebooting = true;
-  }
-  if(msgRecovery && rebooting){ // After rebooting, send dropped msg buffer
-    rebooting = false;
-//    std::queue<std::string> tmpBuff (dropBuffer);
-//    while(!dropBuffer.empty() && ((ret /*= send(dropBuffer.front())*/) == 0)){ // crashing: sending when not ok
-//      dropBuffer.pop();
-//    }
-//    if(ret != 0 || dropBuffer.empty()){
-//      dropBuffer.swap(tmpBuff);
-//    }
-// This is crashing at send, trying to move this to within send command, assuming valid?
-    //ERR_CHECK; why do these keep causing the destructor, double deletes->crash
-    goto LBL_RESTORE;
-  }
 }
 
 Telecomm::~Telecomm(){
@@ -197,8 +167,8 @@ int Telecomm::status(){ return ret; }
 
 bool Telecomm::isCommClosed(){ return ret != 0; }
 
-void Telecomm::fdAdd(int fd){ 
-  FD_SET(fd, &readfds); 
+void Telecomm::fdAdd(int fd){
+  FD_SET(fd, &readfds);
   maxfd = (maxfd < fd) ? fd : maxfd;
 }
 
@@ -260,32 +230,14 @@ std::string Telecomm::stdioRead(){
 }
 
 int Telecomm::send(std::string msg){
-  if(msgRecovery)
-    dropBuffer.push(msg);
-  std::string m;
-  if(!isCommClosed() && !msgRecovery){
-    m = msg;
-    LBL_SEND:
-    memset(buffer, 0, sizeof(buffer));
-    std::strcpy(buffer, m.c_str());
-    len = m.length();
-    if(sendall(sockfd, buffer, &len) == -1) {
-      perror("sendall");
-      fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
-      ret = 8;
-      deleteWithException(true);
-      return ret;
-    }
-  }
-  if(!isCommClosed() && msgRecovery){
-    while(!dropBuffer.empty()){
-      m = dropBuffer.front();
-      dropBuffer.pop();
-      goto LBL_SEND;
-    }
-  }
-  if(isCommClosed()) {
-    printf("Recieved msg, but ret != 0 comm closed: %s", msg.c_str());
+  memset(buffer, 0, sizeof(buffer));
+  std::strcpy(buffer, msg.c_str());
+  len = msg.length();
+  if(sendall(sockfd, buffer, &len) == -1) {
+    perror("sendall");
+    fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
+    ret = 8;
+    deleteWithException(true);
   }
   return ret;
 }
@@ -301,7 +253,7 @@ std::string Telecomm::recv(){
   if ((iof = fcntl(sockfd, F_GETFL, 0)) != -1)
     fcntl(sockfd, F_SETFL, iof | O_NONBLOCK);
   // Receive
-  numbytes = ::recv(sockfd, buffer, sizeof(buffer), 0);  
+  numbytes = ::recv(sockfd, buffer, sizeof(buffer), 0);
   // Set flags as before
   if (iof != -1)
     fcntl(sockfd, F_SETFL, iof);
@@ -317,11 +269,6 @@ std::string Telecomm::recv(){
     ret = 10;
     deleteWithException(true);
     return "";
-  }
-  // message recovery
-  if(msgRecovery){
-    while(!isCommClosed() && !dropBuffer.empty())
-      dropBuffer.pop();
   }
   return std::string(buffer, numbytes);
 }
