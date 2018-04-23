@@ -48,7 +48,9 @@ class Camera {
     cv::Mat t;
     double latency;
     std::string configFile;
-    FileStorage fs;
+    cv::FileStorage fs;
+    void init(std::string);
+
 };
 
 #endif
