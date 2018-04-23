@@ -285,3 +285,6 @@ Ran >>> apt-get install libopencv-dev #bash, now compiling with
 VisionBeacons class - I wrote some methods that return distance from the center line and horizontal angle of the robot based on the assumption that two beacons are "well" detected. I still have to work on how to deal with noises(to "well" detect).
 Made an example MAIN.cpp that demonstrate VisionBeacons class. It is in testCode/VisionBeacons/Example/. To compile, type following on Terminal:
 g++ $(pkg-config --cflags --libs opencv) Camera.h Camera.cpp VisionBeacons.h VisionBeacons.cpp MAIN.cpp
+
+2018 April 22 Minyoung:
+Added a test code for Visionbeacons class in testCode/BackSensors/VisionBeaconsTest dir.
