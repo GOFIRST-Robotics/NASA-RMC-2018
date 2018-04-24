@@ -11,7 +11,7 @@ using namespace cv;
 
 Mat empty;
 
-void init(std::string file){
+void Camera::init(std::string file){
   latency = -0.991199;
   configFile = file;
   if(file == ""){
@@ -32,17 +32,17 @@ void init(std::string file){
     latency = 0.0;
 } 
 
-Camera::Camera(std::string filename, std::string configFile = ""){
+Camera::Camera(std::string filename, std::string configFile){
   cap = VideoCapture(filename);
   init(configFile);
 }
 
-Camera::Camera(std::string filename, int opencvAPI, std::string configFile = ""){
+Camera::Camera(std::string filename, int opencvAPI, std::string configFile){
   cap = VideoCapture(filename,opencvAPI);
   init(configFile);
 }
 
-Camera::Camera(int id, std::string configFile = ""){
+Camera::Camera(int id, std::string configFile){
   cap = cv::VideoCapture(id);
   init(configFile);
 }
@@ -66,10 +66,10 @@ Cframe Camera::retrieve(){
 bool Camera::isOpened(){ return cap.isOpened(); }
 cv::Mat Camera::getK(){ return K; }
 cv::Mat Camera::getRot(){ return R; }
-cv::Mat Camera::getTrans(){return t};
+cv::Mat Camera::getTrans(){return t; };
 double Camera::getLatency(){ return latency; }
 void Camera::setK(cv::Mat i){ K = i.clone(); }
-void Camera::setRrot(cv::Mat e){ R = e.clone(); }
+void Camera::setRot(cv::Mat e){ R = e.clone(); }
 void Camera::setTrans(cv::Mat tr){ t = tr.clone(); }
 void Camera::setLatency(double l){ latency = l; }
 

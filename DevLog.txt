@@ -295,3 +295,6 @@ Began writing the parts of the teleop code: LaptopJoystickWifi (can you tell wha
 Added a test code for Visionbeacons class in testCode/BackSensors/VisionBeaconsTest dir.
 
 
+2018 April 22: Jude
+Teleop toolchain should now be operational. Each segment is written, laptop/pi/arduino, and all but arduino compile. Code has been written for the arduino to parse/process sent data. See formatter devlog for details. 
+Need to write test code for new Formatter.hh/cc code, check compilation. 

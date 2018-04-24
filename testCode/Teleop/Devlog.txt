@@ -1,0 +1,4 @@
+2018 April 22: Jude
+UDP isn't working, switch to serial. 
+Making separate compilation commands/bash files for each program. Laptop doesn't need clunky serial installed, pi does & has it. 
+
