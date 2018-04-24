@@ -61,9 +61,9 @@ int main(){
     if(comm.fdReadAvail(js.fd()) && js.sample(&event) && event.isAxis() 
         && (event.number == M0_left_isAxis || event.number == M1_right_isAxis)){
       if(event.number == M0_left_isAxis)
-        fmt.add("Motors",{{0,event.value}},js_fmt);
+        fmt.add("Motors_msg",{{0,event.value}},"JS_In");
       if(event.number == M1_right_isAxis)
-        fmt.add("Motors",{{1,event.value}},js_fmt); 
+        fmt.add("Motors_msg",{{1,event.value}},"JS_In"); 
       comm.send(fmt.emit());
     }
 

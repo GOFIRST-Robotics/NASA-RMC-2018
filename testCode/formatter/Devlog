@@ -39,3 +39,7 @@ Several changes. Made a version of the class with just ints & floats - better. M
 Made the more pure c++ code have .hpp/.cpp extensions, then made a c/c++ class with .hh/.cc extensions. It's almost c code, which should give it good compatibility with arduino. 
 Compiled the teleop codes successfully. Started arduino program as well. 
 The arduino program won't compile, but it's generally in the write shape, debugging moreso. 
+
+2018 April 23: Jude
+Formatter.hh/cc definitely wasn't ready to run. Spent too much time getting it to compile. I hopefully learned something about C/C++98. 
+Now working, with testC.cc

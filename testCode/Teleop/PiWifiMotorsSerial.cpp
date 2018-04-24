@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "serial/serial.h"
 
@@ -44,8 +45,10 @@ int main(){
     // Assume Arduino keeps track of states & just updates, but pi should keep track too
     if(comm.recvAvail()){
       std::string msg = comm.recv();
+      std::cout << "Recieved, ";
       if(arduino.isOpen()){
         arduino.write(msg);
+        std::cout << " and Sent: " << msg << std::endl;
       }
     }
 

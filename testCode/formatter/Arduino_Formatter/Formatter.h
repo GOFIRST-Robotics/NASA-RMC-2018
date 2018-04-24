@@ -1,10 +1,10 @@
-#ifndef FORMATTER_HH
-#define FORMATTER_HH
+#ifndef FORMATTER_H
+#define FORMATTER_H
 
-/* Formatter.hh defines a class to parameterize a standard formatter for sending 
+/* Formatter.h defines a class to parameterize a standard formatter for sending 
  * and recieving messages, usually for the same expected interface. 
  * This class is meant to be c/c++, for use with arduino. Formatter.hpp for c++.
- * This does not require c++11 to use. 
+ * This does not require c++11 to use. This is aruino complete. 
  * A type of communicatable object is parameterized by a val_fmt, which describes 
  * the processing of that type, encoding and decoding it from a stream or buffer. 
  * A formatter for a specific interface is initialized / constructed with a 
@@ -23,6 +23,8 @@
  * Parsing returns a linked list of values extracted, example usage is given
  * below with the function. 
  */
+
+#include "Arduino.h"
 
 // For each type "data_t" of send/recv -able data, define simple conv:
 // Convert from arb. value to a storable val with scale==resolution

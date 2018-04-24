@@ -298,3 +298,6 @@ Added a test code for Visionbeacons class in testCode/BackSensors/VisionBeaconsT
 2018 April 22: Jude
 Teleop toolchain should now be operational. Each segment is written, laptop/pi/arduino, and all but arduino compile. Code has been written for the arduino to parse/process sent data. See formatter devlog for details. 
 Need to write test code for new Formatter.hh/cc code, check compilation. 
+Test code written. Arduino libraries need extra fluff, a slight name change & ~2 lines. Moved the Arduino library files & zip to sub folder in formatter. 
+All code compiles, testing teleop. 
+

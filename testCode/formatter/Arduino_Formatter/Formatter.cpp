@@ -1,4 +1,5 @@
-#include "Formatter.hh"
+#include "Arduino.h"
+#include "Formatter.h"
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>

@@ -1,3 +1,5 @@
+#include <Formatter.h>
+
 /* Teleop_Motors_Arduino
  *  Runs the teleop code from the pi over serial to the motors.
  *  Do not use for final without cleanup.
@@ -5,19 +7,20 @@
  */
 
 // Include Formatter.zip of Formatter.hh/cc files
-#include <Formatter.hh>
+#include "Formatter.h"
 
 val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
 val_fmt motor_fmt = {"Motors", '#', 4, 1000, 2000, 1500, 500};
+val_fmt formats[] = {motor_msg_fmt,motor_fmt};
 
-Formatter fmt = Formatter(2,[motor_msg_fmt,motor_fmt]);
+Formatter fmt = Formatter(2,formats);
 
 #include <Servo.h>
 
 Servo left;
 Servo right;
 
-int motorVals[] = [1500,1500];
+int motorVals[] = {1500,1500};
 #define leftInd 0
 #define rightInd 1
 
