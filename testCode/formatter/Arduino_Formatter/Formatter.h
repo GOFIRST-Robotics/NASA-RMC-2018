@@ -101,8 +101,8 @@ class Formatter {
     IV_float_list* parseFloat(char message[], const char from_data_t[], const char to_data_t[]);
     
     // Iterators on lists
-    IV* nextIV(IV_list* list);
-    IV_float* nextIV_float(IV_float_list* list);
+    IV* nextIV(IV_list* &list);
+    IV_float* nextIV_float(IV_float_list* &list);
       // Usage, consumes list:
       // IV* ivPtr; 
       // IV_list* list = parse("Message","DataType");

@@ -43,3 +43,7 @@ The arduino program won't compile, but it's generally in the write shape, debugg
 2018 April 23: Jude
 Formatter.hh/cc definitely wasn't ready to run. Spent too much time getting it to compile. I hopefully learned something about C/C++98. 
 Now working, with testC.cc
+
+2018 April 24: Jude
+Problem: if(!ptr) // implies pointer is null, was missing in nextIV. Also, needed to pass list pointer by value in parse. Also, initial root of list is null, fixed all 3. Updated arduino as well
+

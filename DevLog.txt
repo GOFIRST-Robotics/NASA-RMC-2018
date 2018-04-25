@@ -301,3 +301,6 @@ Need to write test code for new Formatter.hh/cc code, check compilation.
 Test code written. Arduino libraries need extra fluff, a slight name change & ~2 lines. Moved the Arduino library files & zip to sub folder in formatter. 
 All code compiles, testing teleop. 
 
+2018 April 23: Jude
+Major fixing with Formatter.hh/cc. Moved into sub dir for aduino, which requires adding arduino.h and proper names. Zip folder made. All code successfully works now, except the writing of serial from the pi code. The arduino recieves nothing. 
+
