@@ -81,8 +81,8 @@ double getDistBtwBeacons(std::vector<cv::KeyPoint> keypoints){
   return cv::norm(cv::Mat(keypoints[0].pt), cv::Mat(keypoints[1].pt), cv::NORM_L2);
 }
 double getDist(std::vector<cv::KeyPoint> keypoints, int cols){
-  midX = (keypoints[0].pt.x+keypoints[1].pt.x)/2;
-  midY = (keypoints[0].pt.y+keypoints[1].pt.y)/2;
+  int midX = (keypoints[0].pt.x+keypoints[1].pt.x)/2;
+  int midY = (keypoints[0].pt.y+keypoints[1].pt.y)/2;
   cv::KeyPoint midPoint(midX,midY,2,-1,0,0,-1);
   cv::KeyPoint somePoint(cols/2,midY,2,-1,0,0,-1);
   double actualDistPerPixel=(ACTUAL_Dist/getDistBtwBeacons(keypoints));
