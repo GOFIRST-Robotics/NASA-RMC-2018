@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <unistd.h>
 
 #include "serial/serial.h"
 
@@ -36,10 +37,11 @@ int main(){
 */
   // Serial
   std::string port = "/dev/ttyACM0"; // could be something else
-  serial::Serial arduino(port, 9600);
+  serial::Serial arduino(port, 9600,serial::Timeout::simpleTimeout(31));
 
   // Loop
   while(1){
+  //usleep(1000*30);
     comm.update();
 
     // Assume Arduino keeps track of states & just updates, but pi should keep track too
@@ -49,6 +51,7 @@ int main(){
       if(arduino.isOpen()){
         arduino.write(msg);
         std::cout << " and Sent: " << msg << std::endl;
+        std::cout << "Got back: " << arduino.read(msg.length()+1) << std::endl;
       }
     }
 
