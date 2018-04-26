@@ -35,18 +35,37 @@ void setup() {
   left.attach(3);
 }
 
+void prIV(IV* ivPtr){
+  Serial.print("IV value, i= ");
+  Serial.print(ivPtr->i);
+  Serial.print("   v= ");
+  Serial.println(ivPtr->v);
+}
+
 void loop() {
-  while(Serial.available() > 0 && (inChar != '\0')){
+  while(Serial.available() > 0 && (inChar != '\0' || inChar != '\n')){
     if(index < 299){
       inChar = Serial.read();
       inData[index++] = inChar;
       inData[index] = '\0';
+      Serial.print(inChar);
     }
+    delay(1);
   }
-  IV_list* list = fmt.parse(inData,"Motors_msg","Motors");
-  IV* ivPtr;
-  while(!(ivPtr = fmt.nextIV(list))){
-    motorVals[ivPtr->i] = ivPtr->v;
+  if(inChar=='\0' || inChar=='\n'){
+    index=0;
+    inData[index] = '\0';
+    Serial.println(inData);
+    IV_list* list = fmt.parse(inData,"Motors_msg","Motors");
+    IV* ivPtr;
+    do{//while(ivPtr = fmt.nextIV(list)){
+      Serial.println((int)list);
+      ivPtr = fmt.nextIV(list);
+      Serial.println((int)list);
+      prIV(ivPtr);
+      motorVals[ivPtr->i] = ivPtr->v;
+    }while(ivPtr);
+    inChar = -1;
   }
   left.writeMicroseconds(motorVals[leftInd]);
   right.writeMicroseconds(motorVals[rightInd]);
