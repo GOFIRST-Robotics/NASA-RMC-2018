@@ -312,5 +312,6 @@ Added a timeout in the c++ code:
 	and now it works with the Arduino repeater
 31 milliseconds is the lowest we can go using the "!A123" message format (ie length) without the messages being reported back incorrectly or not being reported.
 Using a timeout of 1 millisecond and a usleep of 30 acts the same as without the usleep: we never read anything back from the Arduino.
-Todo: fix the Arduino code that parses the "!A123" type messages to correctly extract the index and value 
+Todo: fix the Arduino code that parses the "!A123" type messages to correctly extract the index and value
 
+Minyoung: Added a CMakeLists.txt for compiling VisionBeacons test code in testCode/BackSensors/VisionBeaconsTest dir. Learned multithreading, mutex.
