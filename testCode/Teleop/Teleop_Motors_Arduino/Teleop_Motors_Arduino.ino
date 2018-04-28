@@ -7,7 +7,6 @@
  */
 
 // Include Formatter.zip of Formatter.hh/cc files
-#include "Formatter.h"
 
 val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
 val_fmt motor_fmt = {"Motors", '#', 4, 1000, 2000, 1500, 500};
@@ -25,9 +24,8 @@ int motorVals[] = {1500,1500};
 #define rightInd 1
 
 // Reading / parsing
-char inData[300];
-char inChar = -1;
-byte index = 0;
+//char inData[300];
+String inData = "";
 
 void setup() {
   Serial.begin(9600);
@@ -35,18 +33,25 @@ void setup() {
   left.attach(3);
 }
 
+void prIV(IV* ivPtr){
+  Serial.print("IV value, i= ");
+  Serial.print(ivPtr->i);
+  Serial.print("   v= ");
+  Serial.println(ivPtr->v);
+}
+
 void loop() {
-  while(Serial.available() > 0 && (inChar != '\0')){
-    if(index < 299){
-      inChar = Serial.read();
-      inData[index++] = inChar;
-      inData[index] = '\0';
-    }
-  }
-  IV_list* list = fmt.parse(inData,"Motors_msg","Motors");
-  IV* ivPtr;
-  while(!(ivPtr = fmt.nextIV(list))){
-    motorVals[ivPtr->i] = ivPtr->v;
+  if(Serial.available() > 0){
+    //Serial.readBytesUntil('\n',inData,299);
+    inData = Serial.readStringUntil('\n');
+    Serial.println(inData);
+    IV_list* list = fmt.parse(inData.c_str(),"Motors_msg","Motors");
+    inData = "";
+    IV* ivPtr;
+    while(ivPtr = fmt.nextIV(list)){
+      prIV(ivPtr);
+      motorVals[ivPtr->i] = ivPtr->v;
+    };
   }
   left.writeMicroseconds(motorVals[leftInd]);
   right.writeMicroseconds(motorVals[rightInd]);

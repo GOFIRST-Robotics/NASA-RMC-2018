@@ -301,3 +301,17 @@ Need to write test code for new Formatter.hh/cc code, check compilation.
 Test code written. Arduino libraries need extra fluff, a slight name change & ~2 lines. Moved the Arduino library files & zip to sub folder in formatter. 
 All code compiles, testing teleop. 
 
+2018 April 23: Jude
+Major fixing with Formatter.hh/cc. Moved into sub dir for aduino, which requires adding arduino.h and proper names. Zip folder made. All code successfully works now, except the writing of serial from the pi code. The arduino recieves nothing. 
+
+2018 April 25 Matt:
+Trying to fix PiWifiMotorsSerial.cpp, currently sends and doesn't recieve over serial to Arduino (when Arduino is running serial repeater)
+Replaced USB from Pi to Arduino with one that definitely does data, now the serial example in the serial library works with the Arduino repeater code
+Added a timeout in the c++ code:
+	>>>serial::Serial arduino(port, 9600,serial::Timeout::simpleTimeout(31)); #c++
+	and now it works with the Arduino repeater
+31 milliseconds is the lowest we can go using the "!A123" message format (ie length) without the messages being reported back incorrectly or not being reported.
+Using a timeout of 1 millisecond and a usleep of 30 acts the same as without the usleep: we never read anything back from the Arduino.
+Todo: fix the Arduino code that parses the "!A123" type messages to correctly extract the index and value
+
+Minyoung: Added a CMakeLists.txt for compiling VisionBeacons test code in testCode/BackSensors/VisionBeaconsTest dir. Learned multithreading, mutex.
