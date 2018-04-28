@@ -106,7 +106,7 @@ class Formatter {
       // Usage, consumes list:
       // IV* ivPtr; 
       // IV_list* list = parse("Message","DataType");
-      // while(!(ivPtr = nextIV(list))){ 
+      // while(ivPtr = nextIV(list)){ 
       //   ivPtr->i // ... do something
       //   ivPtr->v // ... do something
       // }
