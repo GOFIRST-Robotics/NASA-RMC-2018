@@ -3,3 +3,14 @@ Andrew:
 -Working on Arduino getting NavX to work with arduino, attempting to grab only the accels and yaw,roll,pitch isn't working perhaps an issue with what is being pulled by requestFrom()?
 -Important Note: Baud 115200
 -made a navXangles.ino in personal files because thats how arduino ide is setup, cleared out UART and SPI code from example and attempting to get the specific values now
+
+April 27 2018:
+Andrew:
+-Continuing goal of getting data from NavX through Arduino
+-Still can't get data from Accelerometer and Gyros at the same time
+-Got byte info from gyro to print to the arduino serial console
+-used navX built-in byte to float converter,
+ however yaw claims to be rotation around x (inaccurate),
+ roll and pitch print 0. Likely an issue with how I'm dealing with the input 
+ arrays.
+-changed beginTransmission input to be 50 (decimal of 0x32)
