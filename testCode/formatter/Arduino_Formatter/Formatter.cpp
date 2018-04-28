@@ -28,7 +28,8 @@ void Formatter::addChar(char c){
   msg[msgi] = '\0';
 }
 
-int convert(const val_fmt& from, const val_fmt& to, int f){
+int convert(const val_fmt& from, const val_fmt& to, int v){
+    long f = v;
     f = f < from.min_val ? from.min_val : (f > from.max_val ? from.max_val : f);
     f = (f - from.off) * to.scale / from.scale + to.off;
     f = f < to.min_val ? to.min_val : (f > to.max_val ? to.max_val : f);
@@ -73,7 +74,8 @@ Formatter::~Formatter(){
   delete formats;
 }
 
-int Formatter::getVal(int out, const val_fmt* fmt){
+int Formatter::getVal(int in, const val_fmt* fmt){
+  long out = in;
   out = out * fmt->scale + fmt->off;
   if(out > fmt->max_val)
     return fmt->max_val;
@@ -226,6 +228,7 @@ void Formatter::addFloat(const char data_t[], const IV_float& idv){
 }
 
 char* Formatter::emit(){
+  addChar('\n');
   newMsg = true;
   return msg;
 }

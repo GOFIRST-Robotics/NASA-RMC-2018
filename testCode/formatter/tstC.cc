@@ -6,7 +6,7 @@
 int main(){
   val_fmt input_fmt = {"Inputs",'@',3,-100,100,  0,100};
   val_fmt motor_fmt = {"Motors",'!',3,   0,200,100,100};
-  val_fmt motor2_fmt = {"Motors2",'!',4,1000,2000,1500,500};
+  val_fmt motor2_fmt = {"Motors2",'#',4,1000,2000,1500,500};
   val_fmt fmts[] = {input_fmt,motor_fmt,motor2_fmt};
   Formatter fmt(3,fmts);
   

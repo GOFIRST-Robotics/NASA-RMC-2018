@@ -185,6 +185,7 @@ void Formatter::addFloat(std::string data_t, const std::vector<IV_float>& ids_va
 }
 
 std::string Formatter::emit(){
+  msg += "\n";
   newMsg = true;
   return msg;
 }
