@@ -14,3 +14,8 @@ Andrew:
  roll and pitch print 0. Likely an issue with how I'm dealing with the input 
  arrays.
 -changed beginTransmission input to be 50 (decimal of 0x32)
+
+April 28 2018:
+Andrew:
+-Got Linear Accels and Gyro stuff to print to serial monitor at the same time, had to use different Wire.read() arrays for each sensor
+-have formatter code setup to send to master and it compiles, but dont know how to test if it works right now
