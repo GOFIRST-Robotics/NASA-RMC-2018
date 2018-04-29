@@ -1,0 +1,36 @@
+2018 April 28: Jude
+Wheels need to detect rocks & holes, their boundaries, & their location. Cams are mounted at an angle, so a boundary can be projected onto the ground to create a rough obstacle shape in the 2D path planning. 
+
+Image should be prefiltered. Niekum [1] recommends color calibration (comparing a color sample in each frame with a known set of values under optimal lighting), streching (vals to fill 0-255) & histogram equalization (bang it), and a bilateral filter. 
+He then uses region merging over 5x5 regions, for each channel(HSV)/sensor. 
+There are two sets of passes: the first set does a difference of means to combine regions until there are no more combinations, then the second set does a Welch-modified t-test recombo until stable. He passes these regions into a detection / ML system. Regions on edge of image are discarded. 
+We can't do ML, no time. Cheap simple techniques. 
+He gives some properties that valid rocks have. 
+  Elongation: non-rock artifacts tend to be long-spidery shapes, rocks are convex/ellipsoidal. 
+  Relative Color: abs val of diff of mean px HSV of interior vs exterior regions. Fisher dist worked best. 
+  Relative Color Variance: abs val of diff between px variance interior vs px var of exterior regions, measure of texture. 
+  Height, if available. 
+  Texture
+  Intensity Gradient
+  Physical Location
+  Absolute Color
+  Absolute Range
+  Pixel Area
+His code is not online. Github results show a matlab faster r-cnn that might work, if time. UMLRoverHawks have a ros rock detection on gh, but might need to be tested.  
+
+Goal: Clean up image, use edge/motion techniques? Snakes?
+
+Jiang et al [2] were able to do a more effective image segmentation / thresholding than Otsu's method, then fit ellipses. This seems like a good technique for the main cam, possible apps to the wheels, depending on view. 
+
+
+
+
+
+
+
+
+
+
+
+[1] Reliable Rock Detection and Classification for Autonomous Science Scott Niekum
+[2] Rock detection based on 2D maximum entropy thresholding segmentation and ellipse fitting,  Xiaonan Jiang ; Xianlin Huang ; Ming Jie ; Hang Yin
