@@ -126,13 +126,13 @@ void Telecomm::reboot(){
     goto LBL_RET;
   }
  
-  // Set sock addr to be reusable
+/*  // Set sock addr to be reusable
   if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1){
     perror("setsockopt");
     ret = 11;
     goto LBL_RET;
   }
-
+*/
   // Or connect socket to dst
   if((rv= connect(sockfd, p->ai_addr, p->ai_addrlen)) != 0) {
     fprintf(stderr, "connect: %s\n", gai_strerror(rv));

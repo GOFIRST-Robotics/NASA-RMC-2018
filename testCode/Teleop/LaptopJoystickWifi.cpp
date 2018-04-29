@@ -3,6 +3,7 @@
 // Encodes joystick data as per formatter, links with telecomm, sends 
 
 #include <string>
+#include <iostream>
 
 #include "Telecomm.h"
 #include "Formatter.hpp"
@@ -64,7 +65,9 @@ int main(){
         fmt.add("Motors_msg",{{0,event.value}},"JS_In");
       if(event.number == M1_right_isAxis)
         fmt.add("Motors_msg",{{1,event.value}},"JS_In"); 
-      comm.send(fmt.emit());
+      std::string msg = fmt.emit();
+      std::cout << msg << std::endl;
+      comm.send(msg);//fmt.emit());
     }
 
     while(comm.isCommClosed()){
