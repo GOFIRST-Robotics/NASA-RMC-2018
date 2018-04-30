@@ -1,5 +1,6 @@
 #ifndef LIDAR_H
 #define LIDAR_H
+// VERSION 1.0.0
 
 #include <vector>
 #include <string>

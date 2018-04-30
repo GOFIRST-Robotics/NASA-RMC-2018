@@ -1,3 +1,6 @@
+// LIDARtest.cpp
+// VERSION 1.0.0
+
 #include <cstdlib>
 #include <iostream>
 

@@ -1,3 +1,5 @@
+// Camera.cpp
+// VERSION 1.0.0
 #include "Camera.h"
 
 #include <string>

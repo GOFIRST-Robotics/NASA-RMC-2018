@@ -1,20 +1,22 @@
 // LaptopJoystickWifi.cpp
 // Runs the joystick on the laptop to control the motors over wifi
 // Encodes joystick data as per formatter, links with telecomm, sends 
+// USE LOGITECH WITH THE TINY SWITCH ON THE BACK SET TO "D"!!!
 
 #include <string>
-#include <ctime>
+//#include <chrono>
+#include <iostream>
 
 #include "Telecomm.h"
 #include "Formatter.hpp"
 #include "joystick.hh"
 
-#define M0_LeftDrive_Axis 7
-#define M1_RightDrive_Axis 4
+#define M0_LeftDrive_Axis 1
+#define M1_RightDrive_Axis 3
 #define M2_UnloaderUp_Button 4
-#define M2_UnloaderDown_Trigger 2 // Trigger is Axis, use as button
+#define M2_UnloaderDown_Button 6
 #define M3_DiggerToggle_Button 5
-#define M3_Digger_TriggerAxis 5 // Trigger is axis, use as pos scale
+#define M3_DiggerOn_Button 7
 
 int main(){
   // Initialize classes
@@ -59,48 +61,50 @@ int main(){
 
   // State, JS_In format
   std::vector<IV> motorVals = {{0,0},{1,0},{2,0},{3,0}};
+  std::vector<IV> copyVals = motorVals;
 
+  /*typedef std::chrono::high_resolution_clock Clock;
+  typedef std::chrono::milliseconds Millis;
+  Clock::time_point t0 = Clock::now();
+  Clock::time_point t = t0;
+*/
   // Loop
   while(1){
     comm.update();
     
-    JoystickEvent event; 
-
-    double time_counter = 0;
-    clock_t t = clock(();
-    clock_t t0 = t;
+    JoystickEvent event;
 
     // Assume Arduino keeps track of states & just updates
-    while(comm.fdReadAvail(js.fd()) && js.sample(&event) 
-      && time_counter < (0.031 * CLOCKS_PER_SEC)){
+    if(comm.fdReadAvail(js.fd()) && js.sample(&event)){
       // Drive
       if(event.isAxis() && event.number == M0_LeftDrive_Axis)
-        motorVals[0]->v = event.value;
+        motorVals[0].v = -event.value;
       if(event.isAxis() && event.number == M1_RightDrive_Axis)
-        motorVals[1]->v = event.value;
+        motorVals[1].v = -event.value;
       // Unloader
-      if(event.isAxis() && event.number == M2_UnloaderDown_Trigger)
-        motorVals[2]->v = (event.value > 0) ? JS_MAX / -2 : 0;
-      if(event.isButton() && event.number == M2_UnloaderUp_Button)
-        motorVals[2]->v = event.value * JS_Max / 2; // Button is 1 or zero
+      if(event.isButton() && event.number == M2_UnloaderDown_Button)
+        motorVals[2].v = event.value * -JS_MAX;
+      else if(event.number == M2_UnloaderUp_Button)
+        motorVals[2].v = event.value * JS_MAX; // Button is 1 or zero
       // Digger
       if(event.isButton() && event.number == M3_DiggerToggle_Button 
           && event.value == 1)
-        motorVals[3]->v = motorVals[3] > 0 ? 0 : JS_Max;
-      if(event.isAxis() && event.number == M3_Digger_TriggerAxis)
-        motorVals[3]->v = (event.value/2 + JS_MAX/2)*2;
-      motorVals[3]->v = (motorVals[3]->v < 10) ? 0 : motorVals[3]->v; // Deadband
-      // Clean up buffer
-      comm.update();
-      t = clock();
-      time_counter += (double)(t - t0);
+        motorVals[3].v = motorVals[3].v > 0 ? 0 : JS_MAX;
+      else if(event.number == M3_DiggerOn_Button)
+        motorVals[3].v = event.value * JS_MAX;
     }
-    t0 = t;
-    time_counter = 0;
     
     // Update msg
-    fmt.add("Motors_msg",motorVals,"JS_In");
-    comm.send(fmt.emit());
+ //   t = Clock::now();
+ //   Millis ms = std::chrono::duration_cast<Millis>(t-t0);
+    if(copyVals != motorVals){
+      fmt.add("Motors_msg",motorVals,"JS_In");
+      std::string msg = fmt.emit();
+      comm.send(msg);
+      std::cout << msg << std::endl;
+      std::cout << "Left motor raw val: " << motorVals[0].v << std::endl;
+      copyVals = motorVals;
+    }
 
     while(comm.isCommClosed()){
       printf("Rebooting Connection\n");

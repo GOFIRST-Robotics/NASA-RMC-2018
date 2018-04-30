@@ -1,5 +1,6 @@
 #ifndef FORMATTER_HPP
 #define FORMATTER_HPP
+// VERSION 1.1.0
 
 /* Formatter defines a class to parameterize a standard formatter for sending 
  * and recieving messages, usually for the same expected interface. 
@@ -90,5 +91,11 @@ class Formatter {
     bool newMsg;
 
 };
+
+inline bool operator==(const IV& lhs, const IV& rhs){ return lhs.i == rhs.i && lhs.v == rhs.v; }
+inline bool operator!=(const IV& lhs, const IV& rhs){ return lhs.i != rhs.i || lhs.v != rhs.v; }
+
+inline bool operator==(const IV_float& lhs, const IV_float& rhs){ return lhs.i == rhs.i && lhs.v == rhs.v; }
+inline bool operator!=(const IV_float& lhs, const IV_float& rhs){ return lhs.i != rhs.i || lhs.v != rhs.v; }
 
 #endif

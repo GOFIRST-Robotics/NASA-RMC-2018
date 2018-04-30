@@ -1,5 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
+// VERSION 1.0.0
 
 #include <string>
 #include <chrono>

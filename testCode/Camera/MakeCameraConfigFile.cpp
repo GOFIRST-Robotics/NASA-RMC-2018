@@ -1,3 +1,6 @@
+// MakeCameraConfigFile.cpp
+// VERSION 1.0.0
+
 #include <string>
 #include <iostream>
 #include <opencv2/core.hpp>

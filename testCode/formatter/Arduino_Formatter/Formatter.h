@@ -1,5 +1,6 @@
 #ifndef FORMATTER_H
 #define FORMATTER_H
+// VERSION 1.0.0
 
 /* Formatter.h defines a class to parameterize a standard formatter for sending 
  * and recieving messages, usually for the same expected interface. 
