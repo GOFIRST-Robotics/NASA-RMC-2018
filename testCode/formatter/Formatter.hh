@@ -50,6 +50,8 @@ struct IV_float {
   float v;
 };
 
+#include <stdlib.h>
+
 struct IV_list {
   IV iv;
   struct IV_list* next;
@@ -107,6 +109,7 @@ class Formatter {
       // while(ivPtr = nextIV(list)){ 
       //   ivPtr->i // ... do something
       //   ivPtr->v // ... do something
+      //   free(ivPtr);
       // }
 
     // Basic conversions

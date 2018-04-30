@@ -38,6 +38,7 @@ int main(){
     list = fmt.parse(msg,"Motors","Motors2");
     while(ivPtr = fmt.nextIV(list)){
       std::cout << "i: " << ivPtr->i << " v: " << ivPtr->v << std::endl;
+      free(ivPtr);
     }
   }
 

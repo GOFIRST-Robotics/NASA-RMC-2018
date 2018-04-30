@@ -45,13 +45,15 @@ void loop() {
   if(Serial.available() > 0){
     //Serial.readBytesUntil('\n',inData,299);
     inData = Serial.readStringUntil('\n');
+    Serial.print("Arduino got & returns msg: ");
     Serial.println(inData);
     IV_list* list = fmt.parse(inData.c_str(),"Motors_msg","Motors");
     inData = "";
     IV* ivPtr;
     while(ivPtr = fmt.nextIV(list)){
-      prIV(ivPtr);
+      //prIV(ivPtr);
       motorVals[ivPtr->i] = ivPtr->v;
+      free(ivPtr);
     };
   }
   left.writeMicroseconds(motorVals[leftInd]);
