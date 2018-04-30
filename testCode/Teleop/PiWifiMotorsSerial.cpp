@@ -51,7 +51,7 @@ int main(){
       if(arduino.isOpen()){
         arduino.write(msg);
         std::cout << " and Sent: " << msg << std::endl;
-        std::cout << "Got back: " << arduino.read(msg.length()+1) << std::endl;
+        std::cout << "Got back: " << arduino.readline() << std::endl;
       }
     }
 
