@@ -315,3 +315,8 @@ Using a timeout of 1 millisecond and a usleep of 30 acts the same as without the
 Todo: fix the Arduino code that parses the "!A123" type messages to correctly extract the index and value
 
 Minyoung: Added a CMakeLists.txt for compiling VisionBeacons test code in testCode/BackSensors/VisionBeaconsTest dir. Learned multithreading, mutex.
+
+2018 April 29: Jude
+Fixed parsing error, was internal int overflow/wrapping during math, changed to long within function. 
+Fixed freezing on arduino: was running out of memory for forgetting to free() list elements.
+
