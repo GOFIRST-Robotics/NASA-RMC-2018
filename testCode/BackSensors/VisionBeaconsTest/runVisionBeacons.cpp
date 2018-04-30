@@ -1,4 +1,8 @@
 // Code to run VisionBeacons
+/*
+ *  Test for VisionBeacons class.
+ *  Prints x, y pixel locations and on displays the points on image.
+ */
 
 #include <string>
 #include <iostream>
@@ -18,6 +22,8 @@ int main(){
   Cframe cframe;
   VisionBeacons vision;
   BeaconData beacondata;
+  cv::Mat img, origin;
+  std::vector<cv::KeyPoint> keypoints;
   
   while(1){
     cframe = cam.retrieve();
@@ -26,19 +32,24 @@ int main(){
       std::cout<<"No image"<<std::endl;
       return 0;
     }
-    cv::Mat img = cframe.img;
-    beacondata = vision.process(img,0);
+    img = cframe.img;
+    img.copyTo(origin);
+    beacondata = vision.process(img, keypoints);
     
     if(!beacondata.valid){
       std::cout<<"No data"<<std::endl;
-      beacondata.distance = -1;
-      beacondata.horizontalAngle = -1;
+      beacondata.x1 = -1;
+      beacondata.y1 = -1;
+      beacondata.x2 = -1;
+      beacondata.y2 = -1;
     }
     
-    std::cout<<"Distance : "<<beacondata.distance<<std::endl;
-    std::cout<<"Angle    : "<<beacondata.horizontalAngle<<std::endl;
-    cv::flip(img,img,1);
-    imshow("Test",img);
+    std::cout<<"x1 : "<<beacondata.x1<<" y1 : "<<beacondata.y1<<std::endl;
+    std::cout<<"x2 : "<<beacondata.x2<<" y2 : "<<beacondata.y2<<std::endl;
+    
+    cv::flip(origin,origin,1);
+    cv::drawKeypoints(origin, keypoints, origin, cv::Scalar(255,255,255), cv::DrawMatchesFlags::DEFAULT);
+    imshow("Test",origin);
     cv::waitKey(1);
   }
   return 0;
