@@ -20,7 +20,7 @@ Formatter fmt = Formatter(2,formats);
 Servo left;
 Servo right;
 
-int motorVals[] = {1500,1500};
+int motorVals[] = {1500,1500,1500,1500};
 #define leftInd 0
 #define rightInd 1
 
@@ -45,8 +45,8 @@ void loop() {
   if(Serial.available() > 0){
     //Serial.readBytesUntil('\n',inData,299);
     inData = Serial.readStringUntil('\n');
-    Serial.print("Arduino got & returns msg: ");
-    Serial.println(inData);
+    //Serial.print("Arduino got & returns msg: ");
+    //Serial.println(inData);
     IV_list* list = fmt.parse(inData.c_str(),"Motors_msg","Motors");
     inData = "";
     IV* ivPtr;

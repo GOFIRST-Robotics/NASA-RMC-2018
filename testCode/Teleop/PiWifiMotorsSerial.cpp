@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <unistd.h>
+//#include <chrono>
 
 #include <serial/serial.h>
 
@@ -39,21 +39,39 @@ int main(){
   std::string port = "/dev/ttyACM0"; // could be something else
   serial::Serial arduino(port, 9600,serial::Timeout::simpleTimeout(31));
 
+/*  // Time measure
+  typedef std::chrono::high_resolution_clock Clock;
+  typedef std::chrono::milliseconds Millis;
+  Clock::time_point t0 = Clock::now();
+  Clock::time_point t = t0, t1=t0, t2=t0, t3=t0;
+  Millis ms = std::chrono::duration_cast<Millis>(t-t0);
+*/
   // Loop
   while(1){
-  //usleep(1000*30);
     comm.update();
 
     // Assume Arduino keeps track of states & just updates, but pi should keep track too
     if(comm.recvAvail()){
       std::string msg = comm.recv();
       std::cout << "Recieved, ";
+      //t1 = Clock::now();
+      //ms = std::chrono::duration_cast<Millis>(t1-t0);
+      //std::cout << "(took: " << ms.count() << "ms)";
       if(arduino.isOpen()){
         arduino.write(msg);
-        std::cout << " and Sent: " << msg << std::endl;
-        std::cout << "Got back: " << arduino.readline() << std::endl;
+        //t2 = Clock::now();
+        //ms = std::chrono::duration_cast<Millis>(t2-t1);
+        std::cout << " and Sent: " << msg /*<< " (took " << ms.count() << " ms)"*/ << std::endl;
+        //std::cout << "Got back: " << arduino.readline() << std::endl;
+        //t3 = Clock::now();
+        //ms = std::chrono::duration_cast<Millis>(t3-t2);
+        //std::cout << "(Readline takes " << ms.count() << " ms)\n";
       }
     }
+    //t = Clock::now();
+    //ms = std::chrono::duration_cast<Millis>(t-t0);
+    //std::cout << "Duration of loop: " << ms.count() << "ms\n";
+    //t0 = t; t1=t0; t2=t0; t3=t0;
 
     while(comm.isCommClosed()){
       printf("Rebooting Connection\n");
