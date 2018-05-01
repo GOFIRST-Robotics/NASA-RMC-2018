@@ -21,13 +21,15 @@ Servo M0; // Left Drive Motor
 Servo M1; // Right Drive Motor
 Servo M2; // Unloader Motor
 Servo M3; // Digger Motor
+Servo M4; // LinAct Motor
 
 int M0_Pin =  9; // Left Drive Motor
 int M1_Pin = 10; // Right Drive Motor
 int M2_Pin = 12; // Unloader Motor
 int M3_Pin = 11; // Digger Motor
+int M4_Pin = 13; // LinAct Motor
 
-int motorVals[] = {1500,1500,1500,1500};
+int motorVals[] = {1500,1500,1500,1500,1500};
 String inData = "";
 
 void setup() {
@@ -35,6 +37,7 @@ void setup() {
   M1.attach(M1_Pin);
   M2.attach(M2_Pin);
   M3.attach(M3_Pin);
+  M4.attach(M4_Pin);
 
   Serial.begin(9600);
 }
@@ -60,5 +63,6 @@ void loop() {
   M1.writeMicroseconds(motorVals[1]);
   M2.writeMicroseconds(motorVals[2]);
   M3.writeMicroseconds(motorVals[3]);
+  M4.writeMicroseconds(motorVals[4]);
 }
 
