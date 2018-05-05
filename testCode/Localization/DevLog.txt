@@ -1,0 +1,10 @@
+Localization DevLog
+
+May 5 2018:
+Andrew:
+The following is the rough goal of the localization class right now
+-get serial data of the NavX and Grayhill Encoders from the arduino
+-create an addData() method that parses the data from the NavX and Encoder
+-updates the global state of the localization class -angles variables, -ticks variable
+-do math to determine how from the robot is from the origin position
+-for the encoder a constant for sandslip = 1, for wheel diameter = 9.5 * pi, gear ratio = 1 all of these go into an equation that says 256 ticks = 1 base rotation and turning that into a linear distance.
