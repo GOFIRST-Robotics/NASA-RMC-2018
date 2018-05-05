@@ -1,6 +1,6 @@
 #ifndef TELECOMM_H
 #define TELECOMM_H
-// VERSION 1.0.0
+// VERSION 1.1.0
 
 #include <string>
 
@@ -27,10 +27,13 @@ class Telecomm {
 
     // Can send data at any time, no wait; if !=0, error
     int send(std::string msg);
+    int sendBytes(char* bytes, int length);
 
     // Can recv data if available, check status
     bool recvAvail();
     std::string recv();
+    // Checks for bytes
+    int recv(char*& buf);
 
     // If connection is closed, do not continue, unless reboot'd
     bool isCommClosed();
