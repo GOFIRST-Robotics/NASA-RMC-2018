@@ -1,6 +1,6 @@
 #ifndef TELECOMM_H
 #define TELECOMM_H
-// VERSION 1.1.0
+// VERSION 1.1.1
 
 #include <string>
 

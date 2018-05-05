@@ -1,5 +1,5 @@
 // Telecomm.cpp
-// VERSION 1.1.0
+// VERSION 1.1.1
 
 #include "Telecomm.h"
 
@@ -302,27 +302,15 @@ int Telecomm::recv(char*& buf){
     printf("Destination closed\n");
     ret = 9;
     deleteWithException(true);
-    return "";
+    return -1;
   }else if(-1 == numbytes){ // aka errno 111
     perror("recv");
     printf("Receive error check firewall settings, numbytes: %d\n", numbytes);
     ret = 10;
     deleteWithException(true);
-    return "";
+    return -1;
   }
-  bool isBytes = numbytes > 5;
-  int i = 0;
-  char[] eqmsg = "BYTES";
-  while(isBytes && i < 5){
-    isBytes = isBytes && (eqmsg[i] == buf[i]);
-    i++;
-  }
-  if(isBytes){
-    return std::to_string(numbytes);
-  }else{
-    std::string msg = std::string(buf,numbytes);
-    return msg;
-  }
+  return numbytes;
 }
 
 std::string Telecomm::simpleStatus(int i){
