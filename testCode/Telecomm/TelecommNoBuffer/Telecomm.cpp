@@ -1,5 +1,5 @@
 // Telecomm.cpp
-// VERSION 1.0.0
+// VERSION 1.1.0
 
 #include "Telecomm.h"
 
@@ -245,6 +245,16 @@ int Telecomm::send(std::string msg){
   return ret;
 }
 
+int Telecomm::sendBytes(char* bytes, int len){
+  if(sendall(sockfd, bytes, &len) == -1) {
+    perror("sendall");
+    fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
+    ret = 8;
+    deleteWithException(true);
+  }
+  return ret;
+}
+
 bool Telecomm::recvAvail(){
   return FD_ISSET(sockfd, &resultfds);
 }
@@ -274,6 +284,45 @@ std::string Telecomm::recv(){
     return "";
   }
   return std::string(buffer, numbytes);
+}
+
+int Telecomm::recv(char*& buf){
+  memset(buf, 0, sizeof(buf));
+  // overwrite/define recv, want #include, use ::recv to get one def'd in global namespace
+  // Set non-blocking mode
+  if ((iof = fcntl(sockfd, F_GETFL, 0)) != -1)
+    fcntl(sockfd, F_SETFL, iof | O_NONBLOCK);
+  // Receive
+  numbytes = ::recv(sockfd, buf, sizeof(buf), 0);
+  // Set flags as before
+  if (iof != -1)
+    fcntl(sockfd, F_SETFL, iof);
+  // Error checking
+  if(0 == numbytes || (errno == ECONNREFUSED && -1 == numbytes)){
+    printf("Destination closed\n");
+    ret = 9;
+    deleteWithException(true);
+    return "";
+  }else if(-1 == numbytes){ // aka errno 111
+    perror("recv");
+    printf("Receive error check firewall settings, numbytes: %d\n", numbytes);
+    ret = 10;
+    deleteWithException(true);
+    return "";
+  }
+  bool isBytes = numbytes > 5;
+  int i = 0;
+  char[] eqmsg = "BYTES";
+  while(isBytes && i < 5){
+    isBytes = isBytes && (eqmsg[i] == buf[i]);
+    i++;
+  }
+  if(isBytes){
+    return std::to_string(numbytes);
+  }else{
+    std::string msg = std::string(buf,numbytes);
+    return msg;
+  }
 }
 
 std::string Telecomm::simpleStatus(int i){
