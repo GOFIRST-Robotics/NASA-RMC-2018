@@ -22,9 +22,15 @@ int main(){
     printf("Error: %s\n", comm.verboseStatus().c_str());
     return comm.status();
   }
-  
-  /* // Formatter
-  val_fmt motor_fmt = {
+  Telecomm commBytes("192.168.1.50",5005,5005);
+  commBytes.setFailureAction(false);
+  commBytes.setBlockingTime(0,0);
+  if(commBytes.status() != 0){
+    printf("Error: %s\n", commBytes.verboseStatus().c_str());
+    return commBytes.status();
+  }
+  // Formatter
+  val_fmt motor_msg_fmt = {
     "Motors", // string data_t
     '!', // Arbitrary symbol
     3, // Number of bytes/chars to send
@@ -33,8 +39,17 @@ int main(){
     100, // Offset
     100
   };
-  Formatter fmt = Formatter({motor_fmt});
-*/
+  val_fmt img_show_msg_fmt = {
+    "Imgshow_msg", // string data_t
+    '&', // Arbitrary symbol
+    1, // Number of bytes/chars to send
+    0, // Min_val (sending)
+    9, // Max_val (sending)
+    5, // Offset
+    5 //scale+/-
+  };
+  Formatter fmt = Formatter({motor_msg_fmt,img_show_msg_fmt});
+
   // Serial
   std::string port = "/dev/ttyACM0"; // could be something else
   serial::Serial arduino(port, 9600,serial::Timeout::simpleTimeout(31));
@@ -46,9 +61,13 @@ int main(){
   Clock::time_point t = t0, t1=t0, t2=t0, t3=t0;
   Millis ms = std::chrono::duration_cast<Millis>(t-t0);
 */
+  // Image Showing
+  bool imgshowstate[6] = {false};
+
   // Loop
   while(1){
     comm.update();
+    commBytes.update();
 
     // Assume Arduino keeps track of states & just updates, but pi should keep track too
     if(comm.recvAvail()){
@@ -67,6 +86,26 @@ int main(){
         //ms = std::chrono::duration_cast<Millis>(t3-t2);
         //std::cout << "(Readline takes " << ms.count() << " ms)\n";
       }
+      imgcmd=parse(msg,"Imgshow_msg");
+      for(int i = 0; i < 6; ++i){
+        if (imcmd[i].v == 1){
+          //need to send image from camera i //https://stackoverflow.com/questions/20314524/c-opencv-image-sending-through-socket
+          //need to convert to grayscale and smaller (~40x40? pixels) //open cv 3
+          Mat frame;
+          frame = (frame.reshape(0,1)); // to make it continuous
+          int  imgSize = frame.total()*frame.elemSize();
+          //convert to grayscale
+          cvtColor( frame, gray_image, COLOR_RGB2GRAY ); //TODO:check RGB or BGR
+          //make smaller
+          resize(gray_image, final_image, final_image.size(), 0.5, 0.5);
+
+          // Send data here TODO fix this
+          comm.send(final_image.data());
+          //bytes = send(clientSock, frame.data, imgSize, 0))
+        }
+      }
+
+
     }
     //t = Clock::now();
     //ms = std::chrono::duration_cast<Millis>(t-t0);
