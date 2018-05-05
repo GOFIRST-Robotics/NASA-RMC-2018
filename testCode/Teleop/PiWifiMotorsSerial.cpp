@@ -88,29 +88,30 @@ int main(){
       }
       imgcmd=parse(msg,"Imgshow_msg");
       for(int i = 0; i < 6; ++i){
-        if (imcmd[i].v == 1){
+        imgshowstate[i]=imcmd[i].v;
           //need to send image from camera i //https://stackoverflow.com/questions/20314524/c-opencv-image-sending-through-socket
           //need to convert to grayscale and smaller (~40x40? pixels) //open cv 3
-          Mat frame;
-          frame = (frame.reshape(0,1)); // to make it continuous
-          int  imgSize = frame.total()*frame.elemSize();
-          //convert to grayscale
-          cvtColor( frame, gray_image, COLOR_RGB2GRAY ); //TODO:check RGB or BGR
-          //make smaller
-          resize(gray_image, final_image, final_image.size(), 0.5, 0.5);
-
-          // Send data here TODO fix this
-          comm.send(final_image.data());
-          //bytes = send(clientSock, frame.data, imgSize, 0))
-        }
       }
+    }
 
+    for (int i = 0; i < 6; ++i){
+      Mat frame;
+      frame = (frame.reshape(0,1)); // to make it continuous
+      int  imgSize = frame.total()*frame.elemSize();
+      //convert to grayscale
+      cvtColor( frame, gray_image, COLOR_RGB2GRAY ); //TODO:check RGB or BGR
+      //make smaller
+      resize(gray_image, final_image, final_image.size(), 0.5, 0.5);
+
+      // Send data here
+      commBytes.send(final_image.data());
+      //bytes = send(clientSock, frame.data, imgSize, 0))
+      //t = Clock::now();
+      //ms = std::chrono::duration_cast<Millis>(t-t0);
+      //std::cout << "Duration of loop: " << ms.count() << "ms\n";
+      //t0 = t; t1=t0; t2=t0; t3=t0;
 
     }
-    //t = Clock::now();
-    //ms = std::chrono::duration_cast<Millis>(t-t0);
-    //std::cout << "Duration of loop: " << ms.count() << "ms\n";
-    //t0 = t; t1=t0; t2=t0; t3=t0;
 
     while(comm.isCommClosed()){
       printf("Rebooting Connection\n");
