@@ -1,44 +1,71 @@
+#include <Encoder.h>
+#include "Formatter.h"
 #include <Wire.h>
 #include "AHRSProtocol.h"
-#include "Formatter.h"
 
-const int YAW_INDEX = 0;
-const int ROLL_INDEX = 1;
-const int PITCH_INDEX = 2;
+// Change these pin numbers to the pins connected to your encoder.
+Encoder encoderOne(2, 3);
+Encoder encoderTwo(6, 7);
+
+const int YAW_INDEX = 0, ROLL_INDEX = 1, PITCH_INDEX = 2;
+const int ENC_ONE_INDEX = 0, ENC_TWO_INDEX = 1;
 
 val_fmt navx_y_fmt = {"NavX_Y", '\0', 6, -180.00, 180.00, 0, 180};
 val_fmt navx_r_p_fmt = {"NavX_R_P", '\0', 5, -90.00, 90.00, 0, 90};
 val_fmt navx_y_msg_fmt = {"NavX_Y_msg", '=', 5, 0, 36000, 18000, 18000};
 val_fmt navx_r_p_msg_fmt = {"NavX_R_P_msg", '+', 5, 0, 36000, 18000, 18000};
+val_fmt encoder_fmt = {"Encoder", '\0', 10, -1000, 1000, 0, 1000};
+val_fmt encoder_msg_fmt = {"Encoder_msg", '*', 10, 0, 2000, 1000, 1000};
 
-/*formatter stuff for accelerations (update ranges if needed)
-val_fmt navx_acc_fmt = {"NavX_Accel", '-', 5, -180.00, 180.00, 0, 180};
-val_fmt navx_acc_msg_fmt = {"NavX_Accel_msg", '+', 5, 0, 36000, 18000, 18000};
-*/
+val_fmt formats[] = {encoder_fmt, encoder_msg_fmt,
+                     navx_y_fmt, navx_r_p_fmt, navx_y_msg_fmt, navx_r_p_msg_fmt};
 
-//add accel formats if using accels
-val_fmt formats[] = {navx_y_fmt, navx_r_p_fmt, navx_y_msg_fmt, navx_r_p_msg_fmt};
+Formatter fmt = Formatter(6, formats);
 
-//Change to 6 if adding accels
-Formatter fmt = Formatter(4, formats); 
-
-#define TEST_I2C
-#define TEST_STREAM_UPDATE_RATE_CHANGE
-#define I2C_UPDATE_RATE_TEST
-#define ITERATION_DELAY_MS 100
 void periodic_update_rate_modify_i2c();
 void sendNavX_Angles();
 void sendNavX_Accels();
 
-void setup()
-{
+//Change this number to change the delay on the loop!
+#define ITERATION_DELAY_MS 100
+
+long positionOne  = 0;
+long positionTwo  = 0;
+long newOne = 0, newTwo = 0;
+long oldOne = 0, oldTwo = 0;
+
+void setup() {
   Serial.begin(115200);
   Wire.begin(); // join i2c bus (address optional for master)
+  //Serial.println("Encoder Test:");
 }
 
-void loop()
-{
+void loop() {
   sendNavX_Angles();
+  
+  newOne = encoderOne.read();
+  newTwo = encoderTwo.read();
+
+  //Serial.print(newOne);
+  //Serial.print(" ");
+  //Serial.print(newTwo);
+  //Serial.println("");
+  
+  if (newOne != oldOne) {
+    positionOne = newOne - positionOne;
+    oldOne = newOne;
+  }
+  if (newTwo != oldTwo) {
+    positionTwo = newTwo - positionTwo;
+    oldTwo = newTwo;
+  }
+  fmt.add("Encoder_msg", ENC_ONE_INDEX, positionOne, "Encoder");
+  fmt.add("Encoder_msg", ENC_TWO_INDEX, positionTwo, "Encoder");
+
+  Serial.print(fmt.emit());
+  //Serial.println(positionOne);
+  //Serial.println(positionTwo);
+  //Serial.println("------------");
   delay(ITERATION_DELAY_MS);
 }
 
@@ -49,8 +76,7 @@ uint8_t curr_update_rate = min_update_rate;
 uint8_t periodic_i2c_update_iteration_count = 0;
 #define PERIODIC_I2C_UPDATE_ITERATIONS 50
 
-void periodic_update_rate_modify_i2c()
-{
+void periodic_update_rate_modify_i2c(){
     periodic_i2c_update_iteration_count++;
     if ( periodic_i2c_update_iteration_count >= PERIODIC_I2C_UPDATE_ITERATIONS ) {
         periodic_i2c_update_iteration_count = 0;
@@ -187,3 +213,4 @@ void sendNavX_Accels(){
 
   Serial.println(fmt.emit());
 }
+
