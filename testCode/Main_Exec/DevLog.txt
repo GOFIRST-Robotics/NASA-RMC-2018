@@ -1,0 +1,2 @@
+2018 May 6th, Jude
+Moved the test-y LaptopWifiMotors.cpp and PiWifiSerial.cpp to the much clearer & definative MC_Main.cpp and RPI_Main.cpp respectively. 

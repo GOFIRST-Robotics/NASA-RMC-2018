@@ -324,3 +324,6 @@ Fixed transmission bugs, & serial probs. Serial.readline() induces a 50-70 ms la
 
 2018 May 5th: Jude
 Updated Telecomm to send bytes. Please use a new telecomm obj just for byte-sending. 
+
+2018 May 6th: Jude
+Restructured all of testCode, should be clearer. 

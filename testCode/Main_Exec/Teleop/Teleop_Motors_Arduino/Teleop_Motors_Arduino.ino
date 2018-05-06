@@ -7,7 +7,6 @@
  */
 
 // Include Formatter.zip of Formatter.hh/cc files
-<<<<<<< Updated upstream
 
 val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
 val_fmt motor_fmt = {"Motors", '#', 4, 1000, 2000, 1500, 500};
