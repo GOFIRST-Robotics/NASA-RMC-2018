@@ -321,3 +321,6 @@ Fixed parsing error, was internal int overflow/wrapping during math, changed to 
 Fixed freezing on arduino: was running out of memory for forgetting to free() list elements.
 
 Fixed transmission bugs, & serial probs. Serial.readline() induces a 50-70 ms lag on the pi side. Arduino writing serial with none clearing buffer creates stall. Future impl of recieving from arduino on pi will need to use read, build char by char, to be nonblocking. Reduced transmission of data by only sending when changed. Both keep internal counters of state (rn only on the Laptop/arduino codes, the pi side does nothing still but pass along). 
+
+2018 May 5th: Jude
+Updated Telecomm to send bytes. Please use a new telecomm obj just for byte-sending. 
