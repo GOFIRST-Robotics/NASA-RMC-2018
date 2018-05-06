@@ -19,3 +19,7 @@ April 28 2018:
 Andrew:
 -Got Linear Accels and Gyro stuff to print to serial monitor at the same time, had to use different Wire.read() arrays for each sensor
 -have formatter code setup to send to master and it compiles, but dont know how to test if it works right now
+
+May 5 2018:
+Andrew:
+-Arduino code for angles and accelerations is setup, compiles, and runs, however there seems to be an issue with the way the data is added to the format as the value sent is a constant not based on any inputs.
