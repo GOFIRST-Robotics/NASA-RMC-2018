@@ -1,5 +1,5 @@
 // NASA_RMC.ino
-// VERSION 1.3.0
+// VERSION 1.4.0
 
 #include "Formatter.h"
 
@@ -27,6 +27,8 @@ Servo M2; // Unloader Motor
 Servo M3; // Digger Motor
 Servo M4; // LinAct Motor
 
+//Define Pin Locations
+
 int DHDpin = 20;
 int UHUpin = 18;
 int UHDpin = 21;
@@ -35,6 +37,9 @@ int USUpin = 40;
 int USDpin = 42;
 int DSUpin = 44;
 int DSDpin = 46;
+
+int LIDAR_L_ENABLE_PIN=50;
+int LIDAR_R_ENABLE_PIN=52;
 
 int DPOTpin = A0;
 
@@ -53,8 +58,14 @@ bool limitLinearDown = false;
 bool limitUnloaderUp = false;
 bool limitUnloaderDown = false;
 
-int motorVals[] = {1500, 1500, 1500, 1000, 1500};
+const int NUM_MOTORS=5;
+int motorVals[NUM_MOTORS] = {1500, 1500, 1500, 1500, 1500};
 String inData = "";
+
+
+bool debug = true;
+unsigned long previous_time;
+const unsigned long timeout=2000;
 
 void setup() {
   M0.attach(M0_Pin);
@@ -82,6 +93,14 @@ void setup() {
   //Analog
   pinMode(DPOTpin, INPUT);
 
+  //LIDAR Enable
+  pinMode(LIDAR_L_ENABLE_PIN, OUTPUT);
+  pinMode(LIDAR_R_ENABLE_PIN, OUTPUT);
+
+  //Disable the LIDARs until ready for use
+  digitalWrite(LIDAR_L_ENABLE_PIN, LOW);
+  digitalWrite(LIDAR_R_ENABLE_PIN, LOW);
+
 
   Serial.begin(9600);
   //Serial.println("End of Setup");
@@ -94,6 +113,14 @@ void loop() {
   //  uhu = LOW;
   //  uhd = LOW;
 
+  unsigned long current_time = millis();
+
+  if (current_time - previous_time > timeout && !debug) {
+    for(int i=0;i<NUM_MOTORS;i++) { 
+      motorVals[i]=1500;
+    }
+  }
+
   // Update motorVals[] with new values, if avail
   if (Serial.available() > 0) {
     inData = Serial.readStringUntil('\n');
@@ -104,6 +131,7 @@ void loop() {
       motorVals[ivPtr->i] = ivPtr->v;
       free(ivPtr);
     };
+    previous_time = millis();
   }
   // Do other sensors processing here
   // Limiting sensors, set to 0 or neg the respective motor at limit
@@ -179,9 +207,7 @@ void loop() {
   if (motorVals[3] < 1500) {
     motorVals[3] = 1500;
   }
-  //  Serial.print(motorVals[3]);
-  //  motorVals[3]=map(motorVals[3],1500,2000,1000,2000);
-  //  Serial.println(motorVals[3]);
+  
   M0.writeMicroseconds(motorVals[0]);
   M1.writeMicroseconds(motorVals[1]);
   M2.writeMicroseconds(limiter(motorVals[2], limitUnloaderDown, limitUnloaderUp, 100 ));
