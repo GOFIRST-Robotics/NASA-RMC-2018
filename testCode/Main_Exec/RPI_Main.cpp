@@ -51,7 +51,7 @@ int main(){
 
   // Serial
   std::string port = "/dev/ttyACM0"; // could be something else
-  serial::Serial arduino(port, 9600,serial::Timeout::simpleTimeout(31));
+  serial::Serial arduino(port, 115200, serial::Timeout::simpleTimeout(115200));
 
 /*  // Time measure
   typedef std::chrono::high_resolution_clock Clock;
