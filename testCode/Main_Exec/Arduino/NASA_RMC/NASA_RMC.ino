@@ -1,5 +1,5 @@
 // NASA_RMC.ino
-// VERSION 1.4.0
+// VERSION 1.4.1
 
 #include "Formatter.h"
 
@@ -102,7 +102,7 @@ void setup() {
   digitalWrite(LIDAR_R_ENABLE_PIN, LOW);
 
 
-  Serial.begin(9600);
+  Serial.begin(115200);
   //Serial.println("End of Setup");
 
 }
@@ -210,7 +210,7 @@ void loop() {
   
   M0.writeMicroseconds(motorVals[0]);
   M1.writeMicroseconds(motorVals[1]);
-  M2.writeMicroseconds(limiter(motorVals[2], limitUnloaderDown, limitUnloaderUp, 100 ));
+  M2.writeMicroseconds(limiter(motorVals[2], limitUnloaderDown, limitUnloaderUp, 150 ));
   M3.writeMicroseconds(map(motorVals[3], 1500, 2000, 1000, 2000));
   M4.writeMicroseconds(limiter(motorVals[4], limitLinearDown, limitLinearUp, 125));
 }
