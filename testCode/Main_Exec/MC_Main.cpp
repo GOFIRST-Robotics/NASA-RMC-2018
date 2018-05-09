@@ -18,10 +18,15 @@
 
 #define M0_LeftDrive_Axis 1
 #define M1_RightDrive_Axis 3
-#define M2_UnloaderUp_Button 4
-#define M2_UnloaderDown_Button 6
+#define M2_Unloader_Axis 5
+//#define M2_UnloaderUp_Button 4
+//#define M2_UnloaderDown_Button 6
 #define M3_DiggerToggle_Button 5
 #define M3_DiggerOn_Button 7
+#define M4_LinActUp_Button 4
+#define M4_LinActDown_Button 6
+#define Kill1 1
+#define Kill2 2
 
 int main(){
   // Initialize classes
@@ -98,18 +103,23 @@ int main(){
       if(event.isAxis() && event.number == M0_LeftDrive_Axis)
         motorVals[0].v = -event.value;
       if(event.isAxis() && event.number == M1_RightDrive_Axis)
-        motorVals[1].v = -event.value;
-      // Unloader
-      if(event.isButton() && event.number == M2_UnloaderDown_Button)
-        motorVals[2].v = event.value * -JS_MAX;
-      else if(event.number == M2_UnloaderUp_Button)
-        motorVals[2].v = event.value * JS_MAX; // Button is 1 or zero
+        motorVals[1].v = event.value - JS_MAX;
+      // LinAct
+      if(event.isButton() && event.number == M4_LinActDown_Button)
+        motorVals[4].v = event.value * -1 * JS_MAX;
+      else if(event.number == M4_LinActUp_Button)
+        motorVals[4].v = event.value * JS_MAX; // Button is 1 or zero
       // Digger
-      if(event.isButton() && event.number == M3_DiggerToggle_Button
+      if(event.isButton() && event.number == M3_DiggerToggle_Button 
           && event.value == 1)
         motorVals[3].v = motorVals[3].v > 0 ? 0 : JS_MAX;
       else if(event.number == M3_DiggerOn_Button)
         motorVals[3].v = event.value * JS_MAX;
+      if(event.isAxis() && event.number == M2_Unloader_Axis)
+        motorVals[2].v = -1* event.value;
+      if(event.isButton() && (event.number == Kill1 || event.number == Kill2)){
+        for(int i = 0; i < 5; ++i){
+          motorVals[i].v = 0;}}
     }
 /*
     // Request videostream
