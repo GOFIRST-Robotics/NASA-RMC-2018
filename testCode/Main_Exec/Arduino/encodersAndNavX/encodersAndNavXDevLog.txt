@@ -23,3 +23,7 @@ Andrew:
 May 5 2018:
 Andrew:
 -Arduino code for angles and accelerations is setup, compiles, and runs, however there seems to be an issue with the way the data is added to the format as the value sent is a constant not based on any inputs.
+
+May 8 2018:
+Andrew:
+-Fully merged the arduino code so now navx, encoders, and motors all run through the same program. Modify interrupt pins at the start of the programs for it to work properly.
