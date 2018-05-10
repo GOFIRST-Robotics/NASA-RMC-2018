@@ -5,7 +5,7 @@
 // USE LOGITECH WITH THE TINY SWITCH ON THE BACK SET TO "D"!!!
 
 #include <string>
-//#include <chrono>
+#include <chrono>
 #include <iostream>
 
 #include "Telecomm.h"
@@ -16,17 +16,22 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "Camera.h"
 
+//#define TANK 
 #define M0_LeftDrive_Axis 1
 #define M1_RightDrive_Axis 3
-#define M2_Unloader_Axis 5
-//#define M2_UnloaderUp_Button 4
-//#define M2_UnloaderDown_Button 6
-#define M3_DiggerToggle_Button 5
-#define M3_DiggerOn_Button 7
-#define M4_LinActUp_Button 4
-#define M4_LinActDown_Button 6
-#define Kill1 1
-#define Kill2 2
+
+#define SPLIT_ARCADE
+#define M01_ForwardDrive_Axis 1
+#define M01_LeftRightDrive_Axis 2
+
+#define M2_UnloaderUp_Button 4
+#define M2_UnloaderDown_Button 6
+#define M3_DiggerToggle_Button 1
+#define M3_DiggerOn_Button 2
+#define M4_LinActUp_Button 5
+#define M4_LinActDown_Button 7
+#define Kill1 0
+#define Kill2 3
 
 int main(){
   // Initialize classes
@@ -79,14 +84,15 @@ int main(){
   comm.fdAdd(js.fd());
 
   // State, JS_In format
-  std::vector<IV> motorVals = {{0,0},{1,0},{2,0},{3,0}};
+  std::vector<IV> motorVals = {{0,0},{1,0},{2,0},{3,0},{4,0}};
   std::vector<IV> copyVals = motorVals;
+  int jsAxis[] = {0,0}; // To store the L/R joystick values, really for arcade
 
-  /*typedef std::chrono::high_resolution_clock Clock;
+  typedef std::chrono::high_resolution_clock Clock;
   typedef std::chrono::milliseconds Millis;
   Clock::time_point t0 = Clock::now();
   Clock::time_point t = t0;
-*/
+
   // Showing
   bool imgshowstate[6] = {false};
   const char imgtriggerkey[] = {'a','s','d','f','g','h'};
@@ -100,23 +106,40 @@ int main(){
     // Assume Arduino keeps track of states & just updates
     if(comm.fdReadAvail(js.fd()) && js.sample(&event)){
       // Drive
+#if TANK
       if(event.isAxis() && event.number == M0_LeftDrive_Axis)
         motorVals[0].v = -event.value;
       if(event.isAxis() && event.number == M1_RightDrive_Axis)
-        motorVals[1].v = event.value - JS_MAX;
-      // LinAct
-      if(event.isButton() && event.number == M4_LinActDown_Button)
-        motorVals[4].v = event.value * -1 * JS_MAX;
-      else if(event.number == M4_LinActUp_Button)
-        motorVals[4].v = event.value * JS_MAX; // Button is 1 or zero
+        motorVals[1].v = -event.value;
+#elif defined(SPLIT_ARCADE)
+      // Left M0: y_axis + x_axis
+      // Right M1: y_axis - x_axis
+      if(event.isAxis() && event.number == M01_ForwardDrive_Axis)
+        jsAxis[0] = -event.value;
+      else if(event.isAxis() && event.number == M01_LeftRightDrive_Axis)
+        jsAxis[1] = -event.value;
+      motorVals[0].v = jsAxis[0] - jsAxis[1]; // Left: sub: confirmed
+      motorVals[1].v = jsAxis[0] + jsAxis[1]; // Right: add: ^
+#else
+      assert(false);
+#endif
+      // Unloader
+      if(event.isButton() && event.number == M2_UnloaderUp_Button)
+        motorVals[2].v = event.value * JS_MAX;
+      else if(event.isButton() && event.number == M2_UnloaderDown_Button)
+        motorVals[2].v = event.value * -1 * JS_MAX;
       // Digger
       if(event.isButton() && event.number == M3_DiggerToggle_Button 
           && event.value == 1)
         motorVals[3].v = motorVals[3].v > 0 ? 0 : JS_MAX;
-      else if(event.number == M3_DiggerOn_Button)
+      else if(event.isButton() && event.number == M3_DiggerOn_Button)
         motorVals[3].v = event.value * JS_MAX;
-      if(event.isAxis() && event.number == M2_Unloader_Axis)
-        motorVals[2].v = -1* event.value;
+      // LinAct
+      if(event.isButton() && event.number == M4_LinActDown_Button)
+        motorVals[4].v = event.value * -1 * JS_MAX;
+      else if(event.isButton() && event.number == M4_LinActUp_Button)
+        motorVals[4].v = event.value * JS_MAX; // Button is 1 or zero
+      // Kill
       if(event.isButton() && (event.number == Kill1 || event.number == Kill2)){
         for(int i = 0; i < 5; ++i){
           motorVals[i].v = 0;}}
@@ -149,8 +172,6 @@ int main(){
       }
     }
 */
-    //   t = Clock::now();
-    //   Millis ms = std::chrono::duration_cast<Millis>(t-t0);
     if(copyVals != motorVals){
       fmt.add("Motors_msg",motorVals,"JS_In");
       std::string msg = fmt.emit();
@@ -158,6 +179,13 @@ int main(){
       std::cout << msg << std::endl;
       std::cout << "Left motor raw val: " << motorVals[0].v << std::endl;
       copyVals = motorVals;
+    }
+
+    t = Clock::now();
+    Millis ms = std::chrono::duration_cast<Millis>(t-t0);
+    if(ms.count() > 500){
+      comm.send(".\n");
+      t0 = t;
     }
 
     while(comm.isCommClosed()){

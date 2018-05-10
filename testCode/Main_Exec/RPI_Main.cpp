@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
-//#include <chrono>
+#include <chrono>
 
 #include <serial/serial.h>
 
 #include "Telecomm.h"
-//#include "Formatter.hpp"
+#include "Formatter.hpp"
 
 int main(){
   // Initialize classes
@@ -21,13 +21,13 @@ int main(){
     printf("Error: %s\n", comm.verboseStatus().c_str());
     return comm.status();
   }
-  Telecomm commBytes("192.168.1.50",5005,5005);
+/*  Telecomm commBytes("192.168.1.50",5005,5005);
   commBytes.setFailureAction(false);
   commBytes.setBlockingTime(0,0);
   if(commBytes.status() != 0){
     printf("Error: %s\n", commBytes.verboseStatus().c_str());
     return commBytes.status();
-  }
+  }*/
   // Formatter
   val_fmt motor_msg_fmt = {
     "Motors", // string data_t
@@ -50,28 +50,27 @@ int main(){
   Formatter fmt = Formatter({motor_msg_fmt,img_show_msg_fmt});
 
   // Serial
-  std::string port = "/dev/ttyACM0"; // could be something else
-  serial::Serial arduino(port, 115200, serial::Timeout::simpleTimeout(115200));
+  std::string port = "/dev/ttyUSB0"; // could be something else
+  serial::Serial arduino(port, 115200, serial::Timeout::simpleTimeout(1000));
 
-/*  // Time measure
+  // Time measure
   typedef std::chrono::high_resolution_clock Clock;
   typedef std::chrono::milliseconds Millis;
   Clock::time_point t0 = Clock::now();
-  Clock::time_point t = t0, t1=t0, t2=t0, t3=t0;
-  Millis ms = std::chrono::duration_cast<Millis>(t-t0);
-*/
+  Clock::time_point t = t0;
+
   // Image Showing
   bool imgshowstate[6] = {false};
 
   // Loop
   while(1){
     comm.update();
-    commBytes.update();
+    //commBytes.update();
 
     // Assume Arduino keeps track of states & just updates, but pi should keep track too
     if(comm.recvAvail()){
       std::string msg = comm.recv();
-      //std::cout << "Recieved, ";
+      std::cout << "Recieved, ";
       //t1 = Clock::now();
       //ms = std::chrono::duration_cast<Millis>(t1-t0);
       //std::cout << "(took: " << ms.count() << "ms)";
@@ -79,7 +78,7 @@ int main(){
         arduino.write(msg);
         //t2 = Clock::now();
         //ms = std::chrono::duration_cast<Millis>(t2-t1);
-        //std::cout << " and Sent: " << msg /*<< " (took " << ms.count() << " ms)"*/ << std::endl;
+        std::cout << " and Sent: " << msg /*<< " (took " << ms.count() << " ms)"*/ << std::endl;
         //std::cout << "Got back: " << arduino.readline() << std::endl;
         //t3 = Clock::now();
         //ms = std::chrono::duration_cast<Millis>(t3-t2);
@@ -112,6 +111,14 @@ int main(){
 
     }
 */
+    
+    t = Clock::now();
+    Millis ms = std::chrono::duration_cast<Millis>(t-t0);
+    if(ms.count() > 500){
+      comm.send(".\n");
+      t0 = t;
+    }
+
     while(comm.isCommClosed()){
       printf("Rebooting Connection\n");
       comm.reboot();
