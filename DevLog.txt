@@ -327,3 +327,11 @@ Updated Telecomm to send bytes. Please use a new telecomm obj just for byte-send
 
 2018 May 6th: Jude
 Restructured all of testCode, should be clearer. 
+
+2018 May9th: Andrew
+SUPER DUPER IMPORTANT!!! BEFORE COMPILING NAVX AHRS LIBRARY ON RASPI
+1. go to navXTimeSync
+2. open IMUProtocol.h
+3. ctrl+f "#include <stdlib.h>"
+4. immediately below there type "#include <cstdint>"
+IF YOU DONT DO THIS THE NAVX WILL THROW COMPILER ERRORS REEEEEEEEEEEE

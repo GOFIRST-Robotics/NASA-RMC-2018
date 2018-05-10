@@ -4,7 +4,7 @@
 #include <Encoder.h>
 #include "Formatter.h"
 #include <Wire.h>
-#include "AHRSProtocol.h"
+//#include "AHRSProtocol.h"
 #include <Servo.h>
 #include <SPI.h>
 
@@ -18,7 +18,7 @@ Servo M2; // Unloader Motor
 Servo M3; // Digger Motor
 Servo M4; // LinAct Motor
 
-const int YAW_INDEX = 0, ROLL_INDEX = 1, PITCH_INDEX = 2;
+//const int YAW_INDEX = 0, ROLL_INDEX = 1, PITCH_INDEX = 2;
 const int ENC_ONE_INDEX = 0, ENC_TWO_INDEX = 1;
 
 //Define Pin Locations
@@ -61,24 +61,24 @@ bool debug = true;
 unsigned long previous_time;
 const unsigned long timeout=2000;
 
-val_fmt navx_y_fmt = {"NavX_Y", '\0', 6, -180.00, 180.00, 0, 180};
-val_fmt navx_r_p_fmt = {"NavX_R_P", '\0', 5, -90.00, 90.00, 0, 90};
-val_fmt navx_y_msg_fmt = {"NavX_Y_msg", '=', 5, 0, 36000, 18000, 18000};
-val_fmt navx_r_p_msg_fmt = {"NavX_R_P_msg", '+', 5, 0, 36000, 18000, 18000};
+//val_fmt navx_y_fmt = {"NavX_Y", '\0', 6, -180.00, 180.00, 0, 180};
+//val_fmt navx_r_p_fmt = {"NavX_R_P", '\0', 5, -90.00, 90.00, 0, 90};
+//val_fmt navx_y_msg_fmt = {"NavX_Y_msg", '=', 5, 0, 36000, 18000, 18000};
+//val_fmt navx_r_p_msg_fmt = {"NavX_R_P_msg", '+', 5, 0, 36000, 18000, 18000};
 val_fmt encoder_fmt = {"Encoder", '\0', 10, -1000, 1000, 0, 1000};
 val_fmt encoder_msg_fmt = {"Encoder_msg", '*', 10, 0, 2000, 1000, 1000};
 val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
 val_fmt motor_fmt = {"Motors", '#', 4, 1000, 2000, 1500, 500};
 
 val_fmt formats[] = {encoder_fmt, encoder_msg_fmt,
-                     navx_y_fmt, navx_r_p_fmt, navx_y_msg_fmt, navx_r_p_msg_fmt,
+                     /*navx_y_fmt, navx_r_p_fmt, navx_y_msg_fmt, navx_r_p_msg_fmt,*/
                      motor_msg_fmt, motor_fmt};
 
-Formatter fmt = Formatter(8, formats);
+Formatter fmt = Formatter(4, formats);
 
-void periodic_update_rate_modify_i2c();
-void sendNavX_Angles();
-void sendNavX_Accels();
+//void periodic_update_rate_modify_i2c();
+//void sendNavX_Angles();
+//void sendNavX_Accels();
 
 //Change this number to change the delay on the loop!
 #define ITERATION_DELAY_MS 100
@@ -129,7 +129,7 @@ void setup() {
 
 void loop() {
   motorLoop();
-  sendNavX_Angles();
+  //sendNavX_Angles();
   
   newOne = encoderOne.read();
   newTwo = encoderTwo.read();
@@ -151,12 +151,12 @@ void loop() {
   fmt.add("Encoder_msg", ENC_TWO_INDEX, positionTwo, "Encoder");
 
   Serial.print(fmt.emit());
-  //Serial.println(positionOne);
-  //Serial.println(positionTwo);
-  //Serial.println("------------");
+  Serial.println(positionOne);
+  Serial.println(positionTwo);
+  Serial.println("------------");
   delay(ITERATION_DELAY_MS);
 }
-
+/*
 // Below vars and define for method periodic_update_rate_modify_i2c()
 uint8_t min_update_rate = 1;
 uint8_t max_update_rate = 100;
@@ -175,12 +175,14 @@ void periodic_update_rate_modify_i2c(){
     if ( curr_update_rate > max_update_rate ) {
         curr_update_rate = min_update_rate;
     }
-  /* Transmit I2C data */
+  /* Transmit I2C data 
   Wire.beginTransmission(0x32); // transmit to device #0x32 (50)
   Wire.write(0x80 | NAVX_REG_UPDATE_RATE_HZ); // Sends the starting register address
   Wire.write(curr_update_rate++);   // Send number of bytes to read
   Wire.endTransmission();    // stop transmitting
 }
+*/
+
 
 // Handles motor functionality written by Logan and Karl, (doesn't do fmt.add's anywhere)
 void motorLoop(){
@@ -242,13 +244,12 @@ void motorLoop(){
       limitUnloaderUp = false;
     }
   }
-  /*
-    if (digitalRead(DHDpin) == HIGH) {
-    if (motorVals[4] < 1500) {
-    motorVals[4] = 1500;
-    }
-    }
-  */
+  
+  //  if (digitalRead(DHDpin) == HIGH) {
+  //  if (motorVals[4] < 1500) {
+  //  motorVals[4] = 1500;
+  //  }
+  //  }
 
 //  Serial.println(analogRead(DPOTpin));
 
@@ -290,6 +291,7 @@ void motorLoop(){
   M4.writeMicroseconds(limiter(motorVals[4], limitLinearDown, limitLinearUp, 125));
 }
 
+/*
 // Grabs absolute angles from NavX imu and adds them to the formatter
 void sendNavX_Angles(){
   byte data[32];
@@ -341,7 +343,7 @@ void sendNavX_Angles(){
   Serial.print(" ");
   Serial.print(pitch);
   Serial.println("");
-  */
+  
   
   fmt.addFloat("NavX_Y_msg", 0, 100.00f, "NavX_Y");
   fmt.addFloat("NavX_Y_msg", 0, 140.00f, "NavX_Y");
@@ -414,7 +416,7 @@ void sendNavX_Accels(){
 
   Serial.println(fmt.emit());
 }
-
+*/
 // Below methods used by the motorLoop method
 int limiter(int input, bool lowerLimit, bool upperLimit, int speedLimit){
   if(upperLimit && input > 1500 && input-1500 > speedLimit){
