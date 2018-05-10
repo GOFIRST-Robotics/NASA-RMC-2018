@@ -1,0 +1,2 @@
+MAIN_DIR=~/Workspace/workspace/NASA-RMC-2018
+g++ -std=c++11 -o MC_Main.out /home/jp-quark/Workspace/workspace/NASA-RMC-2018//testCode/Main_Exec/MC_Main.cpp -I/home/jp-quark/Workspace/workspace/NASA-RMC-2018//include /home/jp-quark/Workspace/workspace/NASA-RMC-2018//src/util/Telecomm.cpp /home/jp-quark/Workspace/workspace/NASA-RMC-2018//src/util/Formatter.cpp /home/jp-quark/Workspace/workspace/NASA-RMC-2018//src/util/joystick.cc
