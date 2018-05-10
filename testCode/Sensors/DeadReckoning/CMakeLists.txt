@@ -7,8 +7,7 @@ FIND_PACKAGE (Threads REQUIRED)
 set ( PROJECT_LINK_LIBS libahrs.so )
 link_directories( "${CMAKE_CURRENT_SOURCE_DIR}/navXTimeSync" )
 
-include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/navXTimeSync"
-                     "${CMAKE_CURRENT_SOURCE_DIR}" )
+include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/navXTimeSync" )
 
 add_executable(deadreckoning "${CMAKE_CURRENT_SOURCE_DIR}/DeadReckoning.cpp"
                              "${CMAKE_CURRENT_SOURCE_DIR}/DeadReckoning.h"
