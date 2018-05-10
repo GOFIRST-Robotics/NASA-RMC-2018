@@ -1,5 +1,5 @@
 // RPI_Main.cpp
-// Version 2.0.0
+// Version 2.1.0
 
 #include <string>
 #include <vector>
@@ -51,6 +51,16 @@ int main(){
 
   // Serial
   std::string port = "/dev/ttyUSB0"; // could be something else
+    // Find serial ports
+  std::vector<serial::PortInfo> devices_found = serial::list_ports();
+  std::vector<serial::PortInfo>::iterator iter = devices_found.begin();
+  while(iter != devices_found.end()){
+    serial::PortInfo device = *iter++;
+    if(device.description.find("UART") != std::string::npos){
+    port = device.port;
+    }
+  } // Add test? Gonner if this changes... >>> make this disconnect / reboot test too
+  std::cout << port << std::endl;
   serial::Serial arduino(port, 115200, serial::Timeout::simpleTimeout(1000));
 
   // Time measure
