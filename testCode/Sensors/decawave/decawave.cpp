@@ -41,7 +41,7 @@ void Decawave::updateSamples(){
   if (index>7){
     index=0;
   }
-  anchor1[index]=result[];//TODO:where in result
+  anchor1[index]=(((((result[17]<<8)|(result[18]))<<8)|(result[19]))<<8)|(result[20]);//TODO:where in result
   anchor2[index]=result[];
   index+=1;
 }
