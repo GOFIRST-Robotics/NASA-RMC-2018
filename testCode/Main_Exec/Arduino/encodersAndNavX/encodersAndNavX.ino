@@ -17,15 +17,16 @@ Servo M1; // Right Drive Motor
 Servo M2; // Unloader Motor
 Servo M3; // Digger Motor
 Servo M4; // LinAct Motor
+Servo M5; // Digger Agitator Motor
 
 //const int YAW_INDEX = 0, ROLL_INDEX = 1, PITCH_INDEX = 2;
 const int ENC_ONE_INDEX = 0, ENC_TWO_INDEX = 1;
 
 //Define Pin Locations
 
-int DHDpin = 20;
-int UHUpin = 18;
-int UHDpin = 21;
+int DHDpin = 3;
+int UHUpin = 2;
+int UHDpin = 4;
 
 int USUpin = 40;
 int USDpin = 42;
@@ -42,6 +43,7 @@ int M1_Pin = 10; // Right Drive Motor  B  Red
 int M2_Pin = 12; // Unloader Motor     C  Yellow
 int M3_Pin = 11; // Digger Motor       D  Orange
 int M4_Pin = 13; // LinAct Motor       E
+int M5_Pin = 8; // Digger Agitator
 
 volatile byte dhd = LOW;
 volatile byte uhu = LOW;
@@ -56,8 +58,9 @@ const int NUM_MOTORS=5;
 int motorVals[NUM_MOTORS] = {1500, 1500, 1500, 1500, 1500};
 String inData = "";
 
+bool first_packet = false;
 
-bool debug = true;
+bool debug = false;
 unsigned long previous_time;
 const unsigned long timeout=2000;
 
@@ -94,6 +97,7 @@ void setup() {
   M2.attach(M2_Pin);
   M3.attach(M3_Pin);
   M4.attach(M4_Pin);
+  M5.attach(M5_Pin);
 
   //Hard pins
   pinMode(DHDpin, INPUT);
@@ -103,7 +107,7 @@ void setup() {
   pinMode(UHUpin, INPUT);
   attachInterrupt(digitalPinToInterrupt(UHUpin), uhuISR, CHANGE);
   pinMode(UHDpin, INPUT);
-  attachInterrupt(digitalPinToInterrupt(UHDpin), uhdISR, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(UHDpin), uhdISR, CHANGE);
 
   //Soft pins
   pinMode(USUpin, INPUT);
@@ -122,7 +126,11 @@ void setup() {
   digitalWrite(LIDAR_L_ENABLE_PIN, LOW);
   digitalWrite(LIDAR_R_ENABLE_PIN, LOW);
 
+  M5.writeMicroseconds(1500);
+
   Serial.begin(115200);
+  //Serial.println("End of Setup");
+
   Wire.begin(); // join i2c bus (address optional for master)
   //Serial.println("Encoder Test:");
 }
@@ -196,6 +204,7 @@ void motorLoop(){
     for(int i=0;i<NUM_MOTORS;i++) { 
       motorVals[i]=1500;
     }
+    M5.writeMicroseconds(1000);
   }
 
   // Update motorVals[] with new values, if avail
@@ -209,6 +218,9 @@ void motorLoop(){
       free(ivPtr);
     };
     previous_time = millis();
+    if (!first_packet) {
+      first_packet = true;
+    }
   }
   // Do other sensors processing here
   // Limiting sensors, set to 0 or neg the respective motor at limit
@@ -244,12 +256,19 @@ void motorLoop(){
       limitUnloaderUp = false;
     }
   }
-  
-  //  if (digitalRead(DHDpin) == HIGH) {
-  //  if (motorVals[4] < 1500) {
-  //  motorVals[4] = 1500;
-  //  }
-  //  }
+
+  if(digitalRead(UHDpin) == HIGH) {
+    if (motorVals[2] < 1500) {
+      motorVals[2] = 1500;
+    }
+  }
+  /*
+    if (digitalRead(DHDpin) == HIGH) {
+    if (motorVals[4] < 1500) {
+    motorVals[4] = 1500;
+    }
+    }
+  */
 
 //  Serial.println(analogRead(DPOTpin));
 
@@ -268,13 +287,13 @@ void motorLoop(){
     }
   }
 
-  if (uhd == HIGH) {
+  /*if (uhd == HIGH) {
     //    Serial.println("UHD");
 
     if (motorVals[2] < 1500) {
       motorVals[2] = 1500;
     }
-  }
+  }*/
 
   //  delay(100);
 
@@ -289,6 +308,13 @@ void motorLoop(){
   M2.writeMicroseconds(limiter(motorVals[2], limitUnloaderDown, limitUnloaderUp, 150 ));
   M3.writeMicroseconds(map(motorVals[3], 1500, 2000, 1000, 2000));
   M4.writeMicroseconds(limiter(motorVals[4], limitLinearDown, limitLinearUp, 125));
+  if (motorVals[3] > 1500) {
+    M5.writeMicroseconds(1300);
+  }
+  else { 
+  //else if (first_packet) {
+    M5.writeMicroseconds(1000);
+  }
 }
 
 /*

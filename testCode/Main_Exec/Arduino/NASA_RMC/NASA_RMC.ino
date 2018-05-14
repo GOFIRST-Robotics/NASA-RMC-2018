@@ -1,25 +1,17 @@
 // NASA_RMC.ino
-// VERSION 1.4.1
+// VERSION 2.1.0
 
+// Arduino code for motor control and sensor reporting
+
+#include <Encoder.h>
 #include "Formatter.h"
-
-/* Teleop_Motors_Arduino
-  Runs the teleop code from the pi over serial to the motors.
-  Do not use for final without cleanup.
-  Needs Formatter library/files, and Ideally common fmt defs
-*/
-
-// Include Formatter.zip of Formatter.hh/cc files
-
-val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
-val_fmt motor_fmt = {"Motors", '#', 4, 1000, 2000, 1500, 500};
-val_fmt formats[] = {motor_msg_fmt, motor_fmt};
-
-Formatter fmt = Formatter(2, formats);
-
+//#include <Wire.h>
 #include <Servo.h>
-#include <SPI.h>
-//#include <Formatter.h>
+//#include <SPI.h>
+
+// Change these pin numbers to the pins connected to your encoder.
+Encoder E0(18, 19); // Left // Interrupt Pins
+Encoder E1(20, 21); // Right
 
 Servo M0; // Left Drive Motor
 Servo M1; // Right Drive Motor
@@ -70,6 +62,27 @@ bool debug = false;
 unsigned long previous_time;
 const unsigned long timeout=2000;
 
+val_fmt encoder_fmt = {"Encoder", '\0', 6, -80000, 80000, 0, 80000};
+val_fmt encoder_msg_fmt = {"Encoder_msg", '@', 6, 0, 160000, 80000, 80000};
+val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
+val_fmt motor_fmt = {"Motors", '\0', 4, 1000, 2000, 1500, 500};
+// Add: LinPot, Hard Limits
+val_fmt limit_msg_fmt = { // Records / passes the hard real limits
+  "Limit_msg", // Same for sending & utilizing
+  '#', 1, // sym, 1 char
+  0, 3, // not at lim, 0; at hard down, 1; at hard up, 2; both/error, 3
+  0, 3}; // Same scale/offset changes nothing
+
+val_fmt formats[] = {encoder_fmt, encoder_msg_fmt, motor_msg_fmt, motor_fmt,limit_msg_fmt};
+
+Formatter fmt = Formatter(5, formats);
+
+//Change this number to change the delay on the loop! // Why a delay like this?????(Jude)
+#define ITERATION_DELAY_MS 100
+
+long E0_val = 0;
+long E1_val = 0;
+
 void setup() {
   M0.attach(M0_Pin);
   M1.attach(M1_Pin);
@@ -81,12 +94,12 @@ void setup() {
   //Hard pins
   pinMode(DHDpin, INPUT);
   attachInterrupt(digitalPinToInterrupt(DHDpin), dhdISR, CHANGE);
-  //  attachInterrupt(digitalPinToInterrupt(DHDpin), dhdISRf, FALLING);
+  //  attachInterrupt(digitalPinToInterrupt(DHDpin), dhdISRf, FALLING); // Because ran out of pins
 
   pinMode(UHUpin, INPUT);
   attachInterrupt(digitalPinToInterrupt(UHUpin), uhuISR, CHANGE);
   pinMode(UHDpin, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(UHDpin), uhdISR, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(UHDpin), uhdISR, CHANGE); // Because ran out
 
   //Soft pins
   pinMode(USUpin, INPUT);
@@ -108,12 +121,33 @@ void setup() {
   M5.writeMicroseconds(1500);
 
   Serial.begin(115200);
-  //Serial.println("End of Setup");
-
 }
 
-
 void loop() {
+  MotorControl();
+  
+  // Update and add encoders  
+  long val0 = E0.read();
+  long val1 = E1.read();
+  if (val0 != E0_val) {
+    fmt.add("Encoder_msg", 0, val0 - E0_val, "Encoder");
+    E0_val = val0;
+  }
+  if (val1 != E1_val) {
+    fmt.add("Encoder_msg", 1, val1 - E1_val, "Encoder");
+    E1_val = val1;
+  }
+
+  // Add position states
+  fmt.add("Limit_msg",0,(int)(dhd == HIGH),"Limit_msg"); // Digger
+  fmt.add("Limit_msg",1,(int)(uhd == HIGH) + 2*(int)(uhu == HIGH),"Limit_msg"); // Unloader
+  // LinPot
+
+  Serial.print(fmt.emit());
+}
+
+// Handles motor functionality written by Logan and Karl, (doesn't do fmt.add's anywhere)
+void MotorControl(){
   //  dhd = LOW;
   //  uhu = LOW;
   //  uhd = LOW;
@@ -237,7 +271,7 @@ void loop() {
   }
 }
 
-
+// Below methods used by the MotorControl method
 int limiter(int input, bool lowerLimit, bool upperLimit, int speedLimit){
   if(upperLimit && input > 1500 && input-1500 > speedLimit){
     return speedLimit + 1500;

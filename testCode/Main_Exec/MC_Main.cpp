@@ -1,6 +1,5 @@
-// MC_MAIN.cpp
+// MC_Main.cpp
 // Version 2.0.0
-
 
 // USE LOGITECH WITH THE TINY SWITCH ON THE BACK SET TO "D"!!!
 
@@ -12,9 +11,7 @@
 #include "Formatter.hpp"
 #include "joystick.hh"
 
-#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include "Camera.h"
 
 //#define TANK 
 #define M0_LeftDrive_Axis 1
@@ -144,34 +141,18 @@ int main(){
         for(int i = 0; i < 5; ++i){
           motorVals[i].v = 0;}}
     }
-/*
+    
     // Request videostream
-    char c=(char)waitKey(1);
+    char c = (char)cv::waitKey(1);
     for (int i = 0; i < 6; ++i){
-      if (c==imgtriggerkey[i]){
+      if (c == imgtriggerkey[i]){
         imgshowstate[i] = ! imgshowstate[i];
         fmt.add("Imgshow_msg",{{i,(int)imgshowstate[i]}},"Imgshow_msg");
+        comm.send(fmt.emit());
+        break;
       }
     }
-    //receive image https://stackoverflow.com/questions/20314524/c-opencv-image-sending-through-socket
-    // Receive image
-    Mat  img = Mat::zeros(height, width, CV_8U);
-    int  imgSize = img.total()*img.elemSize();
-    uchar sockData[imgSize];
-    for (int i = 0; i < imgSize; i += bytes) {
-      if ((bytes = recv(connectSock, sockData +i, imgSize  - i, 0)) == -1) {
-        quit("recv failed", 1);
-        }
-       }
-    // Assign pixel value to img
-    int ptr=0;
-    for (int i = 0;  i < img.rows; ++i) {
-      for (int j = 0; j < img.cols; ++j) {
-        img(i,j) = cv::Vec3b(sockData[ptr+ 0],sockData[ptr+1],sockData[ptr+2]);
-        ptr=ptr+3;
-      }
-    }
-*/
+    
     if(copyVals != motorVals){
       fmt.add("Motors_msg",motorVals,"JS_In");
       std::string msg = fmt.emit();
