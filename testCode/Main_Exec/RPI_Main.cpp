@@ -9,6 +9,7 @@
 #include <future>
 
 #include <serial/serial.h>
+#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 #include "Telecomm.h"
@@ -21,7 +22,7 @@ Clock::time_point t = Clock::now();
 struct Timer {
   Clock::time_point t0;
   int msPeriod;
-  int getCount_ms(){ return std::chrono::duration_cast<Millis>(t-t0); }
+  int getCount_ms(){ return std::chrono::duration_cast<Millis>(t-t0).count(); }
   void sync(){ t0 = t; }
   bool isTriggered(){
     if(getCount_ms() >= msPeriod){
@@ -82,7 +83,7 @@ int main(){
     5, // Offset
     5 //scale+/-
   };
-  Formatter fmt_MC = Formatter({motor_msg_fmt,img_show_msg_fmt,motor_fmt,limit_msg_fmt});
+  Formatter fmt_MC = Formatter({motor_msg_fmt,imgshow_msg_fmt,motor_fmt,limit_msg_fmt});
   Formatter fmt_Ard = Formatter({motor_msg_fmt,motor_fmt,limit_msg_fmt});
 
   // Serial
@@ -98,7 +99,7 @@ int main(){
   } // Add test? Gonner if this changes... >>> make this disconnect / reboot test too
   std::cout << port << std::endl;
   serial::Serial arduino(port, 115200, serial::Timeout::simpleTimeout(1000));
-  auto ardIn = std::async(std::launch:::async, []()(arduino.readline('\n')));
+  auto ardIn = std::async(std::launch::async, [&](){return arduino.readline('\n');});
 
   // States
   int motorState[6] = {1500};
@@ -116,10 +117,8 @@ int main(){
   Timer ardHeartbeat = Timer(2000);
   Timer mcHeartbeat = Timer(2000);
   Timer heartbeat = Timer(500);
-  Timer cameraRequests[6];
-  for(int i = 0; i < 6; ++i){
-    cameraRequests[i] = Timer(500);
-  }
+  Timer cameraRequests[6] = {Timer(500),Timer(500),Timer(500),
+                                          Timer(500),Timer(500),Timer(500)};
 
   // Loop
   while(1){
@@ -134,10 +133,10 @@ int main(){
       mcHeartbeat.sync();
       if((MC_msg_in = comm.recv()) != "."){
         // Parse MC input
-        for(auto iv : fmt_MC.parse(MC_msg_in,motor_msg_fmt,motor_fmt){
+        for(auto iv : fmt_MC.parse(MC_msg_in,"Motors_msg","Motors")){
           motorState[iv.i] = iv.v;
         }
-        for(auto iv : fmt_MC.parse(MC_msg_in,imgshow_msg_fmt)){
+        for(auto iv : fmt_MC.parse(MC_msg_in,"Imgshow_msg","Imgshow_msg")){
           imgshowState[iv.i] = iv.v;
         }
       }
@@ -150,12 +149,12 @@ int main(){
     // Arduino In; Use futures to rm lag?
     if(ardIn.valid() && ardIn.wait_for(Millis(1)) == std::future_status::ready){
       std::string Ard_msg_in = ardIn.get();
-      ardIn = std::async(std::launch:::async, []()(arduino.readline('\n')));
+      ardIn = std::async(std::launch::async, [&](){return arduino.readline('\n');});
       ardHeartbeat.sync();
       if(Ard_msg_in != "."){
-        for(auto iv : fmt_Ard.parse()){
-
-        }
+        /*for(auto iv : fmt_Ard.parse()){
+// Fill with encs, linpot, hardswitches
+        }*/
       }
     }else if(ardHeartbeat.isTriggered()){
       for(int i = 0; i < 6; ++i){
@@ -172,7 +171,7 @@ int main(){
     // Arduino Out (Only Motors)
       if(arduino.isOpen()){
         for(int i = 0; i < 6; ++i){
-          fmt_Ard.add("Motors",motorState[i],"Motor_msg");
+          fmt_Ard.add("Motors",{{i,motorState[i]}},"Motor_msg");
         }
         arduino.write(MC_msg_in);
       }
@@ -181,7 +180,7 @@ int main(){
     // Images
     for(int i = 0; i < 7; ++i){
       if(imgshowState[i]){
-        imgshowFrames[i][0] = i; // This is an ID tag, unnoticable
+        *(imgshowFrames[i].ptr(0,0)) = i; // This is an ID tag, unnoticable
         //commBytes.sendBytes(imgshowFrames[i].data,imgSize);
       }
     }

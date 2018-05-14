@@ -1,6 +1,6 @@
 #ifndef FORMATTER_HPP
 #define FORMATTER_HPP
-// VERSION 1.3.1
+// VERSION 1.4.1
 
 /* Formatter defines a class to parameterize a standard formatter for sending 
  * and recieving messages, usually for the same expected interface. 
@@ -75,8 +75,10 @@ class Formatter {
     // Receiving / Parsing:
     // Parse from string all values of type data_t
     std::vector<IV> parse(std::string message, std::string data_t);
+    std::vector<IV> parse(std::string message, std::string from_data_t, std::string to_data_t);
     // Depending on data type, float could be prefered
     std::vector<IV_float> parseFloat(std::string message, std::string data_t);
+    std::vector<IV_float> parseFloat(std::string message, std::string from_data_t, std::string to_data_t);
     // Check for simply just a text message
     bool hasSymbols(std::string message);
 

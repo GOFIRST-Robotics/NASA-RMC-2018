@@ -1,5 +1,5 @@
 // Formatter.cpp
-// VERSION 1.3.1
+// VERSION 1.4.1
 #include "Formatter.hpp"
 #include <vector>
 #include <string>
@@ -210,6 +210,23 @@ std::vector<IV> Formatter::parse(std::string message, std::string data_t){
   return out;
 }
 
+std::vector<IV> Formatter::parse(std::string message, std::string from_data_t, std::string to_data_t){
+  std::vector<IV> out;
+  const val_fmt* from_fmt = getFormat(from_data_t);
+  assert(from_fmt);
+  const val_fmt* to_fmt = getFormat(to_data_t);
+  assert(to_fmt);
+  for(std::string::size_type i = 0; i < message.size(); ++i){
+    if(message[i] == from_fmt->symbol){
+      out.push_back({
+          number(message[i+1]),
+          convert(*from_fmt, *to_fmt, std::stoi(message.substr(i+2,i+2 + from_fmt->bytes)))
+      });
+    }
+  }
+  return out;
+}
+
 std::vector<IV_float> Formatter::parseFloat(std::string message, std::string data_t){
   std::vector<IV_float> out;
   const val_fmt* fmt = getFormat(data_t);
@@ -220,6 +237,23 @@ std::vector<IV_float> Formatter::parseFloat(std::string message, std::string dat
           number(message[i+1]),
           ((float)(std::stoi(message.substr(i+2,i+2 + fmt->bytes)) - fmt->off))
             / fmt->scale});
+    }
+  }
+  return out;
+}
+
+std::vector<IV_float> Formatter::parseFloat(std::string message, std::string from_data_t, std::string to_data_t){
+  std::vector<IV_float> out;
+  const val_fmt* from_fmt = getFormat(from_data_t);
+  assert(from_fmt);
+  const val_fmt* to_fmt = getFormat(to_data_t);
+  assert(to_fmt);
+  for(std::string::size_type i = 0; i < message.size(); ++i){
+    if(message[i] == from_fmt->symbol){
+      out.push_back({
+          number(message[i+1]),
+          convert(*from_fmt,*to_fmt,(float)std::stoi(message.substr(i+2,i+2 + from_fmt->bytes)))
+      });
     }
   }
   return out;

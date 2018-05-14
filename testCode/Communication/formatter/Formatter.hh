@@ -1,6 +1,6 @@
 #ifndef FORMATTER_HH
 #define FORMATTER_HH
-// VERSION 1.0.0
+// VERSION 1.1.0
 
 /* Formatter.hh defines a class to parameterize a standard formatter for sending 
  * and recieving messages, usually for the same expected interface. 
