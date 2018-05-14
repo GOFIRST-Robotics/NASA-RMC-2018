@@ -1,6 +1,6 @@
 #ifndef FORMATTER_HPP
 #define FORMATTER_HPP
-// VERSION 1.1.0
+// VERSION 1.3.1
 
 /* Formatter defines a class to parameterize a standard formatter for sending 
  * and recieving messages, usually for the same expected interface. 
@@ -64,6 +64,7 @@ class Formatter {
     // Build up a string to output: apriori conversion optional
     void add(std::string data_t, const std::vector<IV>& ids_values, std::string apriori_data_t = "");
     void add(std::string data_t, const std::vector<IV>& ids_values, const val_fmt& apriori_fmt);
+
     // Support for floats
     void addFloat(std::string data_t, const std::vector<IV_float>& ids_values, std::string apriori_data_t = "");
     void addFloat(std::string data_t, const std::vector<IV_float>& ids_values, const val_fmt& apriori_fmt);
@@ -76,6 +77,8 @@ class Formatter {
     std::vector<IV> parse(std::string message, std::string data_t);
     // Depending on data type, float could be prefered
     std::vector<IV_float> parseFloat(std::string message, std::string data_t);
+    // Check for simply just a text message
+    bool hasSymbols(std::string message);
 
     // Basic conversions
     int getValue(int val, const val_fmt* fmt);
@@ -89,6 +92,7 @@ class Formatter {
     const std::vector<val_fmt> formats;
     std::string msg; 
     bool newMsg;
+    std::string symbols;
 
 };
 

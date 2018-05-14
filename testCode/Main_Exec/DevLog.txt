@@ -1,2 +1,13 @@
 2018 May 6th, Jude
 Moved the test-y LaptopWifiMotors.cpp and PiWifiSerial.cpp to the much clearer & definative MC_Main.cpp and RPI_Main.cpp respectively. 
+
+2018 May 13th, Jude
+Major refactoring of MC_Main and RPI_Main. Almost prepared to stream video. Localization/navx/camera stuff not added/implemented. Refined several structures. Laid out the interactive plans between systems. 
+Still just dealing with the infrastructure, no advaced code yet at all. Most states in place, the reading/writing/communicating between them laid out. Realsense/UP not implemented yet in slightest degree. 
+Broke out the receptive part of MC to a seperate file. Plan is to perhaps have ncurses terminal gui displaying the writing/sending motor values if teleop, the received values if auton, the state of the digger/unloader, and perhaps a graph of the field. Strongly tempted to have all the image show-y stuff in a seperate program which can't block. It would get it's own comm channel, commBytes (simplifies tagging info, just ID it as the image sending channel, and each first pixel of each image is overwritten to it's camera id).
+No ethernet connection between boards yet. 
+As of today, MC_Main (w/o doing image-y stuff) compiles. Untested pre-commit/send if RPI_Main compiles on itself. 
+Fixed up Arduino main code some. It... ... ... has some cleaning to be done. But if it works, no complaints. 
+RPI main also added serial read through futures to not-block, untested. 
+
+

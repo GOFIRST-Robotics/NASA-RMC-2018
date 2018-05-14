@@ -1,16 +1,17 @@
-//MERGED ARDUINO FILES FOR NAVX ENCODERS AND MOTORS
-//VERSION 1.5.0
+// NASA_RMC.ino
+// VERSION 2.1.0
+
+// Arduino code for motor control and sensor reporting
 
 #include <Encoder.h>
 #include "Formatter.h"
-#include <Wire.h>
-//#include "AHRSProtocol.h"
+//#include <Wire.h>
 #include <Servo.h>
-#include <SPI.h>
+//#include <SPI.h>
 
 // Change these pin numbers to the pins connected to your encoder.
-Encoder encoderOne(2, 3); // Interrupt Pins
-Encoder encoderTwo(6, 7);
+Encoder E0(18, 19); // Left // Interrupt Pins
+Encoder E1(20, 21); // Right
 
 Servo M0; // Left Drive Motor
 Servo M1; // Right Drive Motor
@@ -18,9 +19,6 @@ Servo M2; // Unloader Motor
 Servo M3; // Digger Motor
 Servo M4; // LinAct Motor
 Servo M5; // Digger Agitator Motor
-
-//const int YAW_INDEX = 0, ROLL_INDEX = 1, PITCH_INDEX = 2;
-const int ENC_ONE_INDEX = 0, ENC_TWO_INDEX = 1;
 
 //Define Pin Locations
 
@@ -64,32 +62,26 @@ bool debug = false;
 unsigned long previous_time;
 const unsigned long timeout=2000;
 
-//val_fmt navx_y_fmt = {"NavX_Y", '\0', 6, -180.00, 180.00, 0, 180};
-//val_fmt navx_r_p_fmt = {"NavX_R_P", '\0', 5, -90.00, 90.00, 0, 90};
-//val_fmt navx_y_msg_fmt = {"NavX_Y_msg", '=', 5, 0, 36000, 18000, 18000};
-//val_fmt navx_r_p_msg_fmt = {"NavX_R_P_msg", '+', 5, 0, 36000, 18000, 18000};
-val_fmt encoder_fmt = {"Encoder", '\0', 10, -1000, 1000, 0, 1000};
-val_fmt encoder_msg_fmt = {"Encoder_msg", '*', 10, 0, 2000, 1000, 1000};
+val_fmt encoder_fmt = {"Encoder", '\0', 6, -80000, 80000, 0, 80000};
+val_fmt encoder_msg_fmt = {"Encoder_msg", '@', 6, 0, 160000, 80000, 80000};
 val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
-val_fmt motor_fmt = {"Motors", '#', 4, 1000, 2000, 1500, 500};
+val_fmt motor_fmt = {"Motors", '\0', 4, 1000, 2000, 1500, 500};
+// Add: LinPot, Hard Limits
+val_fmt limit_msg_fmt = { // Records / passes the hard real limits
+  "Limit_msg", // Same for sending & utilizing
+  '#', 1, // sym, 1 char
+  0, 3, // not at lim, 0; at hard down, 1; at hard up, 2; both/error, 3
+  0, 3}; // Same scale/offset changes nothing
 
-val_fmt formats[] = {encoder_fmt, encoder_msg_fmt,
-                     /*navx_y_fmt, navx_r_p_fmt, navx_y_msg_fmt, navx_r_p_msg_fmt,*/
-                     motor_msg_fmt, motor_fmt};
+val_fmt formats[] = {encoder_fmt, encoder_msg_fmt, motor_msg_fmt, motor_fmt,limit_msg_fmt};
 
-Formatter fmt = Formatter(4, formats);
+Formatter fmt = Formatter(5, formats);
 
-//void periodic_update_rate_modify_i2c();
-//void sendNavX_Angles();
-//void sendNavX_Accels();
-
-//Change this number to change the delay on the loop!
+//Change this number to change the delay on the loop! // Why a delay like this?????(Jude)
 #define ITERATION_DELAY_MS 100
 
-long positionOne  = 0;
-long positionTwo  = 0;
-long newOne = 0, newTwo = 0;
-long oldOne = 0, oldTwo = 0;
+long E0_val = 0;
+long E1_val = 0;
 
 void setup() {
   M0.attach(M0_Pin);
@@ -102,12 +94,12 @@ void setup() {
   //Hard pins
   pinMode(DHDpin, INPUT);
   attachInterrupt(digitalPinToInterrupt(DHDpin), dhdISR, CHANGE);
-  //  attachInterrupt(digitalPinToInterrupt(DHDpin), dhdISRf, FALLING);
+  //  attachInterrupt(digitalPinToInterrupt(DHDpin), dhdISRf, FALLING); // Because ran out of pins
 
   pinMode(UHUpin, INPUT);
   attachInterrupt(digitalPinToInterrupt(UHUpin), uhuISR, CHANGE);
   pinMode(UHDpin, INPUT);
-  //attachInterrupt(digitalPinToInterrupt(UHDpin), uhdISR, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(UHDpin), uhdISR, CHANGE); // Because ran out
 
   //Soft pins
   pinMode(USUpin, INPUT);
@@ -129,71 +121,33 @@ void setup() {
   M5.writeMicroseconds(1500);
 
   Serial.begin(115200);
-  //Serial.println("End of Setup");
-
-  Wire.begin(); // join i2c bus (address optional for master)
-  //Serial.println("Encoder Test:");
 }
 
 void loop() {
-  motorLoop();
-  //sendNavX_Angles();
+  MotorControl();
   
-  newOne = encoderOne.read();
-  newTwo = encoderTwo.read();
+  // Update and add encoders  
+  long val0 = E0.read();
+  long val1 = E1.read();
+  if (val0 != E0_val) {
+    fmt.add("Encoder_msg", 0, val0 - E0_val, "Encoder");
+    E0_val = val0;
+  }
+  if (val1 != E1_val) {
+    fmt.add("Encoder_msg", 1, val1 - E1_val, "Encoder");
+    E1_val = val1;
+  }
 
-  //Serial.print(newOne);
-  //Serial.print(" ");
-  //Serial.print(newTwo);
-  //Serial.println("");
-  
-  if (newOne != oldOne) {
-    positionOne = newOne - positionOne;
-    oldOne = newOne;
-  }
-  if (newTwo != oldTwo) {
-    positionTwo = newTwo - positionTwo;
-    oldTwo = newTwo;
-  }
-  fmt.add("Encoder_msg", ENC_ONE_INDEX, positionOne, "Encoder");
-  fmt.add("Encoder_msg", ENC_TWO_INDEX, positionTwo, "Encoder");
+  // Add position states
+  fmt.add("Limit_msg",0,(int)(dhd == HIGH),"Limit_msg"); // Digger
+  fmt.add("Limit_msg",1,(int)(uhd == HIGH) + 2*(int)(uhu == HIGH),"Limit_msg"); // Unloader
+  // LinPot
 
   Serial.print(fmt.emit());
-  Serial.println(positionOne);
-  Serial.println(positionTwo);
-  Serial.println("------------");
-  delay(ITERATION_DELAY_MS);
 }
-/*
-// Below vars and define for method periodic_update_rate_modify_i2c()
-uint8_t min_update_rate = 1;
-uint8_t max_update_rate = 100;
-uint8_t curr_update_rate = min_update_rate;
-uint8_t periodic_i2c_update_iteration_count = 0;
-#define PERIODIC_I2C_UPDATE_ITERATIONS 50
-
-// Used by NavX for i2c
-void periodic_update_rate_modify_i2c(){
-    periodic_i2c_update_iteration_count++;
-    if ( periodic_i2c_update_iteration_count >= PERIODIC_I2C_UPDATE_ITERATIONS ) {
-        periodic_i2c_update_iteration_count = 0;
-    } else {
-        return;
-    }
-    if ( curr_update_rate > max_update_rate ) {
-        curr_update_rate = min_update_rate;
-    }
-  /* Transmit I2C data 
-  Wire.beginTransmission(0x32); // transmit to device #0x32 (50)
-  Wire.write(0x80 | NAVX_REG_UPDATE_RATE_HZ); // Sends the starting register address
-  Wire.write(curr_update_rate++);   // Send number of bytes to read
-  Wire.endTransmission();    // stop transmitting
-}
-*/
-
 
 // Handles motor functionality written by Logan and Karl, (doesn't do fmt.add's anywhere)
-void motorLoop(){
+void MotorControl(){
   //  dhd = LOW;
   //  uhu = LOW;
   //  uhd = LOW;
@@ -317,133 +271,7 @@ void motorLoop(){
   }
 }
 
-/*
-// Grabs absolute angles from NavX imu and adds them to the formatter
-void sendNavX_Angles(){
-  byte data[32];
-  float yaw = 0;
-  float roll = 0;
-  float pitch = 0;
-  byte yaw_arr[2];
-  byte roll_arr[2];
-  byte pitch_arr[2];
-
-  for ( int i = 0; i < sizeof(data); i++ ) {
-      data[i] = 0;
-  }
-  for ( int i = 0; i < sizeof(yaw_arr); i++ ) {
-      yaw_arr[i] = 0;
-      roll_arr[i] = 0;
-      pitch_arr[i] = 0;
-  }
-
-  Wire.beginTransmission(50);
-  Wire.write(NAVX_REG_YAW_L);
-  Wire.write(6);
-  Wire.endTransmission();
-  Wire.beginTransmission(0x32);
-  Wire.requestFrom(0x32,6);
-  while(Wire.available()) {
-    for(int j = 0; j < 6; j++){
-      data[j] = Wire.read();
-    }
-  }
-  Wire.endTransmission();
-
-  yaw_arr[0] = data[0];
-  yaw_arr[1] = data[1];
-  roll_arr[0] = data[2];
-  roll_arr[1] = data[3];
-  pitch_arr[0] = data[4];
-  pitch_arr[1] = data[5];
-
-  yaw   = IMURegisters::decodeProtocolSignedHundredthsFloat(yaw_arr);
-  roll  = IMURegisters::decodeProtocolSignedHundredthsFloat(roll_arr);
-  pitch = IMURegisters::decodeProtocolSignedHundredthsFloat(pitch_arr);
-
-  /*
-  Serial.print("Angles: "); //dont need for later
-  Serial.print(yaw);
-  Serial.print(" ");
-  Serial.print(roll);
-  Serial.print(" ");
-  Serial.print(pitch);
-  Serial.println("");
-  
-  
-  fmt.addFloat("NavX_Y_msg", 0, 100.00f, "NavX_Y");
-  fmt.addFloat("NavX_Y_msg", 0, 140.00f, "NavX_Y");
-  fmt.addFloat("NavX_R_P_msg", 1, -34.63f, "NavX_R_P");
-  fmt.addFloat("NavX_Y_msg", YAW_INDEX, yaw, "NavX_Y");
-  fmt.addFloat("NavX_R_P_msg", ROLL_INDEX, roll, "NavX_R_P");
-  fmt.addFloat("NavX_R_P_msg", PITCH_INDEX, pitch, "NavX_R_P");
-
-  Serial.print(fmt.emit());
-}
-
-// Grabs accelerations from NavX imu and adds them to the formatter (currently unused)
-void sendNavX_Accels(){
-  byte lin_data[32];
-  float x_acc = 0;
-  float y_acc = 0;
-  float z_acc = 0;
-  byte x_arr[2];
-  byte y_arr[2];
-  byte z_arr[2];
-
-  for ( int i = 0; i < sizeof(lin_data); i++ ) {
-      lin_data[i] = 0;
-  }
-  for ( int i = 0; i < sizeof(x_arr); i++ ) {
-      x_arr[i] = 0;
-      y_arr[i] = 0;
-      z_arr[i] = 0;
-  }
-
-  IV_float x_accel_values = {3, x_acc};
-  IV_float y_accel_values = {4, y_acc};
-  IV_float z_accel_values = {5, z_acc};
-
-  Wire.beginTransmission(50);
-  Wire.write(NAVX_REG_LINEAR_ACC_X_L);
-  Wire.write(6);
-  Wire.endTransmission();
-  Wire.beginTransmission(0x32);
-  Wire.requestFrom(0x32,6);
-  while(Wire.available()) {
-    for(int j = 0; j < 6; j++){
-      lin_data[j] = Wire.read();
-    }
-  }
-  Wire.endTransmission();
-
-  x_arr[0] = lin_data[0];
-  x_arr[1] = lin_data[1];
-  y_arr[0] = lin_data[2];
-  y_arr[1] = lin_data[3];
-  z_arr[0] = lin_data[4];
-  z_arr[1] = lin_data[5];
-
-  x_acc = 9.8 * IMURegisters::decodeProtocolSignedThousandthsFloat(x_arr);
-  y_acc = 9.8 * IMURegisters::decodeProtocolSignedThousandthsFloat(y_arr);
-  z_acc = 9.8 * IMURegisters::decodeProtocolSignedThousandthsFloat(z_arr);
-
-  Serial.print("Accels: "); //dont need for later
-  Serial.print(x_acc);
-  Serial.print(" ");
-  Serial.print(y_acc);
-  Serial.print(" ");
-  Serial.print(z_acc);
-  Serial.println("");
-
-  fmt.addFloat("NavX_X_Accel", x_accel_values, "NavX_X_Accel_conv");
-  fmt.addFloat("NavX_Y_Accel", y_accel_values, "NavX_Y_Accel_conv");
-  fmt.addFloat("NavX_Z_Accel", z_accel_values, "NavX_Z_Accel_conv");
-
-  Serial.println(fmt.emit());
-}
-*/
-// Below methods used by the motorLoop method
+// Below methods used by the MotorControl method
 int limiter(int input, bool lowerLimit, bool upperLimit, int speedLimit){
   if(upperLimit && input > 1500 && input-1500 > speedLimit){
     return speedLimit + 1500;

@@ -1,5 +1,5 @@
 // Formatter.cpp
-// VERSION 1.0.0
+// VERSION 1.3.1
 #include "Formatter.hpp"
 #include <vector>
 #include <string>
@@ -79,6 +79,9 @@ Formatter::Formatter(std::vector<val_fmt> fmts) : formats(fmts){
   newMsg = true;
   msg.reserve(300);
   msg = "";
+  symbols = "";
+  for(val_fmt fmt : formats)
+    symbols += fmt.symbol;
 }
 
 inline int Formatter::getVal(int out, const val_fmt* fmt){
@@ -220,5 +223,9 @@ std::vector<IV_float> Formatter::parseFloat(std::string message, std::string dat
     }
   }
   return out;
+}
+
+bool Formatter::hasSymbols(std::string message){
+  return message.find_first_of(symbols) != std::string::npos;
 }
 

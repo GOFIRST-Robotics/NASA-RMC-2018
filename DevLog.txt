@@ -335,3 +335,6 @@ SUPER DUPER IMPORTANT!!! BEFORE COMPILING NAVX AHRS LIBRARY ON RASPI
 3. ctrl+f "#include <stdlib.h>"
 4. immediately below there type "#include <cstdint>"
 IF YOU DONT DO THIS THE NAVX WILL THROW COMPILER ERRORS REEEEEEEEEEEE
+
+2018 May 13th: Jude
+Major refactoring of MC_Main, RPI_Main. Most structures, states, infrastructure written, sections charted out and mapped. No interaction yet between RPI and Up board. No advanced code written. At competition. Images almost working. Compiles (w/o navx, cameras, localization/decawave) on MC and Arduino, RPI untested. MC laptop (mine) has successful non-cuda opencv compile, errors compiling with cuda, irrelevant now. 

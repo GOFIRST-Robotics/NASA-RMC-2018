@@ -1,18 +1,44 @@
 // RPI_Main.cpp
-// Version 2.1.0
+// Version 3.1.0
 
 #include <string>
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <thread>
+#include <future>
 
 #include <serial/serial.h>
+#include <opencv2/highgui/highgui.hpp>
 
 #include "Telecomm.h"
 #include "Formatter.hpp"
+  
+// Time measure
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::milliseconds Millis;
+Clock::time_point t = Clock::now();
+struct Timer {
+  Clock::time_point t0;
+  int msPeriod;
+  int getCount_ms(){ return std::chrono::duration_cast<Millis>(t-t0); }
+  void sync(){ t0 = t; }
+  bool isTriggered(){
+    if(getCount_ms() >= msPeriod){
+      t0 = t;
+      return true;
+    }
+    return false;
+  }
+  Timer(int ms){ 
+    t0 = Clock::now();
+    msPeriod = ms;
+  }
+};
 
 int main(){
   // Initialize classes
+  
   // Telecomm
   Telecomm comm("192.168.1.50",5001,5001);
   comm.setFailureAction(false);
@@ -21,24 +47,33 @@ int main(){
     printf("Error: %s\n", comm.verboseStatus().c_str());
     return comm.status();
   }
-/*  Telecomm commBytes("192.168.1.50",5005,5005);
+/*  Telecomm commBytes("192.168.1.50",5002,5002);
   commBytes.setFailureAction(false);
   commBytes.setBlockingTime(0,0);
   if(commBytes.status() != 0){
     printf("Error: %s\n", commBytes.verboseStatus().c_str());
     return commBytes.status();
   }*/
+
   // Formatter
   val_fmt motor_msg_fmt = {
-    "Motors", // string data_t
+    "Motors_msg", // string data_t
     '!', // Arbitrary symbol
     3, // Number of bytes/chars to send
     0, // Min_val (sending)
     200, // Max_val (sending)
     100, // Offset
-    100
+    100 // Range/scale
   };
-  val_fmt img_show_msg_fmt = {
+  val_fmt motor_fmt = {"Motors", '\0', 4, 1000, 2000, 1500, 500 };
+  val_fmt encoder_fmt = {"Encoder", '\0', 6, -80000, 80000, 0, 80000};
+  val_fmt encoder_msg_fmt = {"Encoder_msg", '@', 6, 0, 160000, 80000, 80000};
+  val_fmt limit_msg_fmt = { // Records / passes the hard real limits
+    "Limit_msg", // Same for sending & utilizing
+    '#', 1, // sym, 1 char
+    0, 3, // not at lim, 0; at hard down, 1; at hard up, 2; both/error, 3
+    0, 3}; // Same scale/offset changes nothing
+  val_fmt imgshow_msg_fmt = { // Also toggle Teleop Mode
     "Imgshow_msg", // string data_t
     '&', // Arbitrary symbol
     1, // Number of bytes/chars to send
@@ -47,7 +82,8 @@ int main(){
     5, // Offset
     5 //scale+/-
   };
-  Formatter fmt = Formatter({motor_msg_fmt,img_show_msg_fmt});
+  Formatter fmt_MC = Formatter({motor_msg_fmt,img_show_msg_fmt,motor_fmt,limit_msg_fmt});
+  Formatter fmt_Ard = Formatter({motor_msg_fmt,motor_fmt,limit_msg_fmt});
 
   // Serial
   std::string port = "/dev/ttyUSB0"; // could be something else
@@ -57,78 +93,108 @@ int main(){
   while(iter != devices_found.end()){
     serial::PortInfo device = *iter++;
     if(device.description.find("UART") != std::string::npos){
-    port = device.port;
+      port = device.port;
     }
   } // Add test? Gonner if this changes... >>> make this disconnect / reboot test too
   std::cout << port << std::endl;
   serial::Serial arduino(port, 115200, serial::Timeout::simpleTimeout(1000));
+  auto ardIn = std::async(std::launch:::async, []()(arduino.readline('\n')));
 
-  // Time measure
-  typedef std::chrono::high_resolution_clock Clock;
-  typedef std::chrono::milliseconds Millis;
-  Clock::time_point t0 = Clock::now();
-  Clock::time_point t = t0;
+  // States
+  int motorState[6] = {1500};
+  bool imgshowState[8] = {false}; // See below
+  bool* teleopControl = &imgshowState[7]; // Piggyback on this fmt
+  std::vector<cv::Mat> imgshowFrames;
+  for(int i = 0; i < 7; ++i){
+    cv::Mat frame = cv::Mat::zeros(160,120,CV_8U);
+    frame = (frame.reshape(0,1));
+    imgshowFrames.push_back(frame);
+  }
+  int imgSize = imgshowFrames[0].total() * imgshowFrames[0].elemSize();
 
-  // Image Showing
-  bool imgshowstate[6] = {false};
+  // Timers
+  Timer ardHeartbeat = Timer(2000);
+  Timer mcHeartbeat = Timer(2000);
+  Timer heartbeat = Timer(500);
+  Timer cameraRequests[6];
+  for(int i = 0; i < 6; ++i){
+    cameraRequests[i] = Timer(500);
+  }
 
   // Loop
   while(1){
+    // Updates
+    t = Clock::now();
     comm.update();
     //commBytes.update();
 
-    // Assume Arduino keeps track of states & just updates, but pi should keep track too
+    // MC In
+    std::string MC_msg_in;
     if(comm.recvAvail()){
-      std::string msg = comm.recv();
-      std::cout << "Recieved, ";
-      //t1 = Clock::now();
-      //ms = std::chrono::duration_cast<Millis>(t1-t0);
-      //std::cout << "(took: " << ms.count() << "ms)";
-      if(arduino.isOpen()){
-        arduino.write(msg);
-        //t2 = Clock::now();
-        //ms = std::chrono::duration_cast<Millis>(t2-t1);
-        std::cout << " and Sent: " << msg /*<< " (took " << ms.count() << " ms)"*/ << std::endl;
-        //std::cout << "Got back: " << arduino.readline() << std::endl;
-        //t3 = Clock::now();
-        //ms = std::chrono::duration_cast<Millis>(t3-t2);
-        //std::cout << "(Readline takes " << ms.count() << " ms)\n";
+      mcHeartbeat.sync();
+      if((MC_msg_in = comm.recv()) != "."){
+        // Parse MC input
+        for(auto iv : fmt_MC.parse(MC_msg_in,motor_msg_fmt,motor_fmt){
+          motorState[iv.i] = iv.v;
+        }
+        for(auto iv : fmt_MC.parse(MC_msg_in,imgshow_msg_fmt)){
+          imgshowState[iv.i] = iv.v;
+        }
       }
-      /*imgcmd=parse(msg,"Imgshow_msg");
+    }else if(mcHeartbeat.isTriggered()){
       for(int i = 0; i < 6; ++i){
-        imgshowstate[i]=imcmd[i].v;
-          //need to send image from camera i //https://stackoverflow.com/questions/20314524/c-opencv-image-sending-through-socket
-          //need to convert to grayscale and smaller (~40x40? pixels) //open cv 3
-      }*/
+        motorState[i] = 1500;
+      }
     }
-/*
-    for (int i = 0; i < 6; ++i){
-      Mat frame;
-      frame = (frame.reshape(0,1)); // to make it continuous
-      int  imgSize = frame.total()*frame.elemSize();
-      //convert to grayscale
-      cvtColor( frame, gray_image, COLOR_RGB2GRAY ); //TODO:check RGB or BGR
-      //make smaller
-      resize(gray_image, final_image, final_image.size(), 0.5, 0.5);
-
-      // Send data here
-      commBytes.send(final_image.data());
-      //bytes = send(clientSock, frame.data, imgSize, 0))
-      //t = Clock::now();
-      //ms = std::chrono::duration_cast<Millis>(t-t0);
-      //std::cout << "Duration of loop: " << ms.count() << "ms\n";
-      //t0 = t; t1=t0; t2=t0; t3=t0;
-
-    }
-*/
     
-    t = Clock::now();
-    Millis ms = std::chrono::duration_cast<Millis>(t-t0);
-    if(ms.count() > 500){
-      comm.send(".\n");
-      t0 = t;
-    }
+    // Arduino In; Use futures to rm lag?
+    if(ardIn.valid() && ardIn.wait_for(Millis(1)) == std::future_status::ready){
+      std::string Ard_msg_in = ardIn.get();
+      ardIn = std::async(std::launch:::async, []()(arduino.readline('\n')));
+      ardHeartbeat.sync();
+      if(Ard_msg_in != "."){
+        for(auto iv : fmt_Ard.parse()){
 
+        }
+      }
+    }else if(ardHeartbeat.isTriggered()){
+      for(int i = 0; i < 6; ++i){
+        motorState[i] = 1500;
+      }
+    }
+        
+    // UP In
+
+    // UP Out
+    // Fill frames: 160x120, greyscale 255 uchar
+    // Write motors
+    
+    // Arduino Out (Only Motors)
+      if(arduino.isOpen()){
+        for(int i = 0; i < 6; ++i){
+          fmt_Ard.add("Motors",motorState[i],"Motor_msg");
+        }
+        arduino.write(MC_msg_in);
+      }
+
+    // MC Out (Stats & messages through comm, images through commBytes)
+    // Images
+    for(int i = 0; i < 7; ++i){
+      if(imgshowState[i]){
+        imgshowFrames[i][0] = i; // This is an ID tag, unnoticable
+        //commBytes.sendBytes(imgshowFrames[i].data,imgSize);
+      }
+    }
+    // Messages?
+
+    // Heartbeat
+    if(heartbeat.isTriggered()){ // This one is supposed to trigger, instigator
+      comm.send(".\n");
+      arduino.write(".\n");
+      heartbeat.sync();
+    }
+    
+    // Security? Should reboot connection, try to reconnect
     while(comm.isCommClosed()){
       printf("Rebooting Connection\n");
       comm.reboot();
