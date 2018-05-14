@@ -20,6 +20,7 @@ int main(){
   std::cout<<port<<std::endl;
 
   //Send command
+  serial::Serial my_serial(port, 115200);
   if(my_serial.isOpen()){
     my_serial.write(0x0c, 0x00);
   }
