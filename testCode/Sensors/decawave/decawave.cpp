@@ -44,7 +44,7 @@ void Decawave::updateSamples(){
 
   //array to hold bytes received from decawave
   unsigned char result[61];
-  std::memset(result, 0, sizeof result)
+  std::memset(result, 0, sizeof result);
 
   //read bytes from decawave
   int counter =0;
