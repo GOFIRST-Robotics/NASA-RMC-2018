@@ -20,7 +20,7 @@ public:
   coordinate getPos();
 private:
   int index;
-  Serial::Serial my_serial;
+  serial::Serial my_serial;
   unsigned long int *anchor1[8];//was a double before...
   unsigned long int *anchor2[8];
   coordinate anchor1Pos;
