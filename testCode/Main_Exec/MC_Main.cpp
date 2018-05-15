@@ -6,12 +6,16 @@
 #include <string>
 #include <chrono>
 #include <iostream>
+#include <vector>
 #include <sys/stat.h>
+#include <thread>
+#include <future>
 
 #include "Telecomm.h"
 #include "Formatter.hpp"
 #include "joystick.hh"
 
+#include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 //#define TANK 
@@ -30,6 +34,14 @@
 #define M4_LinActDown_Button 7
 #define Kill1 0
 #define Kill2 3
+
+// Async func to load an image off comm: frames just like frames vec below
+/*void recvImages(Telecomm& cm, std::vector<cv::Mat> & frames, int numel){
+  while(!cm.recvAvail());
+  char buf[numel];
+  cm.recv(buf,numel);
+  memcpy(frames[*buf].ptr(), buf, numel);
+}*/
 
 int main(){
   // Initialize classes
@@ -93,8 +105,21 @@ int main(){
   Clock::time_point t = t0;
 
   // Showing
-  bool imgshowstate[6] = {false};
-  const char imgtriggerkey[] = {'a','s','d','f','g','h'};
+  //bool imgshowstate[6] = {false};
+  //const char imgtriggerkey[] = {'a','s','d','f','g','h'};
+ /* const int height = 160, width = 120;
+  // 0: Back; 1: Lfront; 2: Rfront; 3: Lback; 4: Rback; 5: RealSense-RGB; 6: RealSense-D
+  const std::string names[] = {"Back", "FrontLeft", "FrontRight", "BackLeft", 
+                                "BackRight", "RealSense-RGB", "RealSense-D"};
+  std::vector<cv::Mat> frames(7,cv::Mat::zeros(height,width,CV_8U));
+  const int imgSize = frames[0].total() * frames[0].elemSize();
+  for(int i = 0; i < 7; ++i){
+    frames[i] = (frames[i].reshape(0,1));
+  }*/
+ // auto frameIn = std::async(std::launch::async, [&](){recvImages(commBytes,frames,imgSize);});
+  // Windows
+  //for(int i = 0; i <= 4; i += 2)
+   // cv::namedWindow(names[i]);
 
   // Loop
   while(1){
@@ -156,7 +181,7 @@ int main(){
     }*/
     
     // Request videostream
-    char c = (char)cv::waitKey(1);
+/*    char c = (char)cv::waitKey(1);
     for (int i = 0; i < 6; ++i){
       if (c == imgtriggerkey[i]){
         imgshowstate[i] = ! imgshowstate[i];
@@ -164,8 +189,18 @@ int main(){
         comm.send(fmt.emit());
         break;
       }
+    }*/
+
+    // Constantly Get VideoStreams
+ /*   if(frameIn.valid() && frameIn.wait_for(Millis(1)) == std::future_status::ready){
+      frameIn.get();
+      frameIn = std::async(std::launch::async, [&](){recvImages(commBytes,frames,imgSize);});
     }
-    
+*/
+    // Display: Back 0, Rfront 2, Rback 4
+    //for(int i = 0; i <= 4; i += 2)
+    //  cv::imshow(names[i],frames[i]);
+      
     if(copyVals != motorVals){
       fmt.add("Motors_msg",motorVals,"JS_In");
       std::string msg = fmt.emit();
