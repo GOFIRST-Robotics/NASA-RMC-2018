@@ -22,8 +22,8 @@ public:
 private:
   int index;
   serial::Serial my_serial;
-  long unsigned int anchor1[8];//was unsigned long int *was a double before...
-  long unsigned int anchor2[8];
+  double *anchor1[8];//was unsigned long int *was a double before...
+  double *anchor2[8];
   coordinate anchor1Pos;
   coordinate anchor2Pos;
   double anchorSeparation;
