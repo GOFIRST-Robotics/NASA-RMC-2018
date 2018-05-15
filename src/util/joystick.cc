@@ -1,5 +1,5 @@
 // joystick.cc
-// VERSION 1.0.0
+// VERSION 1.1.0
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,8 +25,12 @@
 #include <sstream>
 #include "unistd.h"
 
+struct stat statBuf;
+std::string name;
+
 Joystick::Joystick()
 {
+  name = "/dev/input/js0";
   openPath("/dev/input/js0");
 }
 
@@ -34,16 +38,19 @@ Joystick::Joystick(int joystickNumber)
 {
   std::stringstream sstm;
   sstm << "/dev/input/js" << joystickNumber;
+  name = sstm.str();
   openPath(sstm.str());
 }
 
 Joystick::Joystick(std::string devicePath)
 {
+  name = devicePath;
   openPath(devicePath);
 }
 
 Joystick::Joystick(std::string devicePath, bool blocking)
 {
+  name = devicePath;
   openPath(devicePath, blocking);
 }
 
@@ -67,7 +74,7 @@ bool Joystick::sample(JoystickEvent* event)
 
 bool Joystick::isFound()
 {
-  return _fd >= 0;
+  return _fd >= 0 && (stat (name.c_str(), &statBuf) == 0);
 }
 
 Joystick::~Joystick()
