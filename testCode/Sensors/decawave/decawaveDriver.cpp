@@ -1,4 +1,4 @@
-//g++ decawaveDriver.cpp -std=c++11 -lserial decawave.cpp
+//g++ decawaveDriver.cpp -std=c++11 decawave.cpp -lserial
 
 
 #include "decawave.h"
