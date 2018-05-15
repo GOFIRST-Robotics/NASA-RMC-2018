@@ -1,3 +1,5 @@
+//g++ decawaveDriver.cpp -std=c++11 -lserial
+
 #include "decawave.h"
 
 #include <string>
