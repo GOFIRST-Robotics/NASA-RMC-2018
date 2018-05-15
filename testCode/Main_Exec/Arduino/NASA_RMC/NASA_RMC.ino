@@ -31,8 +31,8 @@ int USDpin = 42;
 int DSUpin = 44;
 int DSDpin = 46;
 
-int LIDAR_L_ENABLE_PIN=50;
-int LIDAR_R_ENABLE_PIN=52;
+int LIDAR_L_ENABLE_PIN = 50;
+int LIDAR_R_ENABLE_PIN = 52;
 
 int DPOTpin = A0;
 
@@ -52,15 +52,14 @@ bool limitLinearDown = false;
 bool limitUnloaderUp = false;
 bool limitUnloaderDown = false;
 
-const int NUM_MOTORS=5;
+const int NUM_MOTORS = 5;
 int motorVals[NUM_MOTORS] = {1500, 1500, 1500, 1500, 1500};
 String inData = "";
 
-bool first_packet = false;
 
 bool debug = false;
 unsigned long previous_time;
-const unsigned long timeout=2000;
+const unsigned long timeout = 2000;
 
 val_fmt encoder_fmt = {"Encoder", '\0', 6, -80000, 80000, 0, 80000};
 val_fmt encoder_msg_fmt = {"Encoder_msg", '@', 6, 0, 160000, 80000, 80000};
@@ -71,9 +70,10 @@ val_fmt limit_msg_fmt = { // Records / passes the hard real limits
   "Limit_msg", // Same for sending & utilizing
   '#', 1, // sym, 1 char
   0, 3, // not at lim, 0; at hard down, 1; at hard up, 2; both/error, 3
-  0, 3}; // Same scale/offset changes nothing
+  0, 3
+}; // Same scale/offset changes nothing
 
-val_fmt formats[] = {encoder_fmt, encoder_msg_fmt, motor_msg_fmt, motor_fmt,limit_msg_fmt};
+val_fmt formats[] = {encoder_fmt, encoder_msg_fmt, motor_msg_fmt, motor_fmt, limit_msg_fmt};
 
 Formatter fmt = Formatter(5, formats);
 
@@ -82,6 +82,8 @@ Formatter fmt = Formatter(5, formats);
 
 long E0_val = 0;
 long E1_val = 0;
+
+unsigned long t0 = millis();
 
 void setup() {
   M0.attach(M0_Pin);
@@ -120,64 +122,61 @@ void setup() {
 
   M5.writeMicroseconds(1500);
 
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 void loop() {
   MotorControl();
-  
-  // Update and add encoders  
-  long val0 = E0.read();
-  long val1 = E1.read();
+  // Update and add encoders
+  long val0 = 0;//E0.read();
+  long val1 = 0;//E1.read();
   if (val0 != E0_val) {
-    fmt.add("Encoder_msg", 0, val0 - E0_val, "Encoder");
+    //fmt.add("Encoder_msg", 0, val0 - E0_val, "Encoder");
     E0_val = val0;
   }
   if (val1 != E1_val) {
-    fmt.add("Encoder_msg", 1, val1 - E1_val, "Encoder");
+    //fmt.add("Encoder_msg", 1, val1 - E1_val, "Encoder");
     E1_val = val1;
   }
-
   // Add position states
-  fmt.add("Limit_msg",0,(int)(dhd == HIGH),"Limit_msg"); // Digger
-  fmt.add("Limit_msg",1,(int)(uhd == HIGH) + 2*(int)(uhu == HIGH),"Limit_msg"); // Unloader
+  //fmt.add("Limit_msg",0,(int)(dhd == HIGH),"Limit_msg"); // Digger
+  //fmt.add("Limit_msg",1,(int)(uhd == HIGH) + 2*(int)(uhu == HIGH),"Limit_msg"); // Unloader
   // LinPot
-
   //Serial.print(fmt.emit());
+  if (millis() - t0 > 500) {
+    Serial.println(".");
+    t0 = millis();
+  }
 }
 
 // Handles motor functionality written by Logan and Karl, (doesn't do fmt.add's anywhere)
-void MotorControl(){
+void MotorControl() {
   //  dhd = LOW;
   //  uhu = LOW;
   //  uhd = LOW;
 
   unsigned long current_time = millis();
 
-  if (current_time - previous_time > timeout && !debug) {
-    for(int i=0;i<NUM_MOTORS;i++) { 
-      motorVals[i]=1500;
+  /*if (current_time - previous_time > timeout && !debug) {
+    for (int i = 0; i < NUM_MOTORS; i++) {
+      motorVals[i] = 1500;
     }
     M5.writeMicroseconds(1000);
-  }
+  }*/
 
   // Update motorVals[] with new values, if avail
   if (Serial.available() > 0) {
     inData = Serial.readStringUntil('\n');
-    //if (inData != ".") {
-      Serial.println(inData);
-    //}
-    IV_list* list = fmt.parse(inData.c_str(), "Motors_msg", "Motors");
-    inData = "";
-    IV* ivPtr;
-    while (ivPtr = fmt.nextIV(list)) {
-      motorVals[ivPtr->i] = ivPtr->v;
-      free(ivPtr);
-    };
-    previous_time = millis();
-    if (!first_packet) {
-      first_packet = true;
+    if (inData != "" && inData[0] != '.') {
+      IV_list* list = fmt.parse(inData.c_str(), "Motors_msg", "Motors");
+      inData = "";
+      IV* ivPtr;
+      while (ivPtr = fmt.nextIV(list)) {
+        motorVals[ivPtr->i] = ivPtr->v;
+        free(ivPtr);
+      };
     }
+    previous_time = millis();
   }
   // Do other sensors processing here
   // Limiting sensors, set to 0 or neg the respective motor at limit
@@ -214,7 +213,7 @@ void MotorControl(){
     }
   }
 
-  if(digitalRead(UHDpin) == HIGH) {
+  if (digitalRead(UHDpin) == HIGH) {
     if (motorVals[2] < 1500) {
       motorVals[2] = 1500;
     }
@@ -227,7 +226,7 @@ void MotorControl(){
     }
   */
 
-//  Serial.println(analogRead(DPOTpin));
+  //  Serial.println(analogRead(DPOTpin));
 
   if (dhd == HIGH) {
     //    Serial.println("DHD");
@@ -250,7 +249,7 @@ void MotorControl(){
     if (motorVals[2] < 1500) {
       motorVals[2] = 1500;
     }
-  }*/
+    }*/
 
   //  delay(100);
 
@@ -259,7 +258,7 @@ void MotorControl(){
   if (motorVals[3] < 1500) {
     motorVals[3] = 1500;
   }
-  
+
   M0.writeMicroseconds(motorVals[0]);
   M1.writeMicroseconds(motorVals[1]);
   M2.writeMicroseconds(limiter(motorVals[2], limitUnloaderDown, limitUnloaderUp, 150 ));
@@ -267,19 +266,17 @@ void MotorControl(){
   M4.writeMicroseconds(limiter(motorVals[4], limitLinearDown, limitLinearUp, 125));
   if (motorVals[3] > 1500) {
     M5.writeMicroseconds(1300);
-  }
-  else { 
-  //else if (first_packet) {
+  }else{
     M5.writeMicroseconds(1000);
   }
 }
 
 // Below methods used by the MotorControl method
-int limiter(int input, bool lowerLimit, bool upperLimit, int speedLimit){
-  if(upperLimit && input > 1500 && input-1500 > speedLimit){
+int limiter(int input, bool lowerLimit, bool upperLimit, int speedLimit) {
+  if (upperLimit && input > 1500 && input - 1500 > speedLimit) {
     return speedLimit + 1500;
   }
-  else if(lowerLimit && input < 1500 && 1500-input > speedLimit) {
+  else if (lowerLimit && input < 1500 && 1500 - input > speedLimit) {
     return 1500 - speedLimit;
   }
   else {

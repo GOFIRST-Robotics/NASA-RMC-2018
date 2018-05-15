@@ -10,4 +10,56 @@ As of today, MC_Main (w/o doing image-y stuff) compiles. Untested pre-commit/sen
 Fixed up Arduino main code some. It... ... ... has some cleaning to be done. But if it works, no complaints. 
 RPI main also added serial read through futures to not-block, untested. 
 
+2018 May 14th-ish: Jude
+Working chiefly on the teleop. Weird bugs with: writing data to arduino/serial, but it not getting it or something.
+Probs fixed: serial::readline(c++/pi) takes NO ARGUMENTS. Certainly not the \n, it's by default. 
+There's weird interplay between commenting random stuff in and out. 
+After many frusterating & bewildering hours, my recommendation for approaching the problem is to add both receivers to both sides, to parse the received, but then to add in and comment out more send commands. Why does commenting out X make it work? Why does sending Y make it work? 
+I wish I knew. I wish I knew. 
+In the RPI_Main class, current "settings" are: 115200 baud, port found by searching all port descriptions for "UART", simple timeout of 1000 (a la example);  readline (which normally should block for 50-70 ms), thrown in own thread (auto ardIn = std::async(std::launch::async, [&](){return arduino.readline();});); 
+Changing settings: 
+1) 500ms heartbeat commented out, 
+2) On change of motor vals, make a msg out of it, arduino.write(fmt.emit()+"\n")(might be some double \n action here),
+3) if 1ms wait_for for thread (slowest thing in entire loop) and not "."(should change to just check first char, b/c poss weird endings (CR,\n\n,etc)) then print bunch of stats about it.
+Arduino side: 
+1) nothing adding to fmt at all. 
+2) only read/send is Serial.readStringUntil('\n'); if != . then print data & it's length to serial. 
+
+Motor control seems to work on this... Beginning to add changes.
+1) change: if(msg != ".") to if(msg != "" && msg[0] != '.'); it should be it's own msg, on pi, it's arduino.write(".\n"); directly, no fmt
+Result: still worked. Cleaner output onto rpi terminal, only reports now when I send it something interesting. The timeout still worked: I toggled the digger, then killed rpi prog, died after 2ish sec. 
+2) Timeout on pi if ard stops sending, aka add heartbeat to ard. Right now: Commented out serial prints on ard, nothing being sent from there. 
+Result: idk. There also wasn't anything going to ard, ard timeout?
+3) Pi heartbeat to arduino. uncomment that
+Result: everything stopped working. Commented out the pi to mc heartbeat, added printout in calling if statement to check frequency. Didn't start to work, but only sending every 1/2 second as supposed to. 
+Adding heartbeat to ard: Didn't fix anything. 
+Commenting out pi to ard heartbeat: Working again. The timeout activates easily, aka if nothing sent, as supposed to. But we want it to not, b/c of heartbeat. 
+Formatter won't allow "." as a valid symbol, but doesn't matter for anything but formatter initialization. 
+Adjusted pi to print off all non-empty msgs from ard, including heartbeats. Is ard getting stuck?
+Result: so far so good, not sending pi to ard beat. With beat: this might be important, received 1 msg from arduino, then none. It's getting stuck somewhere. 
+4) Making some arduino changes: there's this first packet code, useless, deleting it. 
+Chiefly: Only doing parsing if not empty or dot. Previously, the ard code for doing special stuff with dot or empty was in the printing out of serial. now parsing is moving in there. previous_time, for detecting shutoff, is the only guarenteed thing under if(serial avail). 
+Result: got nothing back from arduino. Adding ard prints just inside reading line & after that serial block, to see if we get there. It seems to never get past readline? After the first bit of data sent to it? 
+I'm not even sure it's getting into the receive data block. 
+Added more print statements to arduino: it seems to stop working as soon as I send, but perhaps between motor control and ard beat, which is encoder read??
+5) commenting out encoder read in ard. 
+Result: No change. 
+6) changing pi to ard symbol from '.' to '=' : nothing. Not even sure where arduino gets stuck, due to later starting print statement times. might be after serial read, before end of motor control?
+Going back to commented out on pi: Worked again???
+Does it even read the heartbeat?
+Changing heartbeat to write(".\n\n"); : Result: didn't fix. The last ard msg tho cut in the middle of itself. 
+Added small delay 5ms to ard: nada. 
+7) Changing "Heatbeat '.'" to full motor state write on pi, undid most/all test changes above. Still many comments in ard code
+Result: didn't work?? Testing with that commented out again: works just as before. 
+Is sending it "there" disruptive, somehow??
+Removing serial prints from arduino. 
+In pi, the normal/working write to ard is in if(ard.isOpen), which should be fine, right? right?  Adding that if to the standard . heartbeat: Result: still prob. 
+What if I move timer + heartbeat into the ard out/write section?
+Result: same????????
+The Arduino In section, is supposed to have a time-out if not receiving from arduino, as it's been , but it hasn't. 
+Whenever isTriggered was called for a timer, it would update/sync values. this is commented out: nada
+Moved the syncing of the trigger update/sync for the input into the if condition for a non empty string being received: That caused it to propery trigger. Keeping this change. 
+Commenting out the new arduino beat write in the out section: Working well? Everything seems to be working well, accept the timeout on ard b/c no reg sig from pi. 
+Added syncing to both sides of out if/elseif - won't "send" beat if send motor val. 
+Result: everything still seeming to work well, but still catching the 2 sec max lim. 
 

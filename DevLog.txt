@@ -338,3 +338,10 @@ IF YOU DONT DO THIS THE NAVX WILL THROW COMPILER ERRORS REEEEEEEEEEEE
 
 2018 May 13th: Jude
 Major refactoring of MC_Main, RPI_Main. Most structures, states, infrastructure written, sections charted out and mapped. No interaction yet between RPI and Up board. No advanced code written. At competition. Images almost working. Compiles (w/o navx, cameras, localization/decawave) on MC and Arduino, RPI untested. MC laptop (mine) has successful non-cuda opencv compile, errors compiling with cuda, irrelevant now. 
+
+2018 May 15th: Jude
+Progress stumped by making the infrastructure robust. 
+All of it, however, is now futile. The competition has been moved from 1 run in 1.5 days and another in 3, to just 1 run today. 
+In light of this (weather), minimal non-robust functionality is accepted. 
+However, it still seems to be robust between MC and RPI, which is acceptable. 
+Next functionality: vision. Streaming from RPI to Telecomm. 
