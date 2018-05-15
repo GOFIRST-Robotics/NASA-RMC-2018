@@ -1,5 +1,5 @@
 // Formatter.cc
-// VERSION 1.0.0
+// VERSION 1.1.0
 #include "Formatter.hh"
 #include <assert.h>
 #include <string.h>
@@ -277,6 +277,7 @@ IV_list* Formatter::parse(char message[], const char from_data_t[], const char t
   const val_fmt* from_fmt = getFormat(from_data_t);
   assert(from_fmt);
   const val_fmt* to_fmt = getFormat(to_data_t);
+  assert(to_fmt);
   for(int i = 0, len = (unsigned)strlen(message); i < len; ++i){
     if(message[i] == from_fmt->symbol){
       struct IV_list* newFirst = (struct IV_list*) malloc(sizeof(struct IV_list));
@@ -323,6 +324,7 @@ IV_float_list* Formatter::parseFloat(char message[], const char from_data_t[], c
   const val_fmt* from_fmt = getFormat(from_data_t);
   assert(from_fmt);
   const val_fmt* to_fmt = getFormat(to_data_t);
+  assert(to_fmt);
   for(int i = 0, len = (unsigned)strlen(message); i < len; ++i){
     if(message[i] == from_fmt->symbol){
       struct IV_float_list* newFirst = (struct IV_float_list*) malloc(sizeof(struct IV_float_list));

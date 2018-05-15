@@ -6,6 +6,7 @@
 #include <string>
 #include <chrono>
 #include <iostream>
+#include <sys/stat.h>
 
 #include "Telecomm.h"
 #include "Formatter.hpp"
@@ -79,6 +80,7 @@ int main(){
     return 22;
   }
   comm.fdAdd(js.fd());
+  struct stat jsBuffer;
 
   // State, JS_In format
   std::vector<IV> motorVals = {{0,0},{1,0},{2,0},{3,0},{4,0}};
@@ -140,7 +142,18 @@ int main(){
       if(event.isButton() && (event.number == Kill1 || event.number == Kill2)){
         for(int i = 0; i < 5; ++i){
           motorVals[i].v = 0;}}
-    }
+    }/*else if(!js.isFound()){ // In case joystick disconnects
+      for(int i = 0; i < 5; ++i){
+        motorVals[i].v = 0;
+        fmt.add("Motors_msg", motorVals, "JS_In");
+        comm.send(fmt.emit());
+        while(!js.isFound()){
+          std::cout << "Rebooting: Connect Joystick!\n";
+          (&js)->~Joystick();
+          new (&js) Joystick();
+        }
+      }
+    }*/
     
     // Request videostream
     char c = (char)cv::waitKey(1);

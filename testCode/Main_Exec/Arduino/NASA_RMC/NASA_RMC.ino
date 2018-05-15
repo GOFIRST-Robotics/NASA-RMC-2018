@@ -143,7 +143,7 @@ void loop() {
   fmt.add("Limit_msg",1,(int)(uhd == HIGH) + 2*(int)(uhu == HIGH),"Limit_msg"); // Unloader
   // LinPot
 
-  Serial.print(fmt.emit());
+  //Serial.print(fmt.emit());
 }
 
 // Handles motor functionality written by Logan and Karl, (doesn't do fmt.add's anywhere)
@@ -164,6 +164,9 @@ void MotorControl(){
   // Update motorVals[] with new values, if avail
   if (Serial.available() > 0) {
     inData = Serial.readStringUntil('\n');
+    //if (inData != ".") {
+      Serial.println(inData);
+    //}
     IV_list* list = fmt.parse(inData.c_str(), "Motors_msg", "Motors");
     inData = "";
     IV* ivPtr;
