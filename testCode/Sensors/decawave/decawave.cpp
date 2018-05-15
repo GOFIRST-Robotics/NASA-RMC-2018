@@ -6,7 +6,6 @@
 #include <math.h>
 
 #include <serial/serial.h>
-#include <dwm_api.h>
 
 Decawave::Decawave(){
   int index=0;
@@ -36,13 +35,15 @@ void Decawave::updateSamples(){
   }
   char result[100];
   std::memset(result, 0, sizeof result)
-  my_serial.read(result,0x51);
+
 
   if (index>7){
     index=0;
   }
+  my_serial.read(result,0x51);
   anchor1[index]=(((((result[17]<<8)|(result[18]))<<8)|(result[19]))<<8)|(result[20]);//TODO:where in result
-  anchor2[index]=result[];
+  my_serial.read(result,0x51);
+  anchor2[index]=(((((result[17]<<8)|(result[18]))<<8)|(result[19]))<<8)|(result[20]);
   index+=1;
 }
 

@@ -22,12 +22,12 @@ int main(){
   //Send command
   serial::Serial my_serial(port, 115200);
   if(my_serial.isOpen()){
-    my_serial.write(0x0c, 0x00);
+    my_serial.write(std::vector<unsigned char){0x0c, 0x00}>;
   }
 
   //Get back data
-  char result[100];
-  std::memset(result, 0, sizeof result)
+  unsigned char result[100];
+  std::memset(result, 0, sizeof result);
   my_serial.read(result,0x51);
 
   //See what the heck the data looks like
