@@ -22,7 +22,7 @@ int main(){
   piTag.updateSamples();
   piTag.updateSamples();
   piTag.updateSamples();
-  Decawave::coordinate tagPos= piTag.getPos();
+  coordinate tagPos= piTag.getPos();
   std::cout<<std::endl<<" "<<tagPos.x<<" "<<tagPos.y<<" "<<std::endl;
   return 0;
 }
