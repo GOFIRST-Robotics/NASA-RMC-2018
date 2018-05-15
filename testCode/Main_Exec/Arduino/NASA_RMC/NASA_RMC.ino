@@ -1,5 +1,5 @@
 // NASA_RMC.ino
-// VERSION 2.1.0
+// VERSION 2.2.0
 
 // Arduino code for motor control and sensor reporting
 
@@ -41,7 +41,7 @@ int M1_Pin = 10; // Right Drive Motor  B  Red
 int M2_Pin = 12; // Unloader Motor     C  Yellow
 int M3_Pin = 11; // Digger Motor       D  Orange
 int M4_Pin = 13; // LinAct Motor       E
-int M5_Pin = 8; // Digger Agitator
+int M5_Pin = 8; // Digger Agitator     F
 
 volatile byte dhd = LOW;
 volatile byte uhu = LOW;
@@ -52,17 +52,19 @@ bool limitLinearDown = false;
 bool limitUnloaderUp = false;
 bool limitUnloaderDown = false;
 
-const int NUM_MOTORS = 5;
-int motorVals[NUM_MOTORS] = {1500, 1500, 1500, 1500, 1500};
+const int NUM_MOTORS = 6;
+int motorVals[NUM_MOTORS] = {1500, 1500, 1500, 1500, 1500, 1500};
 String inData = "";
 
+// Lin pot voltage locations: 
+int linPot = 0;
 
 bool debug = false;
 unsigned long previous_time;
 const unsigned long timeout = 2000;
 
-val_fmt encoder_fmt = {"Encoder", '\0', 6, -80000, 80000, 0, 80000};
-val_fmt encoder_msg_fmt = {"Encoder_msg", '@', 6, 0, 160000, 80000, 80000};
+val_fmt encoder_fmt = {"Encoder", '\0', 6, -10000, 10000, 0, 20000};
+val_fmt encoder_msg_fmt = {"Encoder_msg", '@', 6, 0, 20000, 10000, 10000};
 val_fmt motor_msg_fmt = {"Motors_msg", '!', 3, 0, 200, 100, 100};
 val_fmt motor_fmt = {"Motors", '\0', 4, 1000, 2000, 1500, 500};
 // Add: LinPot, Hard Limits
@@ -138,6 +140,7 @@ void loop() {
     //fmt.add("Encoder_msg", 1, val1 - E1_val, "Encoder");
     E1_val = val1;
   }
+  linPot = analogRead(DPOTpin);
   // Add position states
   //fmt.add("Limit_msg",0,(int)(dhd == HIGH),"Limit_msg"); // Digger
   //fmt.add("Limit_msg",1,(int)(uhd == HIGH) + 2*(int)(uhu == HIGH),"Limit_msg"); // Unloader
@@ -264,10 +267,7 @@ void MotorControl() {
   M2.writeMicroseconds(limiter(motorVals[2], limitUnloaderDown, limitUnloaderUp, 150 ));
   M3.writeMicroseconds(map(motorVals[3], 1500, 2000, 1000, 2000));
   M4.writeMicroseconds(limiter(motorVals[4], limitLinearDown, limitLinearUp, 125));
-  if (motorVals[3] > 1500) {
-    M5.writeMicroseconds(1300);
-  }else{
-    M5.writeMicroseconds(1000);
+  M5.writeMicroseconds(motorVals[5]);
   }
 }
 
