@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
+#include <serial/serial.h>
 
 struct coordinate{
   double x;
