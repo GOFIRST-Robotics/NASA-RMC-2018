@@ -1,0 +1,48 @@
+this is in binary, on the online thingy it is hexadecimal
+
+OUTPUT FRAME: 
+40 01 00 41 0d 00 00 00 00 00 00 00 00 00 00 00 00 00 49 29 
+02 82 d7 eb 04 00 00 64 00 00 00 00 00 00 00 00 00 00 00 00 
+64 0f 93 93 07 00 00 64 00 00 00 00 00 00 00 00 00 00 00 00 
+64 
+
+
+
+errreor code (3 bytes)
+64  1  0  
+
+position (15 bytes)
+t:65  l:13  v:0  0  0  0  0  0  0  0 0 0  0   0  0 
+
+dist.cnt (#of distances to anchors) =(1 byte)
+t:73 l:41 v:2 (2 for 2 anchor nodes) (20 bytes each)
+
+an1:
+dist.adder (2 or 8 bytes * dist.cnt)
+    130 
+    215
+dist.dist distances to anchors (4 bytes each)
+
+  50  5  0  0
+
+dist.qf (quality factor) (1 byte per anchor)
+  
+ 100 
+ 
+ an_pos.cnt (13 bytes) (# anchor positions)
+ 0 0  0  0  0  0  0  0  0  0  0  0  100 
+ 
+ an2:
+ dist.adder
+ 15
+ 147  
+ dist.dist
+ 213  4  0  0  
+ 
+dist.qf
+ 100  
+ 
+an_pos.cnt (13 bytes)
+ 0  0  0  0  0  0  0  
+ 
+ 0  0  0  0  0  100  
