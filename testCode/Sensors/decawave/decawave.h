@@ -10,7 +10,7 @@
 struct coordinate{
   double x;
   double y;
-}
+};
 
 class Decawave{
 public:
