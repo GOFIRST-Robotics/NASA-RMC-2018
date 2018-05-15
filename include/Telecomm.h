@@ -1,6 +1,6 @@
 #ifndef TELECOMM_H
 #define TELECOMM_H
-// VERSION 1.1.1
+// VERSION 1.2.1
 
 #include <string>
 
@@ -33,7 +33,8 @@ class Telecomm {
     bool recvAvail();
     std::string recv();
     // Checks for bytes
-    int recv(char*& buf);
+    int recv(char* buf);
+    int recv(char* buf, int numel);
 
     // If connection is closed, do not continue, unless reboot'd
     bool isCommClosed();

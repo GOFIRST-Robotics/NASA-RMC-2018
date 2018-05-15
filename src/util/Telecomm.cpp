@@ -1,5 +1,5 @@
 // Telecomm.cpp
-// VERSION 1.1.1
+// VERSION 1.2.1
 
 #include "Telecomm.h"
 
@@ -286,7 +286,7 @@ std::string Telecomm::recv(){
   return std::string(buffer, numbytes);
 }
 
-int Telecomm::recv(char*& buf){
+int Telecomm::recv(char* buf){
   memset(buf, 0, sizeof(buf));
   // overwrite/define recv, want #include, use ::recv to get one def'd in global namespace
   // Set non-blocking mode
@@ -311,6 +311,37 @@ int Telecomm::recv(char*& buf){
     return -1;
   }
   return numbytes;
+}
+
+int Telecomm::recv(char* buf, int numel){
+  memset(buf, 0, sizeof(buf));
+  int tot = 0;
+  while (tot < numel){
+    // overwrite/define recv, want #include, use ::recv to get one def'd in global namespace
+    // Set non-blocking mode
+    if ((iof = fcntl(sockfd, F_GETFL, 0)) != -1)
+      fcntl(sockfd, F_SETFL, iof | O_NONBLOCK);
+    // Receive
+    numbytes = ::recv(sockfd, buf+tot, numel-tot, 0);
+    // Set flags as before
+    if (iof != -1)
+      fcntl(sockfd, F_SETFL, iof);
+    // Error checking
+    if(0 == numbytes || (errno == ECONNREFUSED && -1 == numbytes)){
+      printf("Destination closed\n");
+      ret = 9;
+      deleteWithException(true);
+      return -1;
+    }else if(-1 == numbytes){ // aka errno 111
+      perror("recv");
+      printf("Receive error check firewall settings, numbytes: %d\n", numbytes);
+      ret = 10;
+      deleteWithException(true);
+      return -1;
+    }
+    tot += numbytes;
+  }
+  return tot;
 }
 
 std::string Telecomm::simpleStatus(int i){
