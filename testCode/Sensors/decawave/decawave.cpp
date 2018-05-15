@@ -8,16 +8,21 @@
 #include <serial/serial.h>
 
 Decawave::Decawave(){
-  int index=0;
+  int index=0; //from 0 to 7, for donut array
+
+  //anchor positions - these don't change
   coordinate anchor1Pos;
   coordinate anchor2Pos;
   anchor1Pos.x=-0.825;
   anchor1Pos.y=0.0;
   anchor2Pos.x=0.825;
   anchor2Pos.y=0.0;
-  anchorSeparation=anchor2Pos.x-anchor1Pos.x;
+  anchorSeparation=anchor2Pos.x-anchor1Pos.x; //distance between the 2 anchors
+
+  //connecting via serial
   std::string port = "/dev/serial0"; // could be something else
-    // Find serial ports
+
+  // Find serial port with "SEGGER" (aka decawave attached)- currently doesn't work, defaults to ^
   std::vector<serial::PortInfo> devices_found = serial::list_ports();
   std::vector<serial::PortInfo>::iterator iter = devices_found.begin();
   while(iter != devices_found.end()){
@@ -26,22 +31,32 @@ Decawave::Decawave(){
       port = device.port;
     }
   }
+
   //Serial connection to decawave (tag)
   serial::Serial my_serial(port, 115200);
 }
+
 void Decawave::updateSamples(){
+  //sending command: dwm_loc_get (see 4.3.9 in dwm1001 api)
   if(my_serial.isOpen()){
     my_serial.write((std::vector <unsigned char>){0x0c,0x00});
   }
+
+  //array to hold bytes received from decawave
   unsigned char result[61];
   std::memset(result, 0, sizeof result)
+
+  //read bytes from decawave
   int counter =0;
   while (counter<61){
     counter+= my_serial.read(result+counter, 61-counter);
   }
+
+  //convert 2 sets of 4 byte anchor distances to ints (measured in milimeters, not real precise)
   unsigned long int an1dist= (result[23]) | (resutl[24]<<8) | (result[25]<<16) | (result[26]<<24);
   unsigned long int an2dist= (result[43]) | (resutl[44]<<8) | (result[45]<<16) | (result[46]<<24);
 
+  //store distnaces in array, keep 8 most recent
   if (index>7){
     index=0;
   }
@@ -51,7 +66,8 @@ void Decawave::updateSamples(){
 }
 
 coordinate Decawave::getPos(){
-  coordinate tagPos
+  coordinate tagPos; //caculated tag position
+
   //average the distances
   double r1=0;
   double r2=0;
@@ -68,6 +84,7 @@ coordinate Decawave::getPos(){
   tagPos.y=r1*sin(angleC)+anchor1Pos.y;
   return tagPos;
 }
+
 Decawave::~Decawave(){
-  my_serial.close();
+  my_serial.close();//close the serial port
 }
