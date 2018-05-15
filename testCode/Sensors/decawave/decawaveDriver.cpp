@@ -10,7 +10,7 @@
 #include <serial/serial.h>
 
 int main(){
-  Decawave::Decawave piTag;
+  Decawave piTag;
   //if error, may need a delay?
   piTag.updateSamples();
   piTag.updateSamples();
