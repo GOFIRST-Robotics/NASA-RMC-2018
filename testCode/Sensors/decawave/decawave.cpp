@@ -16,7 +16,7 @@ Decawave::Decawave(){
   anchor2Pos.x=0.825;
   anchor2Pos.y=0.0;
   anchorSeparation=anchor2Pos.x-anchor1Pos.x;
-  std::string port = ""; // could be something else
+  std::string port = "/dev/serial0"; // could be something else
     // Find serial ports
   std::vector<serial::PortInfo> devices_found = serial::list_ports();
   std::vector<serial::PortInfo>::iterator iter = devices_found.begin();
@@ -31,19 +31,22 @@ Decawave::Decawave(){
 }
 void Decawave::updateSamples(){
   if(my_serial.isOpen()){
-    my_serial.write(0x0c, 0x00);
+    my_serial.write((std::vector <unsigned char>){0x0c,0x00});
   }
-  char result[100];
+  unsigned char result[61];
   std::memset(result, 0, sizeof result)
-
+  int counter =0;
+  while (counter<61){
+    counter+= my_serial.read(result+counter, 61-counter);
+  }
+  unsigned long int an1dist= (result[23]) | (resutl[24]<<8) | (result[25]<<16) | (result[26]<<24);
+  unsigned long int an2dist= (result[43]) | (resutl[44]<<8) | (result[45]<<16) | (result[46]<<24);
 
   if (index>7){
     index=0;
   }
-  my_serial.read(result,0x51);
-  anchor1[index]=(((((result[17]<<8)|(result[18]))<<8)|(result[19]))<<8)|(result[20]);//TODO:where in result
-  my_serial.read(result,0x51);
-  anchor2[index]=(((((result[17]<<8)|(result[18]))<<8)|(result[19]))<<8)|(result[20]);
+  anchor1[index]=an1dist;
+  anchor2[index]=an2dist;
   index+=1;
 }
 

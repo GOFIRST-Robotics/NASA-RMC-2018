@@ -21,9 +21,8 @@ public:
 private:
   int index;
   Serial my_serial;
-  double *anchor1[8];
-  double *anchor2[8];
-  avgDists avgDist;
+  unsigned long int *anchor1[8];//was a double before...
+  unsigned long int *anchor2[8];
   coordinate anchor1Pos;
   coordinate anchor2Pos;
   double anchorSeparation;
