@@ -53,8 +53,8 @@ void Decawave::updateSamples(){
   }
 
   //convert 2 sets of 4 byte anchor distances to ints (measured in milimeters, not real precise)
-  unsigned long int an1dist= (result[23]) | (resutl[24]<<8) | (result[25]<<16) | (result[26]<<24);
-  unsigned long int an2dist= (result[43]) | (resutl[44]<<8) | (result[45]<<16) | (result[46]<<24);
+  unsigned long int an1dist= (result[23]) | (result[24]<<8) | (result[25]<<16) | (result[26]<<24);
+  unsigned long int an2dist= (result[43]) | (result[44]<<8) | (result[45]<<16) | (result[46]<<24);
 
   //store distnaces in array, keep 8 most recent
   if (index>7){
