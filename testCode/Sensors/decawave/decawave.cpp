@@ -60,8 +60,8 @@ void Decawave::updateSamples(){
   if (index>7){
     index=0;
   }
-  anchor1[index]=static_cast<double>(an1dist);//just casted as dpouble might be wrong
-  anchor2[index]=static_cast<double>(an2dist);
+  anchor1[index]=static_cast<double>(an1dist)/1000.0;
+  anchor2[index]=static_cast<double>(an2dist)/1000.0;
   index+=1;
 }
 
@@ -77,12 +77,19 @@ coordinate Decawave::getPos(){
   }
   r1=r1/8.0;
   r2=r2/8.0;
+  double d=anchorSeparation;
+  tagPos.x=(d*d-r2*r2+r1*r1)/(2.0*d); //These assume anchor 1 is at (0,0)... adjust later
+  tagPos.y=(1.0/(2.0*d))*sqrt(4.0*d*d*r1*r1-(d*d-r2*r2+r1*r1)*(d*d-r2*r2+r1*r1));
+  /*
   //find angle
-  double angleC= acos((pow(r1,2.0)+pow(anchorSeparation,2.0)-pow(r2,2.0))/(2.0*r1*anchorSeparation));//angle C in radians
+  double angleC= acos(((r1*r1)+(anchorSeparation*anchorSeparation)-(r2*r2))/(2.0*r1*anchorSeparation));//angle C in radians
   //x and y coords
   tagPos.x=r1*sin(angleC)+anchor1Pos.x;
   tagPos.y=r1*sin(angleC)+anchor1Pos.y;
-  std::cout<<r1;
+  std::cout<<r1<<" "<<r2<<" "<<std::endl;
+  std::cout<<(((r2*r2)-(anchorSeparation*anchorSeparation)-(r1*r1))/(-2.0*r1*anchorSeparation));
+  */
+  //std::cout<<tagPos.x<<" "<<tagPos.y<<std::endl;
   return tagPos;
 }
 
