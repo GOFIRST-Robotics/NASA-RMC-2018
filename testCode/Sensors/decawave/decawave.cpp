@@ -33,13 +33,13 @@ Decawave::Decawave(){
   }
 
   //Serial connection to decawave (tag)
-  serial::Serial my_serial(port, 115200);
+  my_serial.reset(new serial::Serial(port, 115200, serial::Timeout::simpleTimeout(1000)));//opens the port
 }
 
 void Decawave::updateSamples(){
   //sending command: dwm_loc_get (see 4.3.9 in dwm1001 api)
-  if(my_serial.isOpen()){
-    my_serial.write((std::vector <unsigned char>){0x0c,0x00});
+  if(my_serial->isOpen()){
+    my_serial->write((std::vector <unsigned char>){0x0c,0x00});
   }
 
   //array to hold bytes received from decawave
@@ -48,8 +48,8 @@ void Decawave::updateSamples(){
 
   //read bytes from decawave
   int counter =0;
-  while (counter<61){
-    counter+= my_serial.read(result+counter, 61-counter);
+  while (counter<61 && my_serial->isOpen()){
+    counter+= my_serial->read(result+counter, 61-counter);
   }
 
   //convert 2 sets of 4 byte anchor distances to ints (measured in milimeters, not real precise)
@@ -60,13 +60,13 @@ void Decawave::updateSamples(){
   if (index>7){
     index=0;
   }
-  anchor1[index]=an1dist;
-  anchor2[index]=an2dist;
+  anchor1[index]=static_cast<double>(an1dist);//just casted as dpouble might be wrong
+  anchor2[index]=static_cast<double>(an2dist);
   index+=1;
 }
 
 coordinate Decawave::getPos(){
-  coordinate tagPos; //caculated tag position
+  //coordinate tagPos; //caculated tag position
 
   //average the distances
   double r1=0;
@@ -82,9 +82,10 @@ coordinate Decawave::getPos(){
   //x and y coords
   tagPos.x=r1*sin(angleC)+anchor1Pos.x;
   tagPos.y=r1*sin(angleC)+anchor1Pos.y;
+  std::cout<<r1;
   return tagPos;
 }
 
 Decawave::~Decawave(){
-  my_serial.close();//close the serial port
+  my_serial->close();//close the serial port
 }
