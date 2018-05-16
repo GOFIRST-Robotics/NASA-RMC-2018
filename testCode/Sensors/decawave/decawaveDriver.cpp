@@ -17,7 +17,9 @@ int main(){
     piTag.updateSamples();
   }
   coordinate tagPos= piTag.getPos();
-  std::cout<<std::endl<<" "<<tagPos.x<<" "<<tagPos.y<<" "<<std::endl;
+  std::cout<<"Robot position:";
+  std::cout<<std::endl<<" "<<tagPos.x<<" "<<tagPos.y<<" "<<std::endl<<std::endl;
+  std::cout<<"Anchor radii"<<std::endl;
   std::cout<<piTag.anchor1[0]<<std::endl<<piTag.anchor1[7]<<std::endl;
   std::cout<<piTag.anchor2[0]<<std::endl<<piTag.anchor2[1]<<std::endl;
   return 0;
