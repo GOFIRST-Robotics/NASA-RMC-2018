@@ -27,7 +27,7 @@ class Telecomm {
 
     // Can send data at any time, no wait; if !=0, error
     int send(std::string msg);
-    int sendBytes(char* bytes, int length);
+    int sendBytes(char* bytes, unsigned long length);
 
     // Can recv data if available, check status
     bool recvAvail();

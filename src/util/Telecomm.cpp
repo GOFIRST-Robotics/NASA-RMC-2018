@@ -74,14 +74,14 @@ void resetMaxfd(){
 
 void Telecomm::reboot(){
   // Clean up old sockfd
-  FD_CLR(sockfd, &readfds);
+  //FD_CLR(sockfd, &readfds);
   resetMaxfd();
 
   // Set dst info
   memset(&hints, 0, sizeof hints);
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_DGRAM;
-
+    char a[] = "127.0.0.1";
   if((rv = getaddrinfo(dst_addr.c_str(), std::to_string(dst_port).c_str(), &hints, &dstinfo)) != 0){
     fprintf(stderr, "getaddrinfo for dst address %s\n", gai_strerror(rv));
     ret = 1;
@@ -104,21 +104,22 @@ void Telecomm::reboot(){
   if(srcinfo == NULL){ // DEBUG
     fprintf(stderr, "srcinfo is null??");
   }
-
+    // Getting first error
   for(p = dstinfo; p != NULL; p = p->ai_next){
     // Get socket from dst info
     if((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1){
       perror("socket");
       continue;
     }
+      // Get fail...
     // Bind socket src_addr info */
     if((rv = bind(sockfd, srcinfo->ai_addr, srcinfo->ai_addrlen)) != 0) {
-      perror("bind");
+        perror("bind");
       continue;
     }
     break;
   }
-
+// Getting second error
   if(p == NULL){ // Either failed to get socket to all entries
     fprintf(stderr, "Failed to get socket\n");
     ret = 2;
@@ -128,7 +129,7 @@ void Telecomm::reboot(){
     ret = 5;
     goto LBL_RET;
   }
- 
+
   // Set sock addr to be reusable
   if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1){
     perror("setsockopt");
@@ -196,17 +197,19 @@ int Telecomm::update(){
     ret = 6;
     deleteWithException(true);
   }
+
   return ret;
 }
 
-int sendall(int s, char *buf, int *len) {
-  int total = 0;        // how many bytes we've sent
-  int bytesleft = *len; // how many we have left to send
-  int n = 0;
-
+int sendall(long s, char *buf, unsigned long *len) {
+  unsigned long total = 0;        // how many bytes we've sent
+  unsigned long bytesleft = *len; // how many we have left to send
+  short n = 0;
+  unsigned short chunk = 9200;
+    
   while(total < *len) {
-    n = ::send(s, buf+total, bytesleft, 0);
-    //fprintf(stdout,"Sendall: %s\n",buf+total);
+      n = ::send(s, buf+total, chunk > bytesleft ? bytesleft : chunk, 0);
+//    fprintf(stdout,"Sendall: %s\n",buf+total);
     if (n == -1) { break; }
     total += n;
     bytesleft -= n;
@@ -236,7 +239,7 @@ int Telecomm::send(std::string msg){
   memset(buffer, 0, sizeof(buffer));
   std::strcpy(buffer, msg.c_str());
   len = msg.length();
-  if(sendall(sockfd, buffer, &len) == -1) {
+  if(sendall(sockfd, buffer, (unsigned long*)&len) == -1) {
     perror("sendall");
     fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
     ret = 8;
@@ -245,10 +248,10 @@ int Telecomm::send(std::string msg){
   return ret;
 }
 
-int Telecomm::sendBytes(char* bytes, int len){
+int Telecomm::sendBytes(char* bytes, unsigned long len){
   if(sendall(sockfd, bytes, &len) == -1) {
     perror("sendall");
-    fprintf(stderr, "We only sent %d bytes b/c of error\n", len);
+    fprintf(stderr, "We only sent %lu bytes b/c of error\n", len);
     ret = 8;
     deleteWithException(true);
   }
@@ -287,7 +290,7 @@ std::string Telecomm::recv(){
 }
 
 int Telecomm::recv(char* buf){
-  memset(buf, 0, sizeof(buf));
+  memset(buf, 0, sizeof(char));
   // overwrite/define recv, want #include, use ::recv to get one def'd in global namespace
   // Set non-blocking mode
   if ((iof = fcntl(sockfd, F_GETFL, 0)) != -1)
@@ -314,7 +317,7 @@ int Telecomm::recv(char* buf){
 }
 
 int Telecomm::recv(char* buf, int numel){
-  memset(buf, 0, sizeof(buf));
+  memset(buf, 0, sizeof(char));
   int tot = 0;
   while (tot < numel){
     // overwrite/define recv, want #include, use ::recv to get one def'd in global namespace
