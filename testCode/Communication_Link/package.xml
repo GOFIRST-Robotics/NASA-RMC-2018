@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>Communication_Link</name>
+  <version>0.0.0</version>
+  <description>The Communication_Link package</description>
+  <maintainer email="ryan@todo.todo">ryan</maintainer>
+
+  <license>"MIT"</license>
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>
